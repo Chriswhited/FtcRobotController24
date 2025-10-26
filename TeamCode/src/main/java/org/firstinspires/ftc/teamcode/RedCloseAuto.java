@@ -52,6 +52,8 @@ public class RedCloseAuto extends LinearOpMode {
         intake_motor = hardwareMap.get(DcMotor.class, "intake_motor");
         //color1 = hardwareMap.get(ColorSensor.class, "color1");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
+        franklin_flipper_right = hardwareMap.get(Servo.class, "franklin_flipper_right");
 
         configurePinpoint();
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
@@ -103,21 +105,71 @@ public class RedCloseAuto extends LinearOpMode {
         odometryDrive(0,20,0);
          */
         //flywheel on
-        odometryDrive(-44,-1,0);
-        sleep(200);//shoot
-        odometryDrive(-42,-18,140);
+
+        launch_motor_1.setPower(1);
+        odometryDrive(-44,-1,0, xMaxSpeed);
+
+        sleep(4000); //spinup flywheel
+
+        launch_motor_1.setPower(0.4);
+        sleep(1000);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1500);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(250);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1000);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(750);
+        //odometryDrive(6,-1,-22, xMaxSpeed);
+        //odometryDrive(6,1,-22, xMaxSpeed);
+        franklin_flipper_left.setPosition(1);
+        franklin_flipper_right.setPosition(.11);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+
+        odometryDrive(-43,-22,140, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(-24,-33,140);
+        odometryDrive(-24,-33,140, 0.5);
         intake_motor.setPower(0);
-        odometryDrive(-44,-1,0);
-        sleep(200);//shoot
-        odometryDrive(-57,-37,140);
+        odometryDrive(-44,-1,0, xMaxSpeed);
+
+        franklin_flipper_right.setPosition(.11);
+        sleep(1500);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(250);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1000);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(750);
+        //odometryDrive(6,-1,-22, xMaxSpeed);
+        //odometryDrive(6,1,-22, xMaxSpeed);
+        franklin_flipper_left.setPosition(1);
+        franklin_flipper_right.setPosition(.11);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+
+        odometryDrive(-57,-37,140, xMaxSpeed);
         sleep(200);//intake on
-        odometryDrive(-34,-58,140);
+        odometryDrive(-34,-58,140, xMaxSpeed);
         sleep(200);//intake off
-        odometryDrive(-44,-1,0);
+        odometryDrive(-44,-1,0, xMaxSpeed);
         sleep(200);//shoot
-        odometryDrive(-51,-23,0);
+        odometryDrive(-51,-23,0, xMaxSpeed);
         //flywheel off
 
 
@@ -131,11 +183,13 @@ public class RedCloseAuto extends LinearOpMode {
         pinpoint.resetPosAndIMU();
     }
 
-    void odometryDrive(double targetX, double targetY, double targetH){
+    void odometryDrive(double targetX, double targetY, double targetH, double speed){
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
         double lastErrorY = 0;
+        xMaxSpeed = speed;
+        yMaxSpeed = speed;
         ElapsedTime timer = new ElapsedTime();
 
         pinpoint.update();

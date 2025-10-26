@@ -52,6 +52,8 @@ public class RedFarAuto extends LinearOpMode {
         intake_motor = hardwareMap.get(DcMotor.class, "intake_motor");
         //color1 = hardwareMap.get(ColorSensor.class, "color1");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        franklin_flipper_right = hardwareMap.get(Servo.class, "franklin_flipper_right");
+        franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
 
         configurePinpoint();
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
@@ -79,7 +81,6 @@ public class RedFarAuto extends LinearOpMode {
         RevHubOrientationOnRobot orientationOnRobot = new
                 RevHubOrientationOnRobot(logoDirection, usbdirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
-
         while (opModeInInit()) {
             telemetry.addLine("Push your robot around to see it track");
             pinpoint.update();
@@ -89,6 +90,8 @@ public class RedFarAuto extends LinearOpMode {
             telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
             telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
             telemetry.update();
+            franklin_flipper_left.setPosition(.64);
+            franklin_flipper_right.setPosition(.44);
         }
 
         waitForStart();
@@ -102,22 +105,62 @@ public class RedFarAuto extends LinearOpMode {
         odometryDrive(20,20,90);
         odometryDrive(0,20,0);
          */
-        //flywheel on
-        odometryDrive(6,1,-22);
-        sleep(200);//shoot
-        odometryDrive(25,-17,90);
+        launch_motor_1.setPower(0.8);
+        odometryDrive(6,1,-22, xMaxSpeed);
+        sleep(10000); //spinup flywheel
+        franklin_flipper_right.setPosition(.11);
+        sleep(1500);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(250);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1000);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(750);
+        //odometryDrive(6,-1,-22, xMaxSpeed);
+        //odometryDrive(6,1,-22, xMaxSpeed);
+        franklin_flipper_left.setPosition(1);
+        franklin_flipper_right.setPosition(.11);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        launch_motor_1.setPower(.45);
+        odometryDrive(25,-17,90, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(25,-45,90);
+        odometryDrive(25,-45,90, 0.5);
         intake_motor.setPower(0);
-        odometryDrive(6,1,-22);
-        sleep(200);//shoot
-        odometryDrive(48,-17,90);
+        odometryDrive(6,1,-22, xMaxSpeed);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1500);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(250);
+        franklin_flipper_right.setPosition(.11);
+        sleep(1000);
+        franklin_flipper_left.setPosition(1);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        sleep(750);
+        franklin_flipper_left.setPosition(1);
+        franklin_flipper_right.setPosition(.11);
+        sleep(500);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
+        odometryDrive(48,-17,90, xMaxSpeed);
         sleep(200);//intake on
-        odometryDrive(48,-45,90);
+        odometryDrive(48,-45,90, xMaxSpeed);
         sleep(200);//intake off
-        odometryDrive(6,1,-22);
+        odometryDrive(6,1,-22, xMaxSpeed);
         sleep(200);//shoot
-        odometryDrive(14,-3,-42);
+        odometryDrive(14,-3,-42, xMaxSpeed);
         //flywheel off
 
 
@@ -131,11 +174,13 @@ public class RedFarAuto extends LinearOpMode {
         pinpoint.resetPosAndIMU();
     }
 
-    void odometryDrive(double targetX, double targetY, double targetH){
+    void odometryDrive(double targetX, double targetY, double targetH, double speed){
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
         double lastErrorY = 0;
+        xMaxSpeed = speed;
+        yMaxSpeed = speed;
         ElapsedTime timer = new ElapsedTime();
 
         pinpoint.update();

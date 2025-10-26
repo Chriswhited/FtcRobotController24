@@ -51,7 +51,7 @@ public class teleop extends OpMode {
         front_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -109,16 +109,16 @@ public class teleop extends OpMode {
         //Flywheel launcher
         if (gamepad2.a) {
             telemetry.addData("Flywheel on", gamepad2.a);
-            launch_motor_1.setPower(.60);
+            launch_motor_1.setPower(.20);
         } else if (gamepad2.b) {
             telemetry.addData("Flywheel on", gamepad2.b);
-            launch_motor_1.setPower(.80);
+            launch_motor_1.setPower(.30);
         } else if (gamepad2.x) {
             telemetry.addData("Flywheel on", gamepad2.x);
-            launch_motor_1.setPower(.90);
+            launch_motor_1.setPower(.40);
         } else if (gamepad2.y) {
             telemetry.addData("Flywheel on", gamepad2.y);
-            launch_motor_1.setPower(1);
+            launch_motor_1.setPower(.50);
         }
         else if (gamepad2.back) {
             telemetry.addData("Flywheel off", gamepad2.right_bumper);
@@ -137,7 +137,8 @@ public class teleop extends OpMode {
             franklin_flipper_left.setPosition(1);
         }
         else{
-            franklin_flipper_left.setPosition(0.67);
+            franklin_flipper_left.setPosition(0.64
+            );
         }
 
     }
