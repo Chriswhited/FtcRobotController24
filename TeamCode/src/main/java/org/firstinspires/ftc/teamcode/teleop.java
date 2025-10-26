@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Teleop", group = "Robot")
@@ -16,10 +17,13 @@ public class teleop extends OpMode {
     DcMotor front_right_drive;
     DcMotor launch_motor_1;
     DcMotor intake_motor;
+    Servo franklin_flipper_right;
+    Servo franklin_flipper_left;
 
     IMU imu;
 
     boolean intake_var;
+    boolean intake_var2;
     ElapsedTime intake_timer = new ElapsedTime();
 
     @Override
@@ -31,9 +35,13 @@ public class teleop extends OpMode {
         front_right_drive = hardwareMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hardwareMap.get(DcMotor.class, "launch_motor_1");
         intake_motor = hardwareMap.get(DcMotor.class, "intake_motor");
+        franklin_flipper_right = hardwareMap.get(Servo.class, "franklin_flipper_right");
+        franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
 
         launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        front_left_drive.setDirection(DcMotorSimple.Direction.FORWARD);
+        back_left_drive.setDirection(DcMotorSimple.Direction.FORWARD);
         front_right_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         back_right_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         launch_motor_1.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -88,6 +96,16 @@ public class teleop extends OpMode {
             intake_var = true;
             intake_timer.reset();
         }
+        if(gamepad1.b && intake_var2 && intake_timer.seconds() > 0.5){
+            intake_motor.setPower(-1);
+            intake_var = false;
+            intake_timer.reset();
+        }
+        else if(gamepad1.b && !intake_var2 && intake_timer.seconds() > 0.5){
+            intake_motor.setPower(0);
+            intake_var = true;
+            intake_timer.reset();
+        }
         //Flywheel launcher
         if (gamepad2.a) {
             telemetry.addData("Flywheel on", gamepad2.a);
@@ -102,9 +120,25 @@ public class teleop extends OpMode {
             telemetry.addData("Flywheel on", gamepad2.y);
             launch_motor_1.setPower(1);
         }
-        else if (gamepad2.right_bumper) {
+        else if (gamepad2.back) {
             telemetry.addData("Flywheel off", gamepad2.right_bumper);
             launch_motor_1.setPower(0);
         }
+        //franklin flipper right
+        if(gamepad2.right_trigger > 0.5) {
+            franklin_flipper_right.setPosition(0.11);
+             
+        }
+        else{
+            franklin_flipper_right.setPosition(0.44);
+        }
+        //franklin flipper left
+        if(gamepad2.left_trigger > 0.5) {
+            franklin_flipper_left.setPosition(1);
+        }
+        else{
+            franklin_flipper_left.setPosition(0.67);
+        }
+
     }
 }
