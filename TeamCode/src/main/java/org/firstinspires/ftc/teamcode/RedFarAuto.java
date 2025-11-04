@@ -96,74 +96,51 @@ public class RedFarAuto extends LinearOpMode {
 
         waitForStart();
 
-        /*
-        odometryDrive(20,0,0);
-        odometryDrive(20,-20,0);
-        odometryDrive(0,-20,0);
-        odometryDrive(0,0,0);
-        odometryDrive(20,20,0);
-        odometryDrive(20,20,90);
-        odometryDrive(0,20,0);
-         */
-        launch_motor_1.setPower(0.8);
-        odometryDrive(6,1,-22, xMaxSpeed);
-        sleep(10000); //spinup flywheel
-        franklin_flipper_right.setPosition(.11);
-        sleep(1500);
-        franklin_flipper_left.setPosition(1);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        sleep(250);
-        franklin_flipper_right.setPosition(.11);
+        launch_motor_1.setPower(0.9);//.083
+        odometryDrive(2.5,2.2,-22, xMaxSpeed);
+        sleep(4000); //spinup flywheel 5200
+        launch_motor_1.setPower(0.7);
         sleep(1000);
-        franklin_flipper_left.setPosition(1);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        sleep(750);
-        //odometryDrive(6,-1,-22, xMaxSpeed);
-        //odometryDrive(6,1,-22, xMaxSpeed);
-        franklin_flipper_left.setPosition(1);
-        franklin_flipper_right.setPosition(.11);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        launch_motor_1.setPower(.45);
+        launch();
         odometryDrive(25,-17,90, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(25,-45,90, 0.5);
+        odometryDrive(25,-46,90, 0.4);
+        //intake_motor.setPower(0);
+        odometryDrive(2.5,2.2,-22, xMaxSpeed);
         intake_motor.setPower(0);
-        odometryDrive(6,1,-22, xMaxSpeed);
-        franklin_flipper_right.setPosition(.11);
-        sleep(1500);
+        launch();
+        odometryDrive(50,-17,90, xMaxSpeed);
+        intake_motor.setPower(1);
+        odometryDrive(50,-45,90, xMaxSpeed);
+        odometryDrive(2.5,2.2,-22, xMaxSpeed);
+        intake_motor.setPower(0);
+        launch();
+        sleep(550);
+        franklin_flipper_right.setPosition(0.11);
         franklin_flipper_left.setPosition(1);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        sleep(250);
-        franklin_flipper_right.setPosition(.11);
-        sleep(1000);
-        franklin_flipper_left.setPosition(1);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        sleep(750);
-        franklin_flipper_left.setPosition(1);
-        franklin_flipper_right.setPosition(.11);
-        sleep(500);
-        franklin_flipper_left.setPosition(.64);
-        franklin_flipper_right.setPosition(.44);
-        odometryDrive(48,-17,90, xMaxSpeed);
-        sleep(200);//intake on
-        odometryDrive(48,-45,90, xMaxSpeed);
-        sleep(200);//intake off
-        odometryDrive(6,1,-22, xMaxSpeed);
-        sleep(200);//shoot
-        odometryDrive(14,-3,-42, xMaxSpeed);
+        sleep(550);
+        franklin_flipper_left.setPosition(0.64);
+        franklin_flipper_right.setPosition(0.44);
+        //odometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
+        odometryDrive(72, -15, 90, xMaxSpeed); //FAR PARK
         //flywheel off
 
 
+    }
+    public void launch(){
+        franklin_flipper_right.setPosition(.11); //shoot cycle 1
+        sleep(200);
+        franklin_flipper_right.setPosition(.44);
+        sleep(550);
+        franklin_flipper_left.setPosition(1);
+        sleep(200);
+        franklin_flipper_left.setPosition(.64);
+        sleep(500);
+        franklin_flipper_right.setPosition(.11);
+        franklin_flipper_left.setPosition(1);
+        sleep(300);
+        franklin_flipper_left.setPosition(.64);
+        franklin_flipper_right.setPosition(.44);
     }
     public void configurePinpoint(){
         pinpoint.setOffsets(0.945, 6.5, DistanceUnit.INCH); //Set robot offset

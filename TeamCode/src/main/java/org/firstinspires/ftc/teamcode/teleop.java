@@ -24,6 +24,7 @@ public class teleop extends OpMode {
 
     boolean intake_var;
     boolean intake_var2;
+    double max_power = 1.0;
     ElapsedTime intake_timer = new ElapsedTime();
 
     @Override
@@ -74,7 +75,13 @@ public class teleop extends OpMode {
         double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
         double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
 
-        double max_power = 1.0;
+        if(gamepad1.left_trigger > 0.5){
+            max_power = 0.5;
+        }
+        else{
+            max_power = 1;
+        }
+
 
         max_power = Math.max(max_power, Math.abs(front_left_power));
         max_power = Math.max(max_power, Math.abs(front_right_power));
@@ -98,27 +105,27 @@ public class teleop extends OpMode {
         }
         if(gamepad1.b && intake_var2 && intake_timer.seconds() > 0.5){
             intake_motor.setPower(-1);
-            intake_var = false;
+            intake_var2 = false;
             intake_timer.reset();
         }
         else if(gamepad1.b && !intake_var2 && intake_timer.seconds() > 0.5){
             intake_motor.setPower(0);
-            intake_var = true;
+            intake_var2 = true;
             intake_timer.reset();
         }
         //Flywheel launcher
         if (gamepad2.a) {
             telemetry.addData("Flywheel on", gamepad2.a);
-            launch_motor_1.setPower(.20);
+            launch_motor_1.setPower(.54);
         } else if (gamepad2.b) {
             telemetry.addData("Flywheel on", gamepad2.b);
-            launch_motor_1.setPower(.30);
+            launch_motor_1.setPower(.55);
         } else if (gamepad2.x) {
             telemetry.addData("Flywheel on", gamepad2.x);
-            launch_motor_1.setPower(.40);
+            launch_motor_1.setPower(.60);
         } else if (gamepad2.y) {
             telemetry.addData("Flywheel on", gamepad2.y);
-            launch_motor_1.setPower(.50);
+            launch_motor_1.setPower(.70);
         }
         else if (gamepad2.back) {
             telemetry.addData("Flywheel off", gamepad2.right_bumper);

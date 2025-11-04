@@ -16,8 +16,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-@Autonomous(name = "RedCloseAuto", group = "Robot")
-public class RedCloseAuto extends LinearOpMode {
+@Autonomous(name = "BlueCloseAuto", group = "Robot")
+public class BlueCloseAuto extends LinearOpMode {
     DcMotor back_left_drive;
     DcMotor front_left_drive;
     DcMotor back_right_drive;
@@ -110,25 +110,25 @@ public class RedCloseAuto extends LinearOpMode {
 
         launch_motor_1.setPower(0.57);
         intake_motor.setPower(1);
-        odometryDrive(-49,-6,6, 0.4);
+        odometryDrive(-49,6,-6, 0.4);
         intake_motor.setPower(0);
 
         sleep(4000); //spinup flywheel
 
         launch();
 
-        odometryDrive(-43,-22,140, xMaxSpeed);
+        odometryDrive(-43,22,-140, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(-23,-35,140, 0.5);
-        odometryDrive(-49,-6,6, 0.4);
+        odometryDrive(-23,35,-140, 0.5);
+        odometryDrive(-49,6,-6, 0.4);
         intake_motor.setPower(0);
 
         launch();
 
-        odometryDrive(-57,-37,140, xMaxSpeed);
+        odometryDrive(-57,37,-140, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(-34,-58,140, xMaxSpeed);
-        odometryDrive(-49,-6,6, 0.4);
+        odometryDrive(-34,58,-140, xMaxSpeed);
+        odometryDrive(-49,6,-6, 0.4);
         intake_motor.setPower(0);
 
         launch();
@@ -140,10 +140,8 @@ public class RedCloseAuto extends LinearOpMode {
         franklin_flipper_left.setPosition(0.64);
         franklin_flipper_right.setPosition(0.44);
 
-        odometryDrive(-51,-23,0, xMaxSpeed);
+        odometryDrive(-51,23,0, xMaxSpeed);
         //flywheel off
-
-
     }
 
     public void launch(){
