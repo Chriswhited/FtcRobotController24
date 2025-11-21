@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,13 +12,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@TeleOp(name = "Teleop", group = "Robot")
-public class teleop extends OpMode {
+import java.util.List;
+
+@TeleOp(name = "Teleowlimelight", group = "Robot")
+public class teleopwlimelight extends OpMode {
     DcMotor back_left_drive;
     DcMotor front_left_drive;
     DcMotor back_right_drive;
@@ -27,10 +35,23 @@ public class teleop extends OpMode {
     GoBildaPinpointDriver pinpoint;
     IMU imu;
 
+    private Limelight3A limelight;
+
     boolean intake_var;
     boolean intake_var2;
     double max_power = 1.0;
+    double xProp = 0.04;
+    double xInt = 0.0;
+    double xDer = 0.0;
+    double yProp = 0.04;
+    double yInt = 0.0;
+    double yDer = 0.0;
+    double hProp = 0.03;
+    double xMaxSpeed = 0.8;
+    double yMaxSpeed = 0.8;
+    double hMaxSpeed = 0.7;
     ElapsedTime intake_timer = new ElapsedTime();
+    ElapsedTime auto_timer = new ElapsedTime();
 
     @Override
     public void init(){
@@ -45,8 +66,10 @@ public class teleop extends OpMode {
         franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.pipelineSwitch(3);
         //configurePinpoint();
-       //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+        //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
         launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -76,9 +99,26 @@ public class teleop extends OpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
     }
+    @Override
+    public void start() {
+        limelight.start();
+    }
 
     @Override
     public void loop()  {
+
+        LLResult llresult = limelight.getLatestResult();
+        Pose3D botpose = llresult.getBotpose();
+        List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            telemetry.addData("id", id);
+        }
+
+        telemetry.addData("tx", llresult.getTx());
+        telemetry.addData("ty", llresult.getTy());
+        telemetry.addData("ta", llresult.getTa());
+
         double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
         double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
         double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -96,6 +136,10 @@ public class teleop extends OpMode {
         max_power = Math.max(max_power, Math.abs(front_right_power));
         max_power = Math.max(max_power, Math.abs(back_right_power));
         max_power = Math.max(max_power, Math.abs(back_left_power));
+
+
+
+
 
         //brandt button
         if(gamepad1.left_trigger > 0.5){
@@ -143,6 +187,12 @@ public class teleop extends OpMode {
             intake_var2 = true;
             intake_timer.reset();
         }
+        //Far shoot pos
+        if (gamepad1.y) {
+            auto_timer.reset();
+            launch_motor_1.setPower(0.7);
+            odometryDrive(2.5,2.2,-22, xMaxSpeed);
+        }
         //Flywheel launcher
         if (gamepad2.a) {
             launch_motor_1.setPower(.54);
@@ -188,5 +238,93 @@ public class teleop extends OpMode {
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, //Set direction for pod
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.resetPosAndIMU();
+    }
+    void odometryDrive(double targetX, double targetY, double targetH, double speed){
+        double integralSumX = 0;
+        double lastErrorX = 0;
+        double integralSumY = 0;
+        double lastErrorY = 0;
+        xMaxSpeed = speed;
+        yMaxSpeed = speed;
+        ElapsedTime timer = new ElapsedTime();
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        //pos = myPosition();
+        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        //while(gamepad1.y && Math.abs(xError) > 1.5 || Math.abs(yError) > 1.5 || Math.abs(hError) > 4){
+            //auto_timer.seconds() < .001
+        pinpoint.update();
+        pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        double derivativeX = (xError - lastErrorX) / timer.seconds();
+        integralSumX = integralSumX + (xError  * timer.seconds());
+        double derivativeY = (yError - lastErrorY) / timer.seconds();
+        integralSumY = integralSumY + (yError  * timer.seconds());
+
+        telemetry.addData("derX", derivativeX);
+        telemetry.addData("derY", derivativeY);
+        telemetry.addData("IntX", integralSumX);
+        telemetry.addData("IntX", integralSumY);
+        telemetry.addData("xError", xError);
+        telemetry.addData("yError", yError);
+        telemetry.addData("Time", auto_timer);
+        telemetry.addData("YButton", gamepad1.y);
+        telemetry.update();
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        timer.reset();
+            /*
+            if (gamepad1.left_stick_x > 0.5 || gamepad1.left_stick_y > 0.5){
+                break;
+            }
+
+             */
+
+        moveRobot(0, 0, 0);
+    }
+
+
+    //calculate and normalize wheel powers, then send powers to wheels
+    void moveRobot(double x, double y, double h){
+        //Convert to radians
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        double radian = pose2D.getHeading(AngleUnit.DEGREES) * Math.PI / 180;
+
+        //Account for robot rotation
+        double x_rotated = x * Math.cos(-radian) - y * Math.sin(-radian);
+        double y_rotated = x * Math.sin(-radian) + y * Math.cos(-radian);
+
+        double denominator = Math.max(Math.abs(y_rotated) + Math.abs(x_rotated) + Math.abs(h), 1);
+
+        double leftFrontPower = (x_rotated - y_rotated + h) / denominator;
+        double leftBackPower = (x_rotated + y_rotated + h) / denominator;
+        double rightFrontPower = (x_rotated + y_rotated - h) / denominator;
+        double rightBackPower = (x_rotated - y_rotated - h) / denominator;
+
+
+        // Send powers to the wheels.
+        front_left_drive.setPower(leftFrontPower);
+        front_right_drive.setPower(rightFrontPower);
+        back_left_drive.setPower(leftBackPower);
+        back_right_drive.setPower(rightBackPower);
+        while(auto_timer.seconds() < .01){
+            
+        }
     }
 }

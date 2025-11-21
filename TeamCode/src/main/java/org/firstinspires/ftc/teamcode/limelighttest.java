@@ -21,7 +21,7 @@ public class limelighttest extends OpMode {
     @Override
     public void init() {
     limelight = hardwareMap.get(Limelight3A.class, "limelight");
-    limelight.pipelineSwitch(2);
+    limelight.pipelineSwitch(3);
     imu = hardwareMap.get(IMU.class, "imu");
     RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
@@ -32,13 +32,12 @@ public class limelighttest extends OpMode {
     public void start() {
         limelight.start();
     }
-
     @Override
     public void loop() {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         limelight.updateRobotOrientation(orientation.getYaw());
         LLResult llresult = limelight.getLatestResult();
-        Pose3D botpose = llresult.getBotpose_MT2();
+        Pose3D botpose = llresult.getBotpose();
         telemetry.addData("tx", llresult.getTx());
         telemetry.addData("ty", llresult.getTy());
         telemetry.addData("ta", llresult.getTa());
@@ -46,6 +45,7 @@ public class limelighttest extends OpMode {
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
             telemetry.addData("id", id);
+
         }
         }
     }
