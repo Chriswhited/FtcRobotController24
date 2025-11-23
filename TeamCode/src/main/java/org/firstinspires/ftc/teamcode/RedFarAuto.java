@@ -155,7 +155,7 @@ public class RedFarAuto extends LinearOpMode {
         pinpoint.resetPosAndIMU();
     }
 
-    void odometryDrive(double targetX, double targetY, double targetH, double speed){
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed){
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
