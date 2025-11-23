@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -17,22 +15,32 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-@Autonomous(name = "Mentor Test", group = "Robot")
-@Disabled
-public class MentorTest extends LinearOpMode {
+@TeleOp(name = "MentorTest", group = "Robot")
+public class MentorTest extends OpMode {
     DcMotor back_left_drive;
     DcMotor front_left_drive;
     DcMotor back_right_drive;
     DcMotor front_right_drive;
     DcMotor launch_motor_1;
     DcMotor intake_motor;
-    // ColorSensor color1;
     Servo franklin_flipper_right;
     Servo franklin_flipper_left;
     GoBildaPinpointDriver pinpoint;
-    IMU imu;
-    float hsvValues[] = {0F, 0F, 0F};
-    Pose2D pos;
+    ElapsedTime sleeptime = new ElapsedTime();
+    ElapsedTime intake_timer = new ElapsedTime();
+    ElapsedTime PIDtimer = new ElapsedTime();
+    boolean intake_var;
+    boolean intake_var2;
+    double max_power = 1.0;
+
+    boolean PIDreset = false;
+    double integralSumX = 0;
+    double lastErrorX = 0;
+    double integralSumY = 0;
+    double lastErrorY = 0;
+    double xError = 0;
+    double yError = 0;
+    double hError = 0;
     double xProp = 0.04;
     double xInt = 0.0;
     double xDer = 0.0;
@@ -40,11 +48,12 @@ public class MentorTest extends LinearOpMode {
     double yInt = 0.0;
     double yDer = 0.0;
     double hProp = 0.03;
-    double xMaxSpeed = 0.4;
-    double yMaxSpeed = 0.4;
-    double hMaxSpeed = 0.4;
+    double xMaxSpeed = 0.8;
+    double yMaxSpeed = 0.8;
+    double hMaxSpeed = 0.7;
+
     @Override
-    public void runOpMode(){
+    public void init() {
 
         back_left_drive = hardwareMap.get(DcMotor.class, "back_left_drive");
         front_left_drive = hardwareMap.get(DcMotor.class, "front_left_drive");
@@ -52,19 +61,21 @@ public class MentorTest extends LinearOpMode {
         front_right_drive = hardwareMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hardwareMap.get(DcMotor.class, "launch_motor_1");
         intake_motor = hardwareMap.get(DcMotor.class, "intake_motor");
-        //color1 = hardwareMap.get(ColorSensor.class, "color1");
+        franklin_flipper_right = hardwareMap.get(Servo.class, "franklin_flipper_right");
+        franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         configurePinpoint();
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+        //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
 
-        launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        front_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
-        back_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
         front_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
+        front_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
+        back_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
         launch_motor_1.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         back_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -73,129 +84,165 @@ public class MentorTest extends LinearOpMode {
         launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        imu = hardwareMap.get(IMU.class, "imu");
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbdirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+    }
 
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection, usbdirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+    @Override
+    public void loop() {
 
-        while (opModeInInit()) {
-            telemetry.addLine("Push your robot around to see it track");
+        //Far shoot pos
+        if (gamepad1.y) {
+            launch_motor_1.setPower(0.7);
+            odometryDrive(2.5, 2.2, -22, xMaxSpeed);
+        } else {
+            double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
+            double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
+
             pinpoint.update();
             Pose2D pose2D = pinpoint.getPosition();
 
-            telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-            telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-            telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
-            telemetry.update();
+            max_power = 1;
+            max_power = Math.max(max_power, Math.abs(front_left_power));
+            max_power = Math.max(max_power, Math.abs(front_right_power));
+            max_power = Math.max(max_power, Math.abs(back_right_power));
+            max_power = Math.max(max_power, Math.abs(back_left_power));
+
+            //brandt button
+            if (gamepad1.left_trigger > 0.5) {
+                front_left_drive.setPower(front_left_power / (max_power * 2));
+                back_left_drive.setPower(back_left_power / (max_power * 2));
+                front_right_drive.setPower(front_right_power / (max_power * 2));
+                back_right_drive.setPower(back_right_power / (max_power * 2));
+            } else {
+                front_left_drive.setPower(front_left_power / max_power);
+                back_left_drive.setPower(back_left_power / max_power);
+                front_right_drive.setPower(front_right_power / max_power);
+                back_right_drive.setPower(back_right_power / max_power);
+            }
         }
 
-        waitForStart();
+        //start kolby kage
+        if (gamepad1.a && intake_var && intake_timer.seconds() > 0.5) {
+            intake_motor.setPower(1);
+            intake_var = false;
+            intake_timer.reset();
+        } else if (gamepad1.a && !intake_var && intake_timer.seconds() > 0.5) {
+            intake_motor.setPower(0);
+            intake_var = true;
+            intake_timer.reset();
+        }
+        //reverse kolby kage
+        if (gamepad1.b && intake_var2 && intake_timer.seconds() > 0.5) {
+            intake_motor.setPower(-1);
+            intake_var2 = false;
+            intake_timer.reset();
+        } else if (gamepad1.b && !intake_var2 && intake_timer.seconds() > 0.5) {
+            intake_motor.setPower(0);
+            intake_var2 = true;
+            intake_timer.reset();
+        }
 
-        intake_motor.setPower(1);
-        odometryDrive(5,-5,-20);
-        sleep(2000);
-        odometryDrive(25,-12,90);
-        odometryDrive(25,-47,90);
+        //Flywheel launcher
+        if (gamepad2.a) {
+            launch_motor_1.setPower(.54);
+            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
+        } else if (gamepad2.b) {
+            launch_motor_1.setPower(.55);
+            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
+        } else if (gamepad2.x) {
+            launch_motor_1.setPower(.60);
+            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
+        } else if (gamepad2.y) {
+            launch_motor_1.setPower(.70);
+            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
+        } else if (gamepad2.back) {
+            telemetry.addLine("Flywheel off");
+            launch_motor_1.setPower(0);
+        }
 
+        //franklin flipper right
+        if (gamepad2.right_trigger > 0.5) {
+            franklin_flipper_right.setPosition(0.11);
 
+        } else {
+            franklin_flipper_right.setPosition(0.44);
+        }
 
-
-
-/*
-        front_left_drive.setPower(.2);
-        front_right_drive.setPower(-.2);
-        back_left_drive.setPower(-.2);
-        back_right_drive.setPower(.2);
-
-        sleep(5000);
-
-        front_left_drive.setPower(-.2);
-        front_right_drive.setPower(.2);
-        back_left_drive.setPower(.2);
-        back_right_drive.setPower(-.2);
-
-        sleep(5000);
-
- */
+        //franklin flipper left
+        if (gamepad2.left_trigger > 0.5) {
+            franklin_flipper_left.setPosition(1);
+        } else {
+            franklin_flipper_left.setPosition(0.64
+            );
+        }
 
     }
-    public void configurePinpoint(){
+
+    public void configurePinpoint() {
         pinpoint.setOffsets(0.945, 6.5, DistanceUnit.INCH); //Set robot offset
-        //pinpoint.setOffsets(-6.5, -0.945, DistanceUnit.INCH); //Set robot offset
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); //Sets type of pod
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, //Set direction for pod
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.resetPosAndIMU();
     }
-    /*Pose2D myPosition() {
-        pos = pinpoint.getPosition();
-        Pose2D CurrentPosition = new Pose2D(pos.getX(DistanceUnit.INCH), -pos.getY(DistanceUnit.INCH), -pos.getHeading(AngleUnit.DEGREES));
-        return(CurrentPosition);
-    }
 
-     */
-    void odometryDrive(double targetX, double targetY, double targetH){
-        double integralSumX = 0;
-        double lastErrorX = 0;
-        double integralSumY = 0;
-        double lastErrorY = 0;
-        ElapsedTime timer = new ElapsedTime();
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
 
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-
-        //pos = myPosition();
-        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-        while(opModeIsActive() && Math.abs(xError) > 1.5 || Math.abs(yError) > 1.5 || Math.abs(hError) > 4){
+        if (!PIDreset) {
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+            ElapsedTime PIDtimer = new ElapsedTime();
 
             pinpoint.update();
-            pose2D = pinpoint.getPosition();
+            Pose2D pose2D = pinpoint.getPosition();
+
             xError = targetX - pose2D.getX(DistanceUnit.INCH);
             yError = targetY - pose2D.getY(DistanceUnit.INCH);
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-            double derivativeX = (xError - lastErrorX) / timer.seconds();
-            integralSumX = integralSumX + (xError  * timer.seconds());
-            double derivativeY = (yError - lastErrorY) / timer.seconds();
-            integralSumY = integralSumY + (yError  * timer.seconds());
-
-            /*telemetry.addData("derX", derivativeX);
-            telemetry.addData("derY", derivativeY);
-            telemetry.addData("IntX", integralSumX);
-            telemetry.addData("IntX", integralSumY);
-
-             */
-            telemetry.addData("xPosition",pose2D.getX(DistanceUnit.INCH));
-            telemetry.addData("xError", xError);
-            telemetry.addData("yPosition",pose2D.getY(DistanceUnit.INCH));
-            telemetry.addData("yError", yError);
-            telemetry.update();
-
-            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
-            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
-            double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
-
-
-            moveRobot(x, y, h);
-
-            lastErrorX = xError;
-            lastErrorY = yError;
-            timer.reset();
         }
-        moveRobot(0, 0, 0);
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        double derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
+        double derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+
+        telemetry.addData("Finished", PIDreset);
+        telemetry.addData("Current X", pose2D.getX(DistanceUnit.INCH));
+        telemetry.addData("Current Y", pose2D.getY(DistanceUnit.INCH));
+        telemetry.addData("Current Heading", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.update();
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if(Math.abs(xError) < 1.5 && Math.abs(yError) < 1.5 && Math.abs(hError) < 4) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
     }
 
     //calculate and normalize wheel powers, then send powers to wheels
-    void moveRobot(double x, double y, double h){
+    void moveRobot(double x, double y, double h) {
         //Convert to radians
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
@@ -217,6 +264,15 @@ public class MentorTest extends LinearOpMode {
         front_right_drive.setPower(rightFrontPower);
         back_left_drive.setPower(leftBackPower);
         back_right_drive.setPower(rightBackPower);
-        sleep(10);
+        sleep(.01);
     }
+
+    public void sleep(double time) {
+        sleeptime.reset();
+        while (sleeptime.seconds() <= time) {
+
+        }
+
+    }
+
 }
