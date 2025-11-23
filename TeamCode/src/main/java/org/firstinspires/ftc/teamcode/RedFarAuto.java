@@ -113,9 +113,9 @@ public class RedFarAuto extends LinearOpMode {
         odometryDrive(2.5,2.2,-22, xMaxSpeed);
         intake_motor.setPower(0);
         launch();
-        odometryDrive(50,-17,90, xMaxSpeed);
+        odometryDrive(50,-9,90, xMaxSpeed);
         intake_motor.setPower(1);
-        odometryDrive(50,-45,90, xMaxSpeed);
+        odometryDrive(50,-41,90, xMaxSpeed);
         odometryDrive(2.5,2.2,-22, xMaxSpeed);
         intake_motor.setPower(0);
         launch();

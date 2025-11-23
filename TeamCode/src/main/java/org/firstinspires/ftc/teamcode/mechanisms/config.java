@@ -22,7 +22,7 @@ public class config {
     public void init(HardwareMap hwMap)  {
         back_left_drive = hwMap.get(DcMotor.class, "back_left_drive");
         front_left_drive = hwMap.get(DcMotor.class, "front_left_drive");
-        back_right_drive = hwMap.get(DcMotor.class, "back_rigth_drive");
+        back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hwMap.get(DcMotor.class, "launch_motor_1");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
