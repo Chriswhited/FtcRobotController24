@@ -48,9 +48,9 @@ public class MentorTest extends OpMode {
     double yInt = 0.0;
     double yDer = 0.0;
     double hProp = 0.03;
-    double xMaxSpeed = 0.8;
-    double yMaxSpeed = 0.8;
-    double hMaxSpeed = 0.7;
+    double xMaxSpeed = 1;
+    double yMaxSpeed = 1;
+    double hMaxSpeed = 1;
 
     @Override
     public void init() {
@@ -90,10 +90,17 @@ public class MentorTest extends OpMode {
     @Override
     public void loop() {
 
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.update();
+
         //Far shoot pos
         if (gamepad1.y) {
-            launch_motor_1.setPower(0.7);
-            odometryDrive(2.5, 2.2, -22, xMaxSpeed);
+            //launch_motor_1.setPower(0.7);
+            odometryDrive(21, -19, 0, xMaxSpeed);
         } else {
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -101,7 +108,7 @@ public class MentorTest extends OpMode {
             double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
 
             pinpoint.update();
-            Pose2D pose2D = pinpoint.getPosition();
+            Pose2D Pose2D = pinpoint.getPosition();
 
             max_power = 1;
             max_power = Math.max(max_power, Math.abs(front_left_power));
@@ -235,7 +242,7 @@ public class MentorTest extends OpMode {
         lastErrorY = yError;
         PIDtimer.reset();
 
-        if(Math.abs(xError) < 1.5 && Math.abs(yError) < 1.5 && Math.abs(hError) < 4) {
+        if(Math.abs(xError) < 0.25 && Math.abs(yError) < 0.25 && Math.abs(hError) < .5) {
             PIDreset = false;
             moveRobot(0, 0, 0);
         }
