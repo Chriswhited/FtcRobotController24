@@ -174,7 +174,7 @@ public class config {
         lastErrorY = yError;
         PIDtimer.reset();
 
-        if(Math.abs(xError) < 1.5 && Math.abs(yError) < 1.5 && Math.abs(hError) < 4) {
+        if(Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
             PIDreset = false;
             moveRobot(0, 0, 0);
         }
