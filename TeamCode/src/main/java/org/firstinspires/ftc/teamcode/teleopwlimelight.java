@@ -111,13 +111,9 @@ public class teleopwlimelight extends OpMode {
         LLResult llresult = limelight.getLatestResult();
         Pose3D botpose = llresult.getBotpose();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
-        double limelighttx = llresult.getTx();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
             telemetry.addData("id", id);
-            if (id == 20 || id == 24 && gamepad1.left_bumper){
-                //putting the code for auto heading here, dont touch - Brandt
-            }
         }
         telemetry.addData("tx", llresult.getTx());
         telemetry.addData("ty", llresult.getTy());
