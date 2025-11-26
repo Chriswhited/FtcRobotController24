@@ -28,38 +28,57 @@ public class NewTeleop extends OpMode {
 
     @Override
     public void loop()  {
-        double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
-        double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
-        double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
-        double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
-
-        conf.pinpoint.update();
-        Pose2D pose2D = conf.pinpoint.getPosition();
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
-        telemetry.update();
-
-        conf.max_power = 1;
-        conf.max_power = Math.max(conf.max_power, Math.abs(front_left_power));
-        conf.max_power = Math.max(conf.max_power, Math.abs(front_right_power));
-        conf.max_power = Math.max(conf.max_power, Math.abs(back_right_power));
-        conf.max_power = Math.max(conf.max_power, Math.abs(back_left_power));
-
-        //brandt button
-        if(gamepad1.left_trigger > 0.5){
-            conf.front_left_drive.setPower(front_left_power/(conf.max_power*2));
-            conf.back_left_drive.setPower(back_left_power/(conf.max_power*2));
-            conf.front_right_drive.setPower(front_right_power/(conf.max_power*2));
-            conf.back_right_drive.setPower(back_right_power/(conf.max_power*2));
+        if(gamepad1.right_bumper){ //Endgame Parking
+            conf.odometryDrive(19,-15.75,0, 1);
         }
-        else {
-            conf.front_left_drive.setPower(front_left_power / conf.max_power);
-            conf.back_left_drive.setPower(back_left_power / conf.max_power);
-            conf.front_right_drive.setPower(front_right_power / conf.max_power);
-            conf.back_right_drive.setPower(back_right_power / conf.max_power);
+        else if(gamepad1.dpad_left){ //Far Shooting
+            conf.launch_motor_1.setPower(0.7);
+            conf.odometryDrive(2.5,2.2,-22, 1);
         }
+        else if(gamepad1.dpad_up){ //Opponents goal shooting
+            conf.launch_motor_1.setPower(.6);
+            conf.odometryDrive(107,53,-84.5, 1);
+        }
+        else if(gamepad1.dpad_right){ //Middle shooting
+            conf.launch_motor_1.setPower(.6);
+            conf.odometryDrive(86.5,14.5,-49.5, 1);
+        }
+        else if(gamepad1.dpad_down){ //Close shooting
+            conf.launch_motor_1.setPower(.50);
+            conf.odometryDrive(95,-12.3,-55, 1);
+        }
+        else{
+            double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
+            double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
 
+            conf.pinpoint.update();
+            Pose2D pose2D = conf.pinpoint.getPosition();
+            telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+            telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+            telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+            telemetry.update();
+
+            conf.max_power = 1;
+            conf.max_power = Math.max(conf.max_power, Math.abs(front_left_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(front_right_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(back_right_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(back_left_power));
+
+            //brandt button
+            if (gamepad1.left_trigger > 0.5) {
+                conf.front_left_drive.setPower(front_left_power / (conf.max_power * 2));
+                conf.back_left_drive.setPower(back_left_power / (conf.max_power * 2));
+                conf.front_right_drive.setPower(front_right_power / (conf.max_power * 2));
+                conf.back_right_drive.setPower(back_right_power / (conf.max_power * 2));
+            } else {
+                conf.front_left_drive.setPower(front_left_power / conf.max_power);
+                conf.back_left_drive.setPower(back_left_power / conf.max_power);
+                conf.front_right_drive.setPower(front_right_power / conf.max_power);
+                conf.back_right_drive.setPower(back_right_power / conf.max_power);
+            }
+        }
 
         //start kolby kage
         if(gamepad1.a && conf.intake_var && conf.intake_timer.seconds() > 0.5){
@@ -83,6 +102,7 @@ public class NewTeleop extends OpMode {
             conf.intake_var2 = true;
             conf.intake_timer.reset();
         }
+
         //Flywheel launcher
         if (gamepad2.a) {
             conf.launch_motor_1.setPower(.54);

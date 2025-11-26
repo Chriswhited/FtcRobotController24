@@ -34,7 +34,7 @@ public class config {
     double yInt = 0.0;
     double yDer = 0.0;
     double hProp = 0.03;
-    double xMaxSpeed = 0.8;
+    public double xMaxSpeed = 0.8;
     double yMaxSpeed = 0.8;
     double hMaxSpeed = 0.7;
     double xError = 0;
