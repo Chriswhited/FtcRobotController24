@@ -80,6 +80,7 @@ public class teleopwlimelight extends OpMode {
         launch_motor_1.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
+
         back_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -110,14 +111,21 @@ public class teleopwlimelight extends OpMode {
         LLResult llresult = limelight.getLatestResult();
         Pose3D botpose = llresult.getBotpose();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
+        double limelighttx = llresult.getTx();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
             telemetry.addData("id", id);
+            if (id == 20 || id == 24 && gamepad1.left_bumper){
+                //putting the code for auto heading here, dont touch - Brandt
+            }
         }
-
         telemetry.addData("tx", llresult.getTx());
         telemetry.addData("ty", llresult.getTy());
         telemetry.addData("ta", llresult.getTa());
+
+
+
+
 
         double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
         double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
