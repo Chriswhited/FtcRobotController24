@@ -37,7 +37,23 @@ public class config {
     double xMaxSpeed = 0.8;
     double yMaxSpeed = 0.8;
     double hMaxSpeed = 0.7;
+    double xError = 0;
+    double yError = 0;
+    double hError = 0;
+    double integralSumX = 0;
+    double lastErrorX = 0;
+    double integralSumY = 0;
+    double lastErrorY = 0;
+    double derivativeY = 0;
+    double derivativeX = 0;
+    public boolean intake_var;
+    public boolean intake_var2;
+    public double max_power = 1.0;
+
+    boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
+    ElapsedTime PIDtimer = new ElapsedTime();
+    public ElapsedTime intake_timer = new ElapsedTime();
 
 
     public void init(HardwareMap hwMap)  {
@@ -89,19 +105,20 @@ public class config {
         front_right_drive.setPower(rightFrontPower);
         back_left_drive.setPower(leftBackPower);
         back_right_drive.setPower(rightBackPower);
+        sleep(10);
     }
     public void launch(){
         franklin_flipper_right.setPosition(.11); //shoot cycle 1
-        sleep(.200);
+        sleep(200);
         franklin_flipper_right.setPosition(.44);
-        sleep(.550);
+        sleep(550);
         franklin_flipper_left.setPosition(1);
-        sleep(.200);
+        sleep(200);
         franklin_flipper_left.setPosition(.64);
-        sleep(.500);
+        sleep(500);
         franklin_flipper_right.setPosition(.11);
         franklin_flipper_left.setPosition(1);
-        sleep(.300);
+        sleep(300);
         franklin_flipper_left.setPosition(.64);
         franklin_flipper_right.setPosition(.44);
     }
@@ -115,6 +132,61 @@ public class config {
     }
 
     public void odometryDrive(double targetX, double targetY, double targetH, double speed){
+
+        if(!PIDreset){
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+
+            //ElapsedTime PIDtimer = new ElapsedTime();
+
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        }
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError  * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError  * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if(Math.abs(xError) < 1.5 && Math.abs(yError) < 1.5 && Math.abs(hError) < 4) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
+    }
+    public void sleep(double time){
+        sleeptime.reset();
+        while(sleeptime.milliseconds() <= time){
+
+        }
+    }
+    /*
+    public void oldOdometryDrive(double targetX, double targetY, double targetH, double speed){
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
@@ -157,11 +229,8 @@ public class config {
         }
         moveRobot(0, 0, 0);
     }
-    public void sleep(double time){
-        sleeptime.reset();
-        while(sleeptime.seconds() <= time){
 
-        }
-    }
+     */
+
 }
 
