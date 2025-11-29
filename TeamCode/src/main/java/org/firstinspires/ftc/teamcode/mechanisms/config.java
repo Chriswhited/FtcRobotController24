@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -26,6 +27,8 @@ public class config {
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
     public GoBildaPinpointDriver pinpoint;
+    public ColorSensor colorRight;
+    public ColorSensor colorLeft;
     Pose2D pos;
     double xProp = 0.04;
     double xInt = 0.0;
@@ -49,6 +52,8 @@ public class config {
     public boolean intake_var;
     public boolean intake_var2;
     public double max_power = 1.0;
+    public float hsvValuesLeft[] = {0F,0F,0F};
+    public float hsvValuesRight[] = {0F,0F,0F};
 
     boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
@@ -63,7 +68,8 @@ public class config {
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hwMap.get(DcMotor.class, "launch_motor_1");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
-//color1 = hwMap.get(ColorSensor.class, "color1");
+        colorRight = hwMap.get(ColorSensor.class, "colorRight");
+        colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
         pinpoint = hwMap.get(GoBildaPinpointDriver .class, "pinpoint");
         franklin_flipper_right = hwMap.get(Servo .class, "franklin_flipper_right");
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
@@ -185,8 +191,7 @@ public class config {
 
         }
     }
-    /*
-    public void oldOdometryDrive(double targetX, double targetY, double targetH, double speed){
+    public void AutoOdometryDrive(double targetX, double targetY, double targetH, double speed){
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
@@ -229,8 +234,6 @@ public class config {
         }
         moveRobot(0, 0, 0);
     }
-
-     */
 
 }
 
