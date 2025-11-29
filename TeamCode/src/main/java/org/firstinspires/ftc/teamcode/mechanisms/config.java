@@ -49,6 +49,7 @@ public class config {
     double lastErrorY = 0;
     double derivativeY = 0;
     double derivativeX = 0;
+    double tag = 0;
     public boolean intake_var;
     public boolean intake_var2;
     public double max_power = 1.0;
@@ -233,6 +234,72 @@ public class config {
             timer.reset();
         }
         moveRobot(0, 0, 0);
+    }
+    public void ColorLaunch(double tag){
+        if (tag == 21) {
+            franklin_flipper_right.setPosition(.11); //shoots green
+            sleep(200);
+            franklin_flipper_right.setPosition(.44);
+            sleep(550);
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(700);
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(300);
+            if(hsvValuesRight[0] > 145 || hsvValuesLeft[0] > 145){
+                franklin_flipper_left.setPosition(1);
+                franklin_flipper_right.setPosition(.11);
+                sleep(200);
+                franklin_flipper_left.setPosition(.64);
+                franklin_flipper_right.setPosition(.44);
+            }
+        }
+        else if (tag == 22){
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(550);
+            franklin_flipper_right.setPosition(.11); //shoots green
+            sleep(200);
+            franklin_flipper_right.setPosition(.44);
+            sleep(550);
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(300);
+            if(hsvValuesRight[0] > 145 || hsvValuesLeft[0] > 145){
+                franklin_flipper_left.setPosition(1);
+                franklin_flipper_right.setPosition(.11);
+                sleep(200);
+                franklin_flipper_left.setPosition(.64);
+                franklin_flipper_right.setPosition(.44);
+            }
+        }
+        else{
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(700);
+            franklin_flipper_left.setPosition(1); //shoots purple
+            sleep(200);
+            franklin_flipper_left.setPosition(.64);
+            sleep(550);
+            franklin_flipper_right.setPosition(.11); //shoots green
+            sleep(200);
+            franklin_flipper_right.setPosition(.44);
+            sleep(300);
+            if (hsvValuesRight[0] > 145 || hsvValuesLeft[0] > 145) {
+                franklin_flipper_left.setPosition(1);
+                franklin_flipper_right.setPosition(.11);
+                sleep(200);
+                franklin_flipper_left.setPosition(.64);
+                franklin_flipper_right.setPosition(.44);
+            }
+        }
+
     }
 
 }

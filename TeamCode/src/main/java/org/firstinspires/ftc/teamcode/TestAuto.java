@@ -52,31 +52,34 @@ public class TestAuto extends OpMode {
 
     @Override
     public void start(){
-        conf.launch_motor_1.setPower(0.9);//.083
+        conf.launch_motor_1.setPower(0.9); //OverDrive
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        conf.sleep(4000); //spinup flywheel 5200
-        conf.launch_motor_1.setPower(0.7);
-        conf.sleep(1000);
-        conf.launch();
+        conf.sleep(4000); //Wait for spinup
+        conf.launch_motor_1.setPower(0.7); //Set to real speed
+        conf.sleep(1000); //Continue wait for spinup
+        conf.ColorLaunch(21); //Launch PreLoad
+
+        //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,-17,90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,-46,90, 0.4);
-        //intake_motor.setPower(0);
+
+        //Launch 2nd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.intake_motor.setPower(0);
-        conf.launch();
+        conf.ColorLaunch(21);
+
+        //Intake 3rd Cycle
         conf.AutoOdometryDrive(50,-9,90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(50,-41,90, conf.xMaxSpeed);
+
+        //Launch 3rd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.intake_motor.setPower(0);
-        conf.launch();
-        conf.sleep(550);
-        conf.franklin_flipper_right.setPosition(0.11);
-        conf.franklin_flipper_left.setPosition(1);
-        conf.sleep(550);
-        conf.franklin_flipper_left.setPosition(0.64);
-        conf.franklin_flipper_right.setPosition(0.44);
+        conf.ColorLaunch(21);
+
+        //Park
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
         conf.AutoOdometryDrive(72, -15, 90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
