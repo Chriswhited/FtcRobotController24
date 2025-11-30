@@ -131,7 +131,6 @@ public class config {
     }
     public void configurePinpoint(){
         pinpoint.setOffsets(0.945, 6.5, DistanceUnit.INCH); //Set robot offset
-        //pinpoint.setOffsets(-6.5, -0.945, DistanceUnit.INCH); //Set robot offset
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); //Sets type of pod
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, //Set direction for pod
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
