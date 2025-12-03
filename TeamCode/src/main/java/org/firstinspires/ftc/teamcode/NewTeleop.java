@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -15,10 +17,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.config;
+import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @TeleOp(name = "NewTeleop", group = "Robot")
 public class NewTeleop extends OpMode {
-    config conf = new config();
+    configwLimeLight conf = new configwLimeLight();
 
     @Override
     public void init() {
@@ -29,25 +32,25 @@ public class NewTeleop extends OpMode {
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(19,-15.75,0, 1);
+            conf.odometryDrive(21.3,53.2,0, 1);
         }
         else if(gamepad1.dpad_left){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
         else if(gamepad1.dpad_up){ //Opponents goal shooting
-            conf.launch_motor_1.setPower(.6);
-            conf.odometryDrive(107,53,-84.5, 1);
+            conf.launch_motor_1.setPower(.63);
+            conf.odometryDrive(103,48.8,-87.5, 1);
         }
         else if(gamepad1.dpad_right){ //Middle shooting
-            conf.launch_motor_1.setPower(.6);
-            conf.odometryDrive(86.5,14.5,-49.5, 1);
+            conf.launch_motor_1.setPower(.55);
+            conf.odometryDrive(66.5,8.9,-50.7, 1);
         }
         else if(gamepad1.dpad_down){ //Close shooting
-            conf.launch_motor_1.setPower(.50);
-            conf.odometryDrive(95,-12.3,-55, 1);
+            conf.launch_motor_1.setPower(.52);
+            conf.odometryDrive(88.5,-12.7,-53.2, 1);
         }
-        else{
+        else {
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
             double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -80,8 +83,18 @@ public class NewTeleop extends OpMode {
             }
         }
 
+        //Get Color Sensor Values
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+
+        //Reverse kolby cage if full
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
+            conf.intake_motor.setPower(-1);
+            conf.intake_var2 = false;
+        }
         //start kolby kage
-        if(gamepad1.a && conf.intake_var && conf.intake_timer.seconds() > 0.5){
+        else if(gamepad1.a && conf.intake_var && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(1);
             conf.intake_var = false;
             conf.intake_timer.reset();
