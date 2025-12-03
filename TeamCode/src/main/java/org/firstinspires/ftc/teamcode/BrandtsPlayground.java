@@ -19,12 +19,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
+
 @Disabled
-@TeleOp(name = "Teleowlimelight", group = "Robot")
-public class teleopwlimelight extends OpMode {
+@TeleOp(name = "BrandtsPlayground", group = "Robot")
+public class BrandtsPlayground extends OpMode {
     DcMotor back_left_drive;
     DcMotor front_left_drive;
     DcMotor back_right_drive;
@@ -53,6 +53,8 @@ public class teleopwlimelight extends OpMode {
     double hMaxSpeed = 0.7;
     ElapsedTime intake_timer = new ElapsedTime();
     ElapsedTime auto_timer = new ElapsedTime();
+    float aimP = 0;
+    float aimmin = 0;
 
     @Override
     public void init(){
@@ -112,20 +114,39 @@ public class teleopwlimelight extends OpMode {
         LLResult llresult = limelight.getLatestResult();
         Pose3D botpose = llresult.getBotpose();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
-        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
-            telemetry.addData("id", id);
-        }
+        double tx = llresult.getTx();
+
         telemetry.addData("tx", llresult.getTx());
         telemetry.addData("ty", llresult.getTy());
         telemetry.addData("ta", llresult.getTa());
 
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            telemetry.addData("id", id);
+        }
+        double steeringadjust = 0;
+        if (gamepad1.dpad_down){
+            double aimherror = tx;
+            if (Math.abs(aimherror) > 1.0){
+                if (aimherror < 0){
+                    steeringadjust = aimP * aimherror + aimmin;
+                } else {
+                    steeringadjust = aimP * aimherror - aimmin;
+                }
+            }
+        }
+        double rotation = gamepad1.right_stick_x + steeringadjust;
+        double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - rotation;
+        double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + rotation;
+        double back_right_power  = -gamepad1.left_stick_y + gamepad1.left_stick_x + rotation;
+        double back_left_power   = -gamepad1.left_stick_y - gamepad1.left_stick_x - rotation;
 
+/*
         double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
         double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
         double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
         double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
-
+ */
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
