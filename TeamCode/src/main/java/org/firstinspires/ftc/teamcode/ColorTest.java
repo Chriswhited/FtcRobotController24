@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
+@Disabled
 @TeleOp(name = "ColorTest", group = "Robot")
 public class ColorTest extends OpMode {
     DcMotor back_left_drive;

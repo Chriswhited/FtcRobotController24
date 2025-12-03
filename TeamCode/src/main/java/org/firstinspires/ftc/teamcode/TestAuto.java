@@ -7,10 +7,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.config;
+import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @Autonomous(name = "TestAuto", group = "Robot")
 public class TestAuto extends OpMode {
-    config conf = new config();
+    configwLimeLight conf = new configwLimeLight();
 
     @Override
     public void init() {
@@ -41,11 +42,12 @@ public class TestAuto extends OpMode {
     @Override
     public void start(){
         conf.launch_motor_1.setPower(0.9); //OverDrive
+        conf.ReadTag();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.sleep(4000); //Wait for spinup
         conf.launch_motor_1.setPower(0.7); //Set to real speed
         conf.sleep(1000); //Continue wait for spinup
-        conf.ColorLaunch(21); //Launch PreLoad
+        conf.ColorLaunch(conf.id); //Launch PreLoad
 
         //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,-17,90, conf.xMaxSpeed);
@@ -55,7 +57,7 @@ public class TestAuto extends OpMode {
         //Launch 2nd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.intake_motor.setPower(0);
-        conf.ColorLaunch(21);
+        conf.ColorLaunch(conf.id);
 
         //Intake 3rd Cycle
         conf.AutoOdometryDrive(50,-9,90, conf.xMaxSpeed);
@@ -65,7 +67,7 @@ public class TestAuto extends OpMode {
         //Launch 3rd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.intake_motor.setPower(0);
-        conf.ColorLaunch(21);
+        conf.ColorLaunch(conf.id);
 
         //Park
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
