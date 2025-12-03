@@ -29,23 +29,23 @@ public class NewTeleop extends OpMode {
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(19,-15.75,0, 1);
+            conf.odometryDrive(21.3,53.2,0, 1);
         }
         else if(gamepad1.dpad_left){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
         else if(gamepad1.dpad_up){ //Opponents goal shooting
-            conf.launch_motor_1.setPower(.6);
-            conf.odometryDrive(107,53,-84.5, 1);
+            conf.launch_motor_1.setPower(.63);
+            conf.odometryDrive(103,48.8,-87.5, 1);
         }
         else if(gamepad1.dpad_right){ //Middle shooting
-            conf.launch_motor_1.setPower(.6);
-            conf.odometryDrive(86.5,14.5,-49.5, 1);
+            conf.launch_motor_1.setPower(.55);
+            conf.odometryDrive(66.5,8.9,-50.7, 1);
         }
         else if(gamepad1.dpad_down){ //Close shooting
-            conf.launch_motor_1.setPower(.50);
-            conf.odometryDrive(95,-12.3,-55, 1);
+            conf.launch_motor_1.setPower(.52);
+            conf.odometryDrive(88.5,-12.7,-53.2, 1);
         }
         else{
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;

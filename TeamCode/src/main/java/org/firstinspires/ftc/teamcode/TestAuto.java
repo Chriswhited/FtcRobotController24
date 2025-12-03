@@ -21,6 +21,7 @@ public class TestAuto extends OpMode {
 
     }
     public void init_loop() {
+
         telemetry.addLine("Push your robot around to see it track");
         conf.pinpoint.update();
         Pose2D pose2D = conf.pinpoint.getPosition();
