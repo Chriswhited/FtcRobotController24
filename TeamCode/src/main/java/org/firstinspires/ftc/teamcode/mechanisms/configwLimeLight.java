@@ -43,8 +43,8 @@ public class configwLimeLight {
     double yInt = 0.0;
     double yDer = 0.0;
     double hProp = 0.03;
-    public double xMaxSpeed = 0.8;
-    double yMaxSpeed = 0.8;
+    public double xMaxSpeed = 1;
+    double yMaxSpeed = 1;
     double hMaxSpeed = 0.7;
     double xError = 0;
     double yError = 0;
@@ -55,8 +55,10 @@ public class configwLimeLight {
     double lastErrorY = 0;
     double derivativeY = 0;
     double derivativeX = 0;
+    public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
+    public double updown = 200;
     public boolean intake_var;
     public boolean intake_var2;
     public double max_power = 1.0;
@@ -67,6 +69,8 @@ public class configwLimeLight {
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime PIDtimer = new ElapsedTime();
     public ElapsedTime intake_timer = new ElapsedTime();
+
+    public ElapsedTime colorReadTimer = new ElapsedTime();
 
 
     public void init(HardwareMap hwMap)  {
@@ -83,7 +87,7 @@ public class configwLimeLight {
         franklin_flipper_right = hwMap.get(Servo .class, "franklin_flipper_right");
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
         limelight = hwMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(3);
+        limelight.pipelineSwitch(2);
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -219,7 +223,7 @@ public class configwLimeLight {
         double yError = targetY - pose2D.getY(DistanceUnit.INCH);
         double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while(Math.abs(xError) > 1.5 || Math.abs(yError) > 1.5 || Math.abs(hError) > 4){
+        while(Math.abs(xError) > .25 || Math.abs(yError) > .25 || Math.abs(hError) > .5){
 
             pinpoint.update();
             pose2D = pinpoint.getPosition();
@@ -246,7 +250,6 @@ public class configwLimeLight {
         moveRobot(0, 0, 0);
     }
     public void ReadTag(){
-        limelight.pipelineSwitch(2);
         LLResult llresult = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -265,47 +268,57 @@ public class configwLimeLight {
             //Checking if Green Artifact is on the right side
             if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
                 franklin_flipper_right.setPosition(.11); //shoots green
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_right.setPosition(.44);
                 sleep(550);
                 franklin_flipper_left.setPosition(1); //shoots purple
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
                 sleep(550);
-                franklin_flipper_right.setPosition(1); //shoots purple
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
-                sleep(200);
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
             //If Green Artifact is not on the right side then it must be on left
             else {
-                franklin_flipper_left.setPosition(.11); //shoots green
-                sleep(200);
-                franklin_flipper_left.setPosition(.44);
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
                 sleep(550);
-                franklin_flipper_right.setPosition(1); //shoots purple
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
                 sleep(550);
                 franklin_flipper_left.setPosition(1); //shoots purple
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
-                sleep(200);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
 
                 //Checks if any artifacts were not launched
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
 
@@ -317,46 +330,58 @@ public class configwLimeLight {
 
             //Checking if Green Artifact is on the right side
             if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
-                franklin_flipper_left.setPosition(.11); //shoots purple
-                sleep(200);
-                franklin_flipper_left.setPosition(.44);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
                 sleep(550);
-                franklin_flipper_right.setPosition(1); //shoots green
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
                 sleep(550);
                 franklin_flipper_left.setPosition(1); //shoots purple
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
-                sleep(200);
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+                //Checks if any artifacts were not launched
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
             //If Green Artifact is not on the right side then it must be on left
             else {
                 franklin_flipper_right.setPosition(.11); //shoots purple
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_right.setPosition(.44);
                 sleep(550);
                 franklin_flipper_left.setPosition(1); //shoots green
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
                 sleep(550);
-                franklin_flipper_right.setPosition(1); //shoots purple
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
-                sleep(200);
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
 
@@ -369,46 +394,56 @@ public class configwLimeLight {
 
             //Checking if Green Artifact is on the right side
             if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
-                franklin_flipper_left.setPosition(.11); //shoots purple
-                sleep(200);
-                franklin_flipper_left.setPosition(.44);
-                sleep(700);
                 franklin_flipper_left.setPosition(1); //shoots purple
-                sleep(200);
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(1000);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
                 sleep(550);
-                franklin_flipper_right.setPosition(1); //shoots green
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
-                sleep(200);
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
             //If Green Artifact is not on the right side then it must be on left
             else {
                 franklin_flipper_right.setPosition(.11); //shoots purple
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_right.setPosition(.44);
-                sleep(700);
-                franklin_flipper_right.setPosition(1); //shoots purple
-                sleep(200);
-                franklin_flipper_right.setPosition(.64);
+                sleep(1000);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
                 sleep(550);
                 franklin_flipper_left.setPosition(1); //shoots green
-                sleep(200);
+                sleep(updown);
                 franklin_flipper_left.setPosition(.64);
-                sleep(200);
-                if (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
                     franklin_flipper_left.setPosition(1);
                     franklin_flipper_right.setPosition(.11);
-                    sleep(200);
+                    sleep(updown);
                     franklin_flipper_left.setPosition(.64);
                     franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
                 }
             }
 

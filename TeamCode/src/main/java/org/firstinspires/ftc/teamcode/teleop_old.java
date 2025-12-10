@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 @Disabled
 @TeleOp(name = "Teleop", group = "Robot")
-public class teleop extends OpMode {
+public class teleop_old extends OpMode {
     DcMotor back_left_drive;
     DcMotor front_left_drive;
     DcMotor back_right_drive;

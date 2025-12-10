@@ -22,9 +22,10 @@ public class TestAuto extends OpMode {
 
     }
     public void init_loop() {
-
         telemetry.addLine("Push your robot around to see it track");
         conf.pinpoint.update();
+        //conf.limelight.start();
+        //conf.ReadTag();
         Pose2D pose2D = conf.pinpoint.getPosition();
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -33,6 +34,7 @@ public class TestAuto extends OpMode {
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        //telemetry.addData("id", conf.id);
         telemetry.update();
         conf.franklin_flipper_left.setPosition(.64);
         conf.franklin_flipper_right.setPosition(.44);
@@ -41,38 +43,78 @@ public class TestAuto extends OpMode {
 
     @Override
     public void start(){
-        conf.launch_motor_1.setPower(0.9); //OverDrive
+        conf.limelight.start();
+        conf.sleep(200);
+        conf.launch_motor_1.setPower(.9); //OverDrive
         conf.ReadTag();
+        telemetry.addData("id", conf.id);
+        telemetry.update();
+        conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
         conf.sleep(4000); //Wait for spinup
-        conf.launch_motor_1.setPower(0.7); //Set to real speed
+        //conf.launch_motor_1.setPower(0.72); //Set to real speed
         conf.sleep(1000); //Continue wait for spinup
         conf.ColorLaunch(conf.id); //Launch PreLoad
+        conf.launch_motor_1.setPower(.7);
 
         //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,-17,90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(25,-46,90, 0.4);
+
+        //Get Color Sensor Values
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+
+        //Reverse kolby cage if full
+        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
+            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.intake_motor.setPower(-1);
+            conf.sleep(250);
+            conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.intake_motor.setPower(1);
+        }
 
         //Launch 2nd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        conf.intake_motor.setPower(0);
+        conf.intake_motor.setPower(1);
         conf.ColorLaunch(conf.id);
+        conf.intake_motor.setPower(0);
 
         //Intake 3rd Cycle
         conf.AutoOdometryDrive(50,-9,90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(50,-41,90, conf.xMaxSpeed);
+
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+
+        //Reverse kolby cage if full
+        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
+            conf.AutoOdometryDrive(50,-41,90, conf.xMaxSpeed);
+            conf.intake_motor.setPower(-1);
+            conf.sleep(250);
+            conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.AutoOdometryDrive(50,-41,90, conf.xMaxSpeed);
+            conf.intake_motor.setPower(1);
+        }
 
         //Launch 3rd Cycle
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        conf.intake_motor.setPower(0);
+        conf.intake_motor.setPower(1);
         conf.ColorLaunch(conf.id);
+        conf.intake_motor.setPower(0);
 
         //Park
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
         conf.AutoOdometryDrive(72, -15, 90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
+
 
 
     }

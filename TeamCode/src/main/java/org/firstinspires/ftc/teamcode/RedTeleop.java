@@ -2,53 +2,56 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
-@TeleOp(name = "NewTeleop", group = "Robot")
-public class NewTeleop extends OpMode {
+@TeleOp(name = "RedTeleop", group = "Robot")
+public class RedTeleop extends OpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
     public void init() {
         conf.init(hardwareMap);
 
+        telemetry.addLine("Push your robot around to see it track");
+        conf.pinpoint.update();
+        Pose2D pose2D = conf.pinpoint.getPosition();
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
+        telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.update();
+
     }
 
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(21.3,53.2,0, 1);
+            conf.odometryDrive(21.3,47.8,0, 1);
         }
-        else if(gamepad1.dpad_left){ //Far Shooting
+        else if(gamepad1.dpad_right){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
         else if(gamepad1.dpad_up){ //Opponents goal shooting
             conf.launch_motor_1.setPower(.63);
-            conf.odometryDrive(103,48.8,-87.5, 1);
+            conf.odometryDrive(103,48.8,-83.5, 1);
         }
-        else if(gamepad1.dpad_right){ //Middle shooting
-            conf.launch_motor_1.setPower(.55);
-            conf.odometryDrive(66.5,8.9,-50.7, 1);
+        else if(gamepad1.dpad_left){ //Middle shooting
+            conf.launch_motor_1.setPower(.56);
+            conf.odometryDrive(66.5,8.9,-45.4, 1);
         }
         else if(gamepad1.dpad_down){ //Close shooting
-            conf.launch_motor_1.setPower(.52);
-            conf.odometryDrive(88.5,-12.7,-53.2, 1);
+            conf.launch_motor_1.setPower(.53);
+            conf.odometryDrive(87.45,-6.59,-45.4, conf.xMaxSpeed);
         }
         else {
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
@@ -90,21 +93,25 @@ public class NewTeleop extends OpMode {
 
         //Reverse kolby cage if full
         if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
-            conf.intake_motor.setPower(-1);
-            conf.intake_var2 = false;
+
+            if (!conf.ColorReadVar){
+                conf.ColorReadVar = true;
+                conf.colorReadTimer.reset();
+            }
+            Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+            Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+            Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+            if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140 && conf.colorReadTimer.seconds() > 0.25){
+                conf.ColorReadVar = false;
+                conf.intake_motor.setPower(0);
+            }
         }
         //start kolby kage
-        else if(gamepad1.a && conf.intake_var && conf.intake_timer.seconds() > 0.5){
+        else if(gamepad1.right_trigger > .5){
             conf.intake_motor.setPower(1);
-            conf.intake_var = false;
-            conf.intake_timer.reset();
         }
-        else if(gamepad1.a && !conf.intake_var && conf.intake_timer.seconds() > 0.5){
-            conf.intake_motor.setPower(0);
-            conf.intake_var = true;
-            conf.intake_timer.reset();
-        }
-        //reverse kolby kage
+
+        //reverse kage
         if(gamepad1.b && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(-1);
             conf.intake_var2 = false;
