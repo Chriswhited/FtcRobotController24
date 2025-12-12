@@ -38,6 +38,8 @@ public class BlueCloseAuto extends OpMode {
         telemetry.update();
         conf.franklin_flipper_left.setPosition(.64);
         conf.franklin_flipper_right.setPosition(.44);
+        conf.redLED.off();
+        conf.greenLED.off();
     }
 
 
@@ -54,7 +56,7 @@ public class BlueCloseAuto extends OpMode {
         conf.AutoOdometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
         conf.ColorLaunch(conf.id); //Launch PreLoad
 
-        conf.AutoOdometryDrive(71.73,12.13,-90, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
 
         //Get Color Sensor Values
@@ -81,7 +83,7 @@ public class BlueCloseAuto extends OpMode {
         conf.intake_motor.setPower(0);
 
         //Intake 3rd Cycle
-        conf.AutoOdometryDrive(48.39,12.13,-90, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(48.39,10.13,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);

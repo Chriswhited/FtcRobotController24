@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -72,6 +73,9 @@ public class configwLimeLight {
 
     public ElapsedTime colorReadTimer = new ElapsedTime();
 
+    public LED redLED;
+    public LED greenLED;
+
 
     public void init(HardwareMap hwMap)  {
         back_left_drive = hwMap.get(DcMotor.class, "back_left_drive");
@@ -88,6 +92,8 @@ public class configwLimeLight {
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
         limelight = hwMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(2);
+        redLED = hwMap.get(LED.class, "redLED");
+        greenLED = hwMap.get(LED.class, "greenLED");
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -223,7 +229,7 @@ public class configwLimeLight {
         double yError = targetY - pose2D.getY(DistanceUnit.INCH);
         double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while(Math.abs(xError) > .25 || Math.abs(yError) > .25 || Math.abs(hError) > .5){
+        while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5){
 
             pinpoint.update();
             pose2D = pinpoint.getPosition();

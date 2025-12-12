@@ -29,13 +29,15 @@ public class RedTeleop extends OpMode {
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
         telemetry.update();
+        conf.redLED.off();
+        conf.greenLED.off();
 
     }
 
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(21.3,47.8,0, 1);
+            conf.odometryDrive(-21.3,48,0, 1);
         }
         else if(gamepad1.dpad_right){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
@@ -103,22 +105,30 @@ public class RedTeleop extends OpMode {
             Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
             if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140 && conf.colorReadTimer.seconds() > 0.25){
                 conf.ColorReadVar = false;
+                conf.redLED.off();
+                conf.greenLED.off();
                 conf.intake_motor.setPower(0);
             }
         }
         //start kolby kage
         else if(gamepad1.right_trigger > .5){
+            conf.greenLED.on();
+            conf.redLED.off();
             conf.intake_motor.setPower(1);
         }
 
         //reverse kage
         if(gamepad1.b && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(-1);
+            conf.redLED.on();
+            conf.greenLED.off();
             conf.intake_var2 = false;
             conf.intake_timer.reset();
         }
         else if(gamepad1.b && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(0);
+            conf.redLED.off();
+            conf.greenLED.off();
             conf.intake_var2 = true;
             conf.intake_timer.reset();
         }

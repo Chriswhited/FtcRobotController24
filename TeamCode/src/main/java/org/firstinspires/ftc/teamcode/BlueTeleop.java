@@ -28,6 +28,8 @@ public class BlueTeleop extends OpMode {
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        conf.redLED.off();
+        conf.greenLED.off();
         telemetry.update();
 
     }
@@ -35,7 +37,7 @@ public class BlueTeleop extends OpMode {
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(21.3,-47.8,0, 1);
+            conf.odometryDrive(20.4,-51.4,0, 1);
         }
         else if(gamepad1.dpad_left){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
@@ -103,12 +105,16 @@ public class BlueTeleop extends OpMode {
             Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
             if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140 && conf.colorReadTimer.seconds() > 0.25){
                 conf.ColorReadVar = false;
+                conf.redLED.off();
+                conf.greenLED.off();
                 conf.intake_motor.setPower(0);
             }
         }
 
         else if(gamepad1.right_trigger > .5){
             conf.intake_motor.setPower(1);
+            conf.greenLED.on();
+            conf.redLED.off();
         }
 
         /*
@@ -128,6 +134,8 @@ public class BlueTeleop extends OpMode {
         //reverse kolby kage
         if(gamepad1.b && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(-1);
+            conf.redLED.on();
+            conf.greenLED.off();
             conf.intake_var2 = false;
             conf.intake_timer.reset();
         }

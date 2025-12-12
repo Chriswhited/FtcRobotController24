@@ -38,6 +38,8 @@ public class RedFarAuto extends OpMode {
         telemetry.update();
         conf.franklin_flipper_left.setPosition(.64);
         conf.franklin_flipper_right.setPosition(.44);
+        conf.redLED.off();
+        conf.greenLED.off();
     }
 
 
@@ -68,13 +70,13 @@ public class RedFarAuto extends OpMode {
 
         //Reverse kolby cage if full
         if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.AutoOdometryDrive(25,-41,90, 0.4);
             conf.intake_motor.setPower(-1);
             conf.sleep(250);
             conf.intake_motor.setPower(0);
         }
         else{
-            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.AutoOdometryDrive(25,-41,90, 0.4);
             conf.intake_motor.setPower(1);
         }
 
