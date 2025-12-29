@@ -58,7 +58,9 @@ public class RedFarAuto extends OpMode {
         conf.sleep(1000); //Continue wait for spinup
         conf.ColorLaunch(conf.id); //Launch PreLoad
         //conf.launch_motor_1.setPower(.7);
-
+        conf.AutoOdometryDrive(2.2,-36.4,0, conf.xMaxSpeed);
+        conf.launch_motor_1.setPower(0);
+/*
         //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,-17,90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
@@ -116,6 +118,8 @@ public class RedFarAuto extends OpMode {
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
         conf.AutoOdometryDrive(72, -15, 90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
+        -
+ */
 
 
 
