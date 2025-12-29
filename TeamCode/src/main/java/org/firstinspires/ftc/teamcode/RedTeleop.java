@@ -37,7 +37,7 @@ public class RedTeleop extends OpMode {
     @Override
     public void loop()  {
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(-21.3,48,0, 1);
+            conf.odometryDrive(23,48,0, 1);// -21.3 48
         }
         else if(gamepad1.dpad_right){ //Far Shooting
             conf.launch_motor_1.setPower(0.7);
