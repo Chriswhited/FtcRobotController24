@@ -15,6 +15,8 @@ import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -27,7 +29,7 @@ public class testconfig {
     public DcMotor front_left_drive;
     public DcMotor back_right_drive;
     public DcMotor front_right_drive;
-    public DcMotor launch_motor_1;
+    public DcMotorEx launch_motor_1;
     public DcMotor intake_motor;
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
@@ -83,7 +85,7 @@ public class testconfig {
         front_left_drive = hwMap.get(DcMotor.class, "front_left_drive");
         back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
-        launch_motor_1 = hwMap.get(DcMotor.class, "launch_motor_1");
+        launch_motor_1 = hwMap.get(DcMotorEx.class, "launch_motor_1");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
         colorRight = hwMap.get(ColorSensor.class, "colorRight");
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
@@ -286,11 +288,11 @@ public class testconfig {
             idg = fiducial.getFiducialId();
         }
         if (llresult.isValid() && (idg == 25 || idg == 26)) { //Change idg for what ever the goal tag value is for each one
-            double tx = llresult.getTx();
-            double allignerror = 1;   //How much error
+            double tx = llresult.getTx(); //target x
+            double alignerror = 1;   //How much error
 
             //Stop when we are centered on april tag
-            if (Math.abs(tx) < allignerror) {
+            if (Math.abs(tx) < alignerror) {
                 odometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
