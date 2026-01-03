@@ -3,19 +3,23 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 import android.graphics.Color;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -25,9 +29,9 @@ import java.util.List;
 public class configwLimeLight {
     public DcMotor back_left_drive;
     public DcMotor front_left_drive;
-    public  DcMotor back_right_drive;
+    public DcMotor back_right_drive;
     public DcMotor front_right_drive;
-    public DcMotor launch_motor_1;
+    public DcMotorEx launch_motor_1;
     public DcMotor intake_motor;
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
@@ -75,6 +79,10 @@ public class configwLimeLight {
 
     public LED redLED;
     public LED greenLED;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+
+
 
 
     public void init(HardwareMap hwMap)  {
@@ -82,7 +90,7 @@ public class configwLimeLight {
         front_left_drive = hwMap.get(DcMotor.class, "front_left_drive");
         back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
-        launch_motor_1 = hwMap.get(DcMotor.class, "launch_motor_1");
+        launch_motor_1 = hwMap.get(DcMotorEx.class, "launch_motor_1");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
         colorRight = hwMap.get(ColorSensor.class, "colorRight");
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
@@ -107,6 +115,9 @@ public class configwLimeLight {
         front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
+        launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
 
     }
     public void moveRobot(double x, double y, double h){
@@ -209,7 +220,8 @@ public class configwLimeLight {
     public void sleep(double time){
         sleeptime.reset();
         while(sleeptime.milliseconds() <= time){
-
+            dashboardTelemetry.addData("Flywheel on", launch_motor_1.getVelocity());
+            dashboardTelemetry.update();
         }
     }
     public void AutoOdometryDrive(double targetX, double targetY, double targetH, double speed){

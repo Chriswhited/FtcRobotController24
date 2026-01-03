@@ -38,24 +38,27 @@ public class TestAuto extends OpMode {
         telemetry.update();
         conf.franklin_flipper_left.setPosition(.64);
         conf.franklin_flipper_right.setPosition(.44);
+        conf.redLED.off();
+        conf.greenLED.off();
     }
 
 
     @Override
     public void start(){
         conf.limelight.start();
+        conf.launch_motor_1.setVelocity(1720);
         conf.sleep(200);
-        conf.launch_motor_1.setPower(.9); //OverDrive
         conf.ReadTag();
         telemetry.addData("id", conf.id);
         telemetry.update();
         conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        conf.sleep(4000); //Wait for spinup
-        //conf.launch_motor_1.setPower(0.72); //Set to real speed
-        conf.sleep(1000); //Continue wait for spinup
+        while(conf.launch_motor_1.getVelocity() < 1660)
+        {
+            conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            conf.dashboardTelemetry.update();
+        }
         conf.ColorLaunch(conf.id); //Launch PreLoad
-        conf.launch_motor_1.setPower(.7);
 
         //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,-17,90, conf.xMaxSpeed);
@@ -68,13 +71,13 @@ public class TestAuto extends OpMode {
 
         //Reverse kolby cage if full
         if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.AutoOdometryDrive(25,-41,90, 0.4);
             conf.intake_motor.setPower(-1);
             conf.sleep(250);
             conf.intake_motor.setPower(0);
         }
         else{
-            conf.AutoOdometryDrive(25,-46,90, 0.4);
+            conf.AutoOdometryDrive(25,-41,90, 0.4);
             conf.intake_motor.setPower(1);
         }
 
@@ -114,6 +117,7 @@ public class TestAuto extends OpMode {
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
         conf.AutoOdometryDrive(72, -15, 90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
+
 
 
 

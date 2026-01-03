@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 import android.graphics.Color;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -18,6 +19,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -78,6 +80,9 @@ public class testconfig {
 
     public LED redLED;
     public LED greenLED;
+
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    public Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
 
     public void init(HardwareMap hwMap) {
