@@ -4,11 +4,15 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
+import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 
 @TeleOp(name = "RedTeleop", group = "Robot")
 public class RedTeleop extends OpMode {
@@ -36,25 +40,35 @@ public class RedTeleop extends OpMode {
 
     @Override
     public void loop()  {
+        conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+        conf.dashboardTelemetry.addData("PID", conf.launch_motor_1.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER));
+        PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
+        conf.launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        conf.dashboardTelemetry.update();
+        //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+
         if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(23,48,0, 1);// -21.3 48
+            conf.odometryDrive(-21.3,48,0, 1);
         }
-        else if(gamepad1.dpad_right){ //Far Shooting
-            conf.launch_motor_1.setPower(0.7);
+        else if(gamepad1.b){ //Far Shooting
+            conf.launch_motor_1.setVelocity(1660); //.7
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
-        else if(gamepad1.dpad_up){ //Opponents goal shooting
-            conf.launch_motor_1.setPower(.63);
+        else if(gamepad1.y){ //Opponents goal shooting
+            conf.launch_motor_1.setVelocity(1480); //.63
             conf.odometryDrive(103,48.8,-83.5, 1);
         }
-        else if(gamepad1.dpad_left){ //Middle shooting
-            conf.launch_motor_1.setPower(.56);
+        else if(gamepad1.x){ //Middle shooting
+            conf.launch_motor_1.setVelocity(1380); //.56
             conf.odometryDrive(66.5,8.9,-45.4, 1);
         }
-        else if(gamepad1.dpad_down){ //Close shooting
-            conf.launch_motor_1.setPower(.53);
+        else if(gamepad1.a){ //Close shooting
+            conf.launch_motor_1.setVelocity(1260); //.53
             conf.odometryDrive(87.45,-6.59,-45.4, conf.xMaxSpeed);
         }
+        //else if(gamepad1.left_bumper){
+        //conf.AutoAlign();
+        //}
         else {
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -118,14 +132,14 @@ public class RedTeleop extends OpMode {
         }
 
         //reverse kage
-        if(gamepad1.b && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
+        if(gamepad2.right_bumper && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(-1);
             conf.redLED.on();
             conf.greenLED.off();
             conf.intake_var2 = false;
             conf.intake_timer.reset();
         }
-        else if(gamepad1.b && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
+        else if(gamepad2.right_bumper && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(0);
             conf.redLED.off();
             conf.greenLED.off();
@@ -135,17 +149,17 @@ public class RedTeleop extends OpMode {
 
         //Flywheel launcher
         if (gamepad2.a) {
-            conf.launch_motor_1.setPower(.54);
-            telemetry.addData("Flywheel on", conf.launch_motor_1.getPower()*100);
+            conf.launch_motor_1.setVelocity(1280); // .54
+            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.b) {
-            conf.launch_motor_1.setPower(.55);
-            telemetry.addData("Flywheel on", conf.launch_motor_1.getPower()*100);
+            conf.launch_motor_1.setVelocity(1300); // .55
+            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.x) {
-            conf.launch_motor_1.setPower(.60);
-            telemetry.addData("Flywheel on", conf.launch_motor_1.getPower()*100);
+            conf.launch_motor_1.setVelocity(1420); //.6
+            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.y) {
-            conf.launch_motor_1.setPower(.70);
-            telemetry.addData("Flywheel on", conf.launch_motor_1.getPower()*100);
+            conf.launch_motor_1.setVelocity(1660); //.70
+            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         }
         else if (gamepad2.back) {
             telemetry.addLine("Flywheel off");

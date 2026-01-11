@@ -46,20 +46,20 @@ public class BlueFarAuto extends OpMode {
     @Override
     public void start(){
         conf.limelight.start();
+        conf.launch_motor_1.setVelocity(1720);
         conf.sleep(200);
-        conf.launch_motor_1.setPower(.8); //OverDrive
         conf.ReadTag();
         telemetry.addData("id", conf.id);
         telemetry.update();
         conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,-2.2,22, conf.xMaxSpeed);
-        conf.sleep(4000); //Wait for spinup
-        conf.launch_motor_1.setPower(0.7); //Set to real speed
-        conf.sleep(1000); //Continue wait for spinup
+        while(conf.launch_motor_1.getVelocity() < 1660)
+        {
+            conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            conf.dashboardTelemetry.update();
+        }
         conf.ColorLaunch(conf.id); //Launch PreLoad
-        conf.AutoOdometryDrive(2.2,36.4,0, conf.xMaxSpeed);
-        conf.launch_motor_1.setPower(0);
-        /*
+
         //Intake 2nd Cycle
         conf.AutoOdometryDrive(25,17,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
@@ -118,7 +118,6 @@ public class BlueFarAuto extends OpMode {
         conf.AutoOdometryDrive(72, 15, -90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
 
-         */
 
 
 

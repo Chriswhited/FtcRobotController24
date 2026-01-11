@@ -50,25 +50,25 @@ public class RedTestTeleop extends OpMode {
         if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(-21.3,48,0, 1);
         }
-        else if(gamepad1.dpad_right){ //Far Shooting
+        else if(gamepad1.b){ //Far Shooting
             conf.launch_motor_1.setVelocity(1660); //.7
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
-        else if(gamepad1.dpad_up){ //Opponents goal shooting
+        else if(gamepad1.y){ //Opponents goal shooting
             conf.launch_motor_1.setVelocity(1480); //.63
             conf.odometryDrive(103,48.8,-83.5, 1);
         }
-        else if(gamepad1.dpad_left){ //Middle shooting
+        else if(gamepad1.x){ //Middle shooting
             conf.launch_motor_1.setVelocity(1380); //.56
             conf.odometryDrive(66.5,8.9,-45.4, 1);
         }
-        else if(gamepad1.dpad_down){ //Close shooting
+        else if(gamepad1.a){ //Close shooting
             conf.launch_motor_1.setVelocity(1260); //.53
             conf.odometryDrive(87.45,-6.59,-45.4, conf.xMaxSpeed);
         }
-        else if(gamepad1.left_bumper){
+        //else if(gamepad1.left_bumper){
             //conf.AutoAlign();
-        }
+        //}
         else {
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -132,14 +132,14 @@ public class RedTestTeleop extends OpMode {
         }
 
         //reverse kage
-        if(gamepad1.b && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
+        if(gamepad1.left_bumper && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(-1);
             conf.redLED.on();
             conf.greenLED.off();
             conf.intake_var2 = false;
             conf.intake_timer.reset();
         }
-        else if(gamepad1.b && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
+        else if(gamepad1.left_bumper && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
             conf.intake_motor.setPower(0);
             conf.redLED.off();
             conf.greenLED.off();
