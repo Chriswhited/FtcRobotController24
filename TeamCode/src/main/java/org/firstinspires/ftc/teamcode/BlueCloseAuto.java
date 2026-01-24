@@ -46,7 +46,7 @@ public class BlueCloseAuto extends OpMode {
     @Override
     public void start(){
         conf.limelight.start();
-        conf.launch_motor_1.setPower(.54);
+        conf.setFlywheelPower(1280);
         conf.AutoOdometryDrive(87.45,6.59,-25.7, conf.xMaxSpeed);
         conf.ReadTag();
         conf.sleep(2000);
@@ -109,7 +109,7 @@ public class BlueCloseAuto extends OpMode {
         conf.intake_motor.setPower(0);
 
         conf.AutoOdometryDrive(68.14,10.18,45.4, conf.xMaxSpeed);
-        conf.launch_motor_1.setPower(0);
+        conf.setFlywheelPower(0);
 
     }
     public void loop(){

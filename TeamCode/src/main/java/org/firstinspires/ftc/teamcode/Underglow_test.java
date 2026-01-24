@@ -34,20 +34,6 @@ import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 import java.util.concurrent.TimeUnit;
 
-import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
-import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
-import com.qualcomm.robotcore.hardware.I2cAddr;
-
-import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.I2cAddr;
-import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-
-
-
-
 /*
  * This example file shows how to create a couple of different Animations on the Prism, and save
  * them to an Artboard on the device.
@@ -72,8 +58,8 @@ import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
  * you can have up to 8 unique Artboards. Artboards are easy and computationally fast to switch between.
  */
 
-
-@TeleOp(name="Prism Animations Example", group="Linear OpMode")
+@TeleOp(name="Underglow_test", group="Linear OpMode")
+//@Disabled
 
 public class Underglow_test extends LinearOpMode {
 
@@ -88,18 +74,15 @@ public class Underglow_test extends LinearOpMode {
          * Initialize the hardware variables. Note that the strings used here must correspond
          * to the names assigned during the robot configuration step on the driver's station.
          */
-        //prism = hardwareMap.get(GoBildaPrismDriver.class,"prism");
-        I2cDeviceSynchSimple i2c =
-                hardwareMap.get(I2cDeviceSynchSimple.class, "i2c0");
+        prism = hardwareMap.get(GoBildaPrismDriver.class,"prism");
 
-        prism = new GoBildaPrismDriver(i2c);
         /*
          * Here you can customize the specifics of different animations. Each animation has it's
          * own set of parameters that you can customize to create something unique! Each animation
          * has carefully selected default parameters. So you do not need to set each parameter
          * for every animation!
          */
-        solid.setBrightness(100);
+        solid.setBrightness(50);
         solid.setStartIndex(0);
         solid.setStopIndex(12);
 
@@ -120,12 +103,6 @@ public class Underglow_test extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-            if(gamepad1.yWasPressed()){
-                solid.setPrimaryColor(Color.BLUE);
-                solid.getPrimaryColor();
-
-            }
 
 
             if(gamepad1.aWasPressed()){

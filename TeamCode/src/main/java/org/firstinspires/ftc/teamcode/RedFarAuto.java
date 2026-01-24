@@ -46,7 +46,7 @@ public class RedFarAuto extends OpMode {
     @Override
     public void start(){
         conf.limelight.start();
-        conf.launch_motor_1.setVelocity(1720);
+        conf.setFlywheelPower(1720);
         conf.sleep(200);
         conf.ReadTag();
         telemetry.addData("id", conf.id);
@@ -117,12 +117,10 @@ public class RedFarAuto extends OpMode {
         //AutoOdometryDrive(14,-3,-42, xMaxSpeed); //NEAR PARK
         conf.AutoOdometryDrive(72, -15, 90, conf.xMaxSpeed); //FAR PARK
         //flywheel off
-
-
-
+        conf.launch_motor_1.setPower(0);
+        conf.launch_motor_2.setPower(0);
 
     }
     public void loop(){
-
     }
 }

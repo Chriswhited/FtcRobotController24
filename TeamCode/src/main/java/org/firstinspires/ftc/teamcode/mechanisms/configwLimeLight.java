@@ -33,6 +33,7 @@ public class configwLimeLight {
     public DcMotor back_right_drive;
     public DcMotor front_right_drive;
     public DcMotorEx launch_motor_1;
+    public DcMotorEx launch_motor_2;
     public DcMotor intake_motor;
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
@@ -64,8 +65,10 @@ public class configwLimeLight {
     public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
+    public double idg = 0;
     public double updown = 200;
     public boolean intake_var;
+    public boolean flywheelStart = false;
     public boolean intake_var2;
     public double max_power = 1.0;
     public float hsvValuesLeft[] = {0F,0F,0F};
@@ -92,6 +95,7 @@ public class configwLimeLight {
         back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hwMap.get(DcMotorEx.class, "launch_motor_1");
+        launch_motor_2 = hwMap.get(DcMotorEx.class, "launch_motor_2");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
         colorRight = hwMap.get(ColorSensor.class, "colorRight");
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
@@ -104,8 +108,8 @@ public class configwLimeLight {
         redLED = hwMap.get(LED.class, "redLED");
         greenLED = hwMap.get(LED.class, "greenLED");
 
-
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launch_motor_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         front_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -116,10 +120,15 @@ public class configwLimeLight {
         back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launch_motor_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launch_motor_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
         launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
 
     }
     public void moveRobot(double x, double y, double h){
@@ -146,6 +155,10 @@ public class configwLimeLight {
         back_left_drive.setPower(leftBackPower);
         back_right_drive.setPower(rightBackPower);
         sleep(10);
+    }
+    public void setFlywheelPower(double velocity){
+        launch_motor_1.setVelocity(velocity);
+        launch_motor_2.setVelocity(velocity);
     }
     public void launch(){
         franklin_flipper_right.setPosition(.11); //shoot cycle 1
@@ -274,6 +287,36 @@ public class configwLimeLight {
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
             id = fiducial.getFiducialId(); // The ID number of the fiducial
+        }
+    }
+
+    public void AutoAlign() {
+
+        //Getting Current Pinpoint
+        pinpoint.update();
+        Pose2D pos = pinpoint.getPosition();
+        double currentX = pos.getX(DistanceUnit.INCH);
+        double currentY = pos.getY(DistanceUnit.INCH);
+        double currentH = pos.getHeading(AngleUnit.DEGREES);
+
+        //Read tag
+        LLResult llresult = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            idg = fiducial.getFiducialId();
+        }
+        if (llresult.isValid() && (idg == 20 || idg == 24)) { //Change idg for what ever the goal tag value is for each one
+            double tx = llresult.getTx(); //target x
+            double alignerror = 1;   //How much error
+
+            //Stop when we are centered on april tag
+            if (Math.abs(tx) < alignerror) {
+                odometryDrive(currentX, currentY, currentH, xMaxSpeed);
+            }
+            //Keep driving till we are in the error margin
+            else{
+                odometryDrive(currentX, currentY, currentH + tx, xMaxSpeed);
+            }
         }
     }
     public void ColorLaunch(double tag) {

@@ -47,23 +47,28 @@ public class RedTeleop extends OpMode {
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
 
+        if(!conf.flywheelStart){
+            conf.flywheelStart = true;
+            conf.setFlywheelPower(1380);
+        }
+
         if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(-21.3,48,0, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.launch_motor_1.setVelocity(1660); //.7
+            conf.setFlywheelPower(1660); //.7
             conf.odometryDrive(2.5,2.2,-22, 1);
         }
         else if(gamepad1.y){ //Opponents goal shooting
-            conf.launch_motor_1.setVelocity(1480); //.63
+            conf.setFlywheelPower(1480); //.63
             conf.odometryDrive(103,48.8,-83.5, 1);
         }
         else if(gamepad1.x){ //Middle shooting
-            conf.launch_motor_1.setVelocity(1380); //.56
+            conf.setFlywheelPower(1380); //.56
             conf.odometryDrive(66.5,8.9,-45.4, 1);
         }
         else if(gamepad1.a){ //Close shooting
-            conf.launch_motor_1.setVelocity(1260); //.53
+            conf.setFlywheelPower(1260); //.53
             conf.odometryDrive(87.45,-6.59,-45.4, conf.xMaxSpeed);
         }
         //else if(gamepad1.left_bumper){
@@ -94,11 +99,20 @@ public class RedTeleop extends OpMode {
                 conf.back_left_drive.setPower(back_left_power / (conf.max_power * 2));
                 conf.front_right_drive.setPower(front_right_power / (conf.max_power * 2));
                 conf.back_right_drive.setPower(back_right_power / (conf.max_power * 2));
-            } else {
-                conf.front_left_drive.setPower(front_left_power / conf.max_power);
-                conf.back_left_drive.setPower(back_left_power / conf.max_power);
-                conf.front_right_drive.setPower(front_right_power / conf.max_power);
-                conf.back_right_drive.setPower(back_right_power / conf.max_power);
+            }
+
+            else if (gamepad1.right_trigger > 0.5) {
+                conf.front_left_drive.setPower(front_left_power / (conf.max_power));
+                conf.back_left_drive.setPower(back_left_power / (conf.max_power));
+                conf.front_right_drive.setPower(front_right_power / (conf.max_power));
+                conf.back_right_drive.setPower(back_right_power / (conf.max_power));
+            }
+
+            else {
+                conf.front_left_drive.setPower(front_left_power / conf.max_power * 1.5);
+                conf.back_left_drive.setPower(back_left_power / conf.max_power * 1.5);
+                conf.front_right_drive.setPower(front_right_power / conf.max_power * 1.5);
+                conf.back_right_drive.setPower(back_right_power / conf.max_power * 1.5);
             }
         }
 
@@ -149,16 +163,16 @@ public class RedTeleop extends OpMode {
 
         //Flywheel launcher
         if (gamepad2.a) {
-            conf.launch_motor_1.setVelocity(1280); // .54
+            conf.setFlywheelPower(1280);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.b) {
-            conf.launch_motor_1.setVelocity(1300); // .55
+            conf.setFlywheelPower(1300);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.x) {
-            conf.launch_motor_1.setVelocity(1420); //.6
+            conf.setFlywheelPower(1420);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.y) {
-            conf.launch_motor_1.setVelocity(1660); //.70
+            conf.setFlywheelPower(1660);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         }
         else if (gamepad2.back) {

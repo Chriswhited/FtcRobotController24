@@ -46,14 +46,14 @@ public class TestAuto extends OpMode {
     @Override
     public void start(){
         conf.limelight.start();
-        conf.launch_motor_1.setVelocity(1720);
+        conf.setFlywheelPower(1720);
         conf.sleep(200);
         conf.ReadTag();
         telemetry.addData("id", conf.id);
         telemetry.update();
         conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1660)
+        while(conf.launch_motor_1.getVelocity() < 1660 && conf.launch_motor_2.getVelocity() < 1660)
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
