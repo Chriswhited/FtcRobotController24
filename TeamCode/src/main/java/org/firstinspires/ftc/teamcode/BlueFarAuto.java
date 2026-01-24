@@ -153,8 +153,8 @@ public class BlueFarAuto extends OpMode {
         conf.ColorLaunch(conf.id); //Launch PreLoad
     }
     public void Spike1(){
-        conf.AutoOdometryDrive(25,6,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
+        conf.AutoOdometryDrive(25,6,-90, conf.xMaxSpeed);
 
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
@@ -170,7 +170,7 @@ public class BlueFarAuto extends OpMode {
         }
         else{
             conf.AutoOdometryDrive(25,41,-90, 0.2);
-            conf.intake_motor.setPower(1);
+            conf.intake_motor.setPower(0);
         }
 
         conf.xMaxSpeed = 1;
@@ -178,8 +178,8 @@ public class BlueFarAuto extends OpMode {
     }
 
     public void Spike2(){
-        conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
+        conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -194,7 +194,7 @@ public class BlueFarAuto extends OpMode {
         }
         else{
             conf.AutoOdometryDrive(48,41,-90, .2);
-            conf.intake_motor.setPower(1);
+            conf.intake_motor.setPower(0);
         }
 
         conf.xMaxSpeed = 1;
@@ -202,8 +202,8 @@ public class BlueFarAuto extends OpMode {
     }
 
     public void Spike3(){
-        conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
+        conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
 
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
@@ -219,7 +219,7 @@ public class BlueFarAuto extends OpMode {
         }
         else{
             conf.AutoOdometryDrive(71.73,35.32,-90, 0.3);
-            conf.intake_motor.setPower(1);
+            conf.intake_motor.setPower(0);
         }
         conf.xMaxSpeed = 1;
     }

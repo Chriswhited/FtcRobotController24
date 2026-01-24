@@ -2,9 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
@@ -12,10 +13,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
-import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 
-@TeleOp(name = "RedTestTeleop", group = "Robot")
-public class RedTestTeleop extends OpMode {
+import java.util.List;
+
+@TeleOp(name = "BlueTestTeleop", group = "Robot")
+public class BlueTestTeleop extends OpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
@@ -24,6 +26,8 @@ public class RedTestTeleop extends OpMode {
 
         telemetry.addLine("Push your robot around to see it track");
         conf.pinpoint.update();
+        conf.limelight.pipelineSwitch(3);
+
         Pose2D pose2D = conf.pinpoint.getPosition();
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -35,7 +39,8 @@ public class RedTestTeleop extends OpMode {
         telemetry.update();
         conf.redLED.off();
         conf.greenLED.off();
-        conf.limelight.pipelineSwitch(4);
+
+
     }
 
     @Override
@@ -51,27 +56,27 @@ public class RedTestTeleop extends OpMode {
             conf.flywheelStart = true;
             conf.setFlywheelPower(1380);
         }
-        if(gamepad1.left_bumper){
+        if(gamepad1.left_bumper){ //Auto Align
             conf.AutoAlign();
         }
-        else if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(-21.3,48,0, 1);
+        if(gamepad1.right_bumper){ //Endgame Parking
+            conf.odometryDrive(18,-51,0, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1660); //.7
-            conf.odometryDrive(2.5,2.2,-22, 1);
+            conf.setFlywheelPower(1660);
+            conf.odometryDrive(2.5,-2.2,22, 1);
         }
-        else if(gamepad1.y){ //Opponents goal shooting
-            conf.setFlywheelPower(1480); //.63
-            conf.odometryDrive(103,48.8,-83.5, 1);
+        else if(gamepad1.y){
+            conf.setFlywheelPower(1480);
+            conf.odometryDrive(103,-8.8,83.5, 1);
         }
         else if(gamepad1.x){ //Middle shooting
-            conf.setFlywheelPower(1380); //.56
-            conf.odometryDrive(66.5,8.9,-45.4, 1);
+            conf.setFlywheelPower(1380);
+            conf.odometryDrive(66.5,-8.9,45.4, 1);
         }
         else if(gamepad1.a){ //Close shooting
-            conf.setFlywheelPower(1260); //.53
-            conf.odometryDrive(87.45,-6.59,-45.4, conf.xMaxSpeed);
+            conf.setFlywheelPower(1260);
+            conf.odometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
         }
         //else if(gamepad1.left_bumper){
         //conf.AutoAlign();
@@ -97,10 +102,10 @@ public class RedTestTeleop extends OpMode {
 
             //brandt button
             if (gamepad1.left_trigger > 0.5) {
-                conf.front_left_drive.setPower(front_left_power / (conf.max_power * 2));
-                conf.back_left_drive.setPower(back_left_power / (conf.max_power * 2));
-                conf.front_right_drive.setPower(front_right_power / (conf.max_power * 2));
-                conf.back_right_drive.setPower(back_right_power / (conf.max_power * 2));
+                conf.front_left_drive.setPower(front_left_power / (conf.max_power * 4));
+                conf.back_left_drive.setPower(back_left_power / (conf.max_power * 4));
+                conf.front_right_drive.setPower(front_right_power / (conf.max_power * 4));
+                conf.back_right_drive.setPower(back_right_power / (conf.max_power * 4));
             }
 
             else if (gamepad1.right_trigger > 0.5) {
@@ -123,6 +128,17 @@ public class RedTestTeleop extends OpMode {
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
         Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
 
+        //reverse kage
+        if(gamepad2.right_bumper){
+            conf.intake_motor.setPower(-1);
+        }
+        else if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140 && conf.colorReadTimer.seconds() > 0.25) {
+            conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.intake_motor.setPower(1);
+        }
+        /*
         //Reverse kolby cage if full
         if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
 
@@ -162,6 +178,8 @@ public class RedTestTeleop extends OpMode {
             conf.intake_var2 = true;
             conf.intake_timer.reset();
         }
+
+         */
 
         //Flywheel launcher
         if (gamepad2.a) {

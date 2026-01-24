@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
 
+//import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -301,6 +303,7 @@ public class configwLimeLight {
 
     public void AutoAlign() {
 
+        /*
         //Getting Current Pinpoint
         pinpoint.update();
         Pose2D pos = pinpoint.getPosition();
@@ -308,23 +311,28 @@ public class configwLimeLight {
         double currentY = pos.getY(DistanceUnit.INCH);
         double currentH = pos.getHeading(AngleUnit.DEGREES);
 
+         */
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+
         //Read tag
         LLResult llresult = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            idg = fiducial.getFiducialId();
+            idg = fiducial.getFiducialId(); // The ID number of the fiducial
         }
-        if (llresult.isValid() && (idg == 20 || idg == 24)) { //Change idg for what ever the goal tag value is for each one
+        if (idg == 20) { //Change idg for what ever the goal tag value is for each one
             double tx = llresult.getTx(); //target x
-            double alignerror = 1;   //How much error
+            double alignerror = 0.1;   //How much error
+            AutoOdometryDrive(0,10,0,0.2);
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {
-                odometryDrive(currentX, currentY, currentH, xMaxSpeed);
+                odometryDrive(pose2D.getX(DistanceUnit.INCH), pose2D.getX(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.DEGREES), xMaxSpeed);
             }
             //Keep driving till we are in the error margin
             else{
-                odometryDrive(currentX, currentY, currentH + tx, xMaxSpeed);
+                odometryDrive(pose2D.getX(DistanceUnit.INCH), pose2D.getY(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.DEGREES) + tx, xMaxSpeed);
             }
         }
     }
