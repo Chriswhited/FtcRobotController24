@@ -95,10 +95,10 @@ public class BlueTeleop extends OpMode {
 
             //brandt button
             if (gamepad1.left_trigger > 0.5) {
-                conf.front_left_drive.setPower(front_left_power / (conf.max_power * 2));
-                conf.back_left_drive.setPower(back_left_power / (conf.max_power * 2));
-                conf.front_right_drive.setPower(front_right_power / (conf.max_power * 2));
-                conf.back_right_drive.setPower(back_right_power / (conf.max_power * 2));
+                conf.front_left_drive.setPower(front_left_power / (conf.max_power * 4));
+                conf.back_left_drive.setPower(back_left_power / (conf.max_power * 4));
+                conf.front_right_drive.setPower(front_right_power / (conf.max_power * 4));
+                conf.back_right_drive.setPower(back_right_power / (conf.max_power * 4));
             }
 
             else if (gamepad1.right_trigger > 0.5) {

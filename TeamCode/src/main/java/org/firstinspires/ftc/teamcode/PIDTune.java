@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
+
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -9,9 +11,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
-@Autonomous(name = "BlueFarAuto", group = "Robot")
-public class BlueFarAuto extends OpMode {
+@Autonomous(name = "PIDTune", group = "Robot")
+public class PIDTune extends OpMode {
     configwLimeLight conf = new configwLimeLight();
+    //public static double Propforx = conf.xProp();
 
     @Override
     public void init() {
@@ -45,14 +48,16 @@ public class BlueFarAuto extends OpMode {
 
     @Override
     public void start(){
-        Start();
-        Spike1();
-        Launch();
-        Spike2();
-        Launch();
-        Base();
-        /*
 
+        while (67==67) {
+            conf.AutoOdometryDrive(0, 30, 0, conf.xMaxSpeed);
+            conf.AutoOdometryDrive(30, 30, 0, conf.xMaxSpeed);
+            conf.AutoOdometryDrive(30, 0, 0, conf.xMaxSpeed);
+            conf.AutoOdometryDrive(0, 0, 0, conf.xMaxSpeed);
+        }
+
+    }
+    public void Start(){
         conf.limelight.start();
         conf.setFlywheelPower(1720);
         conf.sleep(200);
@@ -67,8 +72,8 @@ public class BlueFarAuto extends OpMode {
             conf.dashboardTelemetry.update();
         }
         conf.ColorLaunch(conf.id); //Launch PreLoad
-
-        //Intake 2nd Cycle
+    }
+    public void Spike1(){
         conf.AutoOdometryDrive(25,17,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
 
@@ -91,13 +96,9 @@ public class BlueFarAuto extends OpMode {
 
         conf.xMaxSpeed = 1;
 
-        //Launch 2nd Cycle
-        conf.AutoOdometryDrive(2.5,-2.2,22, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-        conf.ColorLaunch(conf.id);
-        conf.intake_motor.setPower(0);
+    }
 
-        //Intake 3rd Cycle
+    public void Spike2(){
         conf.AutoOdometryDrive(50,9,-90, conf.xMaxSpeed);
         conf.intake_motor.setPower(1);
 
@@ -114,86 +115,6 @@ public class BlueFarAuto extends OpMode {
         }
         else{
             conf.AutoOdometryDrive(50,41,-90, .3);
-            conf.intake_motor.setPower(1);
-        }
-
-        conf.xMaxSpeed = 1;
-
-        //Launch 3rd Cycle
-        conf.AutoOdometryDrive(2.5,-2.2,22, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-        conf.ColorLaunch(conf.id);
-        conf.intake_motor.setPower(0);
-
-        //Park
-        //AutoOdometryDrive(14,3,42, xMaxSpeed); //NEAR PARK
-        conf.AutoOdometryDrive(19,14,-90,conf.xMaxSpeed);//FAR PARK
-        //flywheel off
-
-
-
-         */
-
-
-    }
-    public void Start(){
-        conf.limelight.start();
-        conf.setFlywheelPower(1720);
-        conf.sleep(200);
-        conf.ReadTag();
-        telemetry.addData("id", conf.id);
-        telemetry.update();
-        conf.limelight.stop();
-        conf.AutoOdometryDrive(2.5,-2.2,22, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1660)
-        {
-            conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
-            conf.dashboardTelemetry.update();
-        }
-        conf.ColorLaunch(conf.id); //Launch PreLoad
-    }
-    public void Spike1(){
-        conf.AutoOdometryDrive(25,6,-90, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-
-        //Get Color Sensor Values
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(25,41,-90, 0.2);
-            conf.intake_motor.setPower(-1);
-            conf.sleep(250);
-            conf.intake_motor.setPower(0);
-        }
-        else{
-            conf.AutoOdometryDrive(25,41,-90, 0.2);
-            conf.intake_motor.setPower(1);
-        }
-
-        conf.xMaxSpeed = 1;
-
-    }
-
-    public void Spike2(){
-        conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(48,41,-90, .2);
-            conf.intake_motor.setPower(-1);
-            conf.sleep(250);
-            conf.intake_motor.setPower(0);
-        }
-        else{
-            conf.AutoOdometryDrive(48,41,-90, .2);
             conf.intake_motor.setPower(1);
         }
 

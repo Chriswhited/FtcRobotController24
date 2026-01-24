@@ -43,13 +43,14 @@ public class configwLimeLight {
     public ColorSensor colorLeft;
     public ColorSensor colorCenter;
     Pose2D pos;
-    double xProp = 0.04;
-    double xInt = 0.0;
-    double xDer = 0.0;
-    double yProp = 0.04;
-    double yInt = 0.0;
-    double yDer = 0.0;
+    double xProp = 0.05; //0.04
+    double xInt = 0; //0.0
+    double xDer = 0.001; //0.0
+    double yProp = 0.06; //0.04
+    double yInt = 0; //0.0
+    double yDer = 0.0015; //0.0
     double hProp = 0.03;
+    double hDer = 0.006;
     public double xMaxSpeed = 1;
     double yMaxSpeed = 1;
     double hMaxSpeed = 0.7;
@@ -62,6 +63,7 @@ public class configwLimeLight {
     double lastErrorY = 0;
     double derivativeY = 0;
     double derivativeX = 0;
+    double derivativeH = 0;
     public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
@@ -218,7 +220,7 @@ public class configwLimeLight {
 
         double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
         double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
-        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
         moveRobot(x, y, h);
@@ -271,7 +273,7 @@ public class configwLimeLight {
 
             double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
             double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
-            double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
             moveRobot(x, y, h);
@@ -279,6 +281,13 @@ public class configwLimeLight {
             lastErrorX = xError;
             lastErrorY = yError;
             timer.reset();
+
+            dashboardTelemetry.addData("X position", pose2D.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y position", pose2D.getY(DistanceUnit.INCH));
+            dashboardTelemetry.addData("X Error", xError);
+            dashboardTelemetry.addData("Y Error", yError);
+            dashboardTelemetry.addData("H Error", hError);
+            dashboardTelemetry.update();
         }
         moveRobot(0, 0, 0);
     }
