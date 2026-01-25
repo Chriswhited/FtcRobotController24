@@ -301,41 +301,38 @@ public class configwLimeLight {
         }
     }
 
-    public void AutoAlign() {
 
-        /*
+    public void AutoAlign() {
         //Getting Current Pinpoint
         pinpoint.update();
         Pose2D pos = pinpoint.getPosition();
         double currentX = pos.getX(DistanceUnit.INCH);
         double currentY = pos.getY(DistanceUnit.INCH);
         double currentH = pos.getHeading(AngleUnit.DEGREES);
-
-         */
         pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
+
 
         //Read tag
         LLResult llresult = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            idg = fiducial.getFiducialId(); // The ID number of the fiducial
+            idg = fiducial.getFiducialId(); //The ID number of the fiducial
         }
-        if (idg == 20) { //Change idg for what ever the goal tag value is for each one
+        if (idg == 20 || idg == 24) {
             double tx = llresult.getTx(); //target x
-            double alignerror = 0.1;   //How much error
-            AutoOdometryDrive(0,10,0,0.2);
+            double alignerror = 0.5;   //How much error
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {
-                odometryDrive(pose2D.getX(DistanceUnit.INCH), pose2D.getX(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.DEGREES), xMaxSpeed);
+                odometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
             else{
-                odometryDrive(pose2D.getX(DistanceUnit.INCH), pose2D.getY(DistanceUnit.INCH), pose2D.getHeading(AngleUnit.DEGREES) + tx, xMaxSpeed);
+                odometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
             }
         }
     }
+
     public void ColorLaunch(double tag) {
 
         //GPP

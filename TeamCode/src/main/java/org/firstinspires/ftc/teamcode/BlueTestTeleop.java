@@ -39,6 +39,8 @@ public class BlueTestTeleop extends OpMode {
         telemetry.update();
         conf.redLED.off();
         conf.greenLED.off();
+        conf.limelight.start();
+        conf.limelight.pipelineSwitch(3);
 
 
     }

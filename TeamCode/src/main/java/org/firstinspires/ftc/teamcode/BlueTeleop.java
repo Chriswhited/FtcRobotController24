@@ -35,6 +35,8 @@ public class BlueTeleop extends OpMode {
         telemetry.update();
         conf.redLED.off();
         conf.greenLED.off();
+        conf.limelight.start();
+        conf.limelight.pipelineSwitch(3);
 
     }
 
@@ -51,7 +53,9 @@ public class BlueTeleop extends OpMode {
             conf.flywheelStart = true;
             conf.setFlywheelPower(1380);
         }
-
+        if(gamepad1.left_bumper) { //Auto Align
+            conf.AutoAlign();
+        }
         if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(18,-51,0, 1);
         }
