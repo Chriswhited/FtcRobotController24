@@ -89,6 +89,9 @@ public class configwLimeLight {
     public LED greenLED;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    public double status = 0;
+    double currentX = 0;
+    double currentY = 0;
 
 
 
@@ -303,11 +306,14 @@ public class configwLimeLight {
 
 
     public void AutoAlign() {
+
         //Getting Current Pinpoint
         pinpoint.update();
         Pose2D pos = pinpoint.getPosition();
-        double currentX = pos.getX(DistanceUnit.INCH);
-        double currentY = pos.getY(DistanceUnit.INCH);
+        if(status == 0) {
+            currentX = pos.getX(DistanceUnit.INCH);
+            currentY = pos.getY(DistanceUnit.INCH);
+        }
         double currentH = pos.getHeading(AngleUnit.DEGREES);
         pinpoint.update();
 
@@ -320,7 +326,9 @@ public class configwLimeLight {
         }
         if (idg == 20 || idg == 24) {
             double tx = llresult.getTx(); //target x
-            double alignerror = 0.5;   //How much error
+            dashboardTelemetry.addData("Target X", tx);
+            dashboardTelemetry.update();
+            double alignerror = 1.5;   //How much error
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {

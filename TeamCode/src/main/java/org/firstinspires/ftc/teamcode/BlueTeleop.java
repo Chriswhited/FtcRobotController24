@@ -21,7 +21,6 @@ public class BlueTeleop extends OpMode {
     @Override
     public void init() {
         conf.init(hardwareMap);
-
         telemetry.addLine("Push your robot around to see it track");
         conf.pinpoint.update();
         Pose2D pose2D = conf.pinpoint.getPosition();
@@ -54,18 +53,21 @@ public class BlueTeleop extends OpMode {
             conf.setFlywheelPower(1380);
         }
         if(gamepad1.left_bumper) { //Auto Align
+
             conf.AutoAlign();
+            conf.status = conf.status + 1;
+
         }
-        if(gamepad1.right_bumper){ //Endgame Parking
+        else if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(18,-51,0, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1660);
-            conf.odometryDrive(2.5,-2.2,22, 1);
+            conf.setFlywheelPower(1680);//1660
+            conf.odometryDrive(7,-13,22, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
             conf.setFlywheelPower(1480);
-            conf.odometryDrive(103,-8.8,83.5, 1);
+            conf.odometryDrive(110,-51,83, 1);
         }
         else if(gamepad1.x){ //Middle shooting
             conf.setFlywheelPower(1380);
@@ -79,6 +81,7 @@ public class BlueTeleop extends OpMode {
         //conf.AutoAlign();
         //}
         else {
+            conf.status = 0;
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
             double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
