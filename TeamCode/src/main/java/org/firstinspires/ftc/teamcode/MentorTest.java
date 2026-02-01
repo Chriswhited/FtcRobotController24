@@ -1,286 +1,151 @@
+/*   MIT License
+ *   Copyright (c) [2025] [Base 10 Assets, LLC]
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+
+ *   The above copyright notice and this permission notice shall be included in all
+ *   copies or substantial portions of the Software.
+
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+ */
+
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.LayerHeight;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-@Disabled
-@TeleOp(name = "MentorTest", group = "Robot")
-public class MentorTest extends OpMode {
-    DcMotor back_left_drive;
-    DcMotor front_left_drive;
-    DcMotor back_right_drive;
-    DcMotor front_right_drive;
-    DcMotor launch_motor_1;
-    DcMotor intake_motor;
-    Servo franklin_flipper_right;
-    Servo franklin_flipper_left;
-    GoBildaPinpointDriver pinpoint;
-    ElapsedTime sleeptime = new ElapsedTime();
-    ElapsedTime intake_timer = new ElapsedTime();
-    ElapsedTime PIDtimer = new ElapsedTime();
-    boolean intake_var;
-    boolean intake_var2;
-    double max_power = 1.0;
+import org.firstinspires.ftc.teamcode.Prism.Color;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
-    boolean PIDreset = false;
-    double integralSumX = 0;
-    double lastErrorX = 0;
-    double integralSumY = 0;
-    double lastErrorY = 0;
-    double xError = 0;
-    double yError = 0;
-    double hError = 0;
-    double xProp = 0.04;
-    double xInt = 0.0;
-    double xDer = 0.0;
-    double yProp = 0.04;
-    double yInt = 0.0;
-    double yDer = 0.0;
-    double hProp = 0.03;
-    double xMaxSpeed = 1;
-    double yMaxSpeed = 1;
-    double hMaxSpeed = 1;
+import java.util.concurrent.TimeUnit;
+
+/*
+ * This example file shows how to create a couple of different Animations on the Prism, and save
+ * them to an Artboard on the device.
+ * The example file called "GoBildaPrismConfigurator" is designed to create a user-interface
+ * through your driver's station. This is a great way to create Artboards from Animations, but
+ * doesn't let you control quite everything about the available Animations. If you'd like to
+ * do something more complex, or would just prefer to create your Artboard in Java, this
+ * program shows you how.
+ * The example file called "GoBildaPrismArtboardExample" shows how to recall different Artboards
+ * that you have already saved to the device. That file shows the code you should consider adding
+ * to your OpMode if you would like to dynamically change the Artboard shown by your LEDs during
+ * the match.
+ *
+ * Core to understanding how to use this product is knowing these three terms:
+ * Animations: (Like RAINBOW or BLINK) - These have properties you can configure, like their color.
+ * They can have unique start and end points!
+ * Layers: There are 10 layers, each of which can store an animation. These are hierarchical.
+ * So an Animation on layer 5 will cover an animation on layer 2 if they overlap.
+ * You can use start and end points to have layers overlap to create new patterns! Or show multiple
+ * animations at once on different LEDs.
+ * Artboards: An Artboard is a set of 10 layers which is stored on the Prism.
+ * you can have up to 8 unique Artboards. Artboards are easy and computationally fast to switch between.
+ */
+
+@TeleOp(name="MentorTest", group="Linear OpMode")
+//@Disabled
+
+public class MentorTest extends LinearOpMode {
+
+    GoBildaPrismDriver prism;
+
+
+
+    PrismAnimations.Solid solid = new PrismAnimations.Solid(Color.BLUE);
+
+    PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
 
     @Override
-    public void init() {
+    public void runOpMode() {
+        /*
+         * Initialize the hardware variables. Note that the strings used here must correspond
+         * to the names assigned during the robot configuration step on the driver's station.
+         */
+        prism = hardwareMap.get(GoBildaPrismDriver.class,"prism");
 
-        back_left_drive = hardwareMap.get(DcMotor.class, "back_left_drive");
-        front_left_drive = hardwareMap.get(DcMotor.class, "front_left_drive");
-        back_right_drive = hardwareMap.get(DcMotor.class, "back_right_drive");
-        front_right_drive = hardwareMap.get(DcMotor.class, "front_right_drive");
-        launch_motor_1 = hardwareMap.get(DcMotor.class, "launch_motor_1");
-        intake_motor = hardwareMap.get(DcMotor.class, "intake_motor");
-        franklin_flipper_right = hardwareMap.get(Servo.class, "franklin_flipper_right");
-        franklin_flipper_left = hardwareMap.get(Servo.class, "franklin_flipper_left");
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        /*
+         * Here you can customize the specifics of different animations. Each animation has it's
+         * own set of parameters that you can customize to create something unique! Each animation
+         * has carefully selected default parameters. So you do not need to set each parameter
+         * for every animation!
+         */
 
-        configurePinpoint();
-        //pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+        solid.setBrightness(50);
+        solid.setStartIndex(6);
+        solid.setStopIndex(17);
 
-        launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rainbowSnakes.setNumberOfSnakes(2);
+        rainbowSnakes.setSnakeLength(3);
+        rainbowSnakes.setSpacingBetween(6);
+        rainbowSnakes.setSpeed(0.5f);
 
-        front_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
-        back_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
-        front_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
-        back_right_drive.setDirection(DcMotorSimple.Direction.FORWARD);
-        launch_motor_1.setDirection(DcMotorSimple.Direction.REVERSE);
-
-
-        back_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        front_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-    }
-
-    @Override
-    public void loop() {
-
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("Device ID: ", prism.getDeviceID());
+        telemetry.addData("Firmware Version: ", prism.getFirmwareVersionString());
+        telemetry.addData("Hardware Version: ", prism.getHardwareVersionString());
+        telemetry.addData("Power Cycle Count: ", prism.getPowerCycleCount());
         telemetry.update();
 
-        //Far shoot pos
-        if (gamepad1.y) {
-            //launch_motor_1.setPower(0.7);
-            odometryDrive(21, -19, 0, xMaxSpeed);
-        } else {
-            double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
-            double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
-            double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
-            double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
+        // Wait for the game to start (driver presses START)
+        waitForStart();
+        resetRuntime();
 
-            pinpoint.update();
-            Pose2D Pose2D = pinpoint.getPosition();
+        // run until the end of the match (driver presses STOP)
+        while (opModeIsActive()) {
 
-            max_power = 1;
-            max_power = Math.max(max_power, Math.abs(front_left_power));
-            max_power = Math.max(max_power, Math.abs(front_right_power));
-            max_power = Math.max(max_power, Math.abs(back_right_power));
-            max_power = Math.max(max_power, Math.abs(back_left_power));
 
-            //brandt button
-            if (gamepad1.left_trigger > 0.5) {
-                front_left_drive.setPower(front_left_power / (max_power * 2));
-                back_left_drive.setPower(back_left_power / (max_power * 2));
-                front_right_drive.setPower(front_right_power / (max_power * 2));
-                back_right_drive.setPower(back_right_power / (max_power * 2));
-            } else {
-                front_left_drive.setPower(front_left_power / max_power);
-                back_left_drive.setPower(back_left_power / max_power);
-                front_right_drive.setPower(front_right_power / max_power);
-                back_right_drive.setPower(back_right_power / max_power);
+            if(gamepad1.aWasPressed()){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
             }
+
+            if(gamepad1.xWasPressed()){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
+            }
+
+            if(gamepad1.yWasPressed()){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+            }
+
+            if(gamepad1.bWasPressed()){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
+            }
+            if(gamepad1.dpadUpWasPressed()){
+                prism.clearAllAnimations();
+            }
+            if(gamepad1.dpadDownWasPressed()){
+                
+                /*
+                 * Here we save the animation we are currently displaying to Artboard 0.
+                 */
+                //prism.saveCurrentAnimationsToArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+            }
+
+            telemetry.addLine("Press A to insert and update the created animations.");
+            telemetry.addLine("Press X to clear current animations.");
+            telemetry.addLine("Press D-Pad Down to save current animations to Artboard #0");
+            telemetry.addLine();
+            telemetry.addData("Run Time (Hours): ",prism.getRunTime(TimeUnit.HOURS));
+            telemetry.addData("Run Time (Minutes): ",prism.getRunTime(TimeUnit.MINUTES));
+            telemetry.addData("Number of LEDS: ", prism.getNumberOfLEDs());
+            telemetry.addData("Current FPS: ", prism.getCurrentFPS());
+            telemetry.update();
+            sleep(50);
         }
-
-        //start kolby kage
-        if (gamepad1.a && intake_var && intake_timer.seconds() > 0.5) {
-            intake_motor.setPower(1);
-            intake_var = false;
-            intake_timer.reset();
-        } else if (gamepad1.a && !intake_var && intake_timer.seconds() > 0.5) {
-            intake_motor.setPower(0);
-            intake_var = true;
-            intake_timer.reset();
-        }
-        //reverse kolby kage
-        if (gamepad1.b && intake_var2 && intake_timer.seconds() > 0.5) {
-            intake_motor.setPower(-1);
-            intake_var2 = false;
-            intake_timer.reset();
-        } else if (gamepad1.b && !intake_var2 && intake_timer.seconds() > 0.5) {
-            intake_motor.setPower(0);
-            intake_var2 = true;
-            intake_timer.reset();
-        }
-
-        //Flywheel launcher
-        if (gamepad2.a) {
-            launch_motor_1.setPower(.54);
-            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
-        } else if (gamepad2.b) {
-            launch_motor_1.setPower(.55);
-            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
-        } else if (gamepad2.x) {
-            launch_motor_1.setPower(.60);
-            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
-        } else if (gamepad2.y) {
-            launch_motor_1.setPower(.70);
-            telemetry.addData("Flywheel on", launch_motor_1.getPower() * 100);
-        } else if (gamepad2.back) {
-            telemetry.addLine("Flywheel off");
-            launch_motor_1.setPower(0);
-        }
-
-        //franklin flipper right
-        if (gamepad2.right_trigger > 0.5) {
-            franklin_flipper_right.setPosition(0.11);
-
-        } else {
-            franklin_flipper_right.setPosition(0.44);
-        }
-
-        //franklin flipper left
-        if (gamepad2.left_trigger > 0.5) {
-            franklin_flipper_left.setPosition(1);
-        } else {
-            franklin_flipper_left.setPosition(0.64
-            );
-        }
-
-    }
-
-    public void configurePinpoint() {
-        pinpoint.setOffsets(0.945, 6.5, DistanceUnit.INCH); //Set robot offset
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); //Sets type of pod
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, //Set direction for pod
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        pinpoint.resetPosAndIMU();
-    }
-
-    public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
-
-        if (!PIDreset) {
-            PIDreset = true;
-            integralSumX = 0;
-            lastErrorX = 0;
-            integralSumY = 0;
-            lastErrorY = 0;
-            xMaxSpeed = speed;
-            yMaxSpeed = speed;
-            ElapsedTime PIDtimer = new ElapsedTime();
-
-            pinpoint.update();
-            Pose2D pose2D = pinpoint.getPosition();
-
-            xError = targetX - pose2D.getX(DistanceUnit.INCH);
-            yError = targetY - pose2D.getY(DistanceUnit.INCH);
-            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-        }
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-
-        xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-        double derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
-        integralSumX = integralSumX + (xError * PIDtimer.seconds());
-        double derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
-        integralSumY = integralSumY + (yError * PIDtimer.seconds());
-
-        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
-        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
-
-        telemetry.addData("Finished", PIDreset);
-        telemetry.addData("Current X", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Current Y", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Current Heading", pose2D.getHeading(AngleUnit.DEGREES));
-        telemetry.update();
-
-        moveRobot(x, y, h);
-
-        lastErrorX = xError;
-        lastErrorY = yError;
-        PIDtimer.reset();
-
-        if(Math.abs(xError) < 0.25 && Math.abs(yError) < 0.25 && Math.abs(hError) < .5) {
-            PIDreset = false;
-            moveRobot(0, 0, 0);
-        }
-    }
-
-    //calculate and normalize wheel powers, then send powers to wheels
-    void moveRobot(double x, double y, double h) {
-        //Convert to radians
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-        double radian = pose2D.getHeading(AngleUnit.DEGREES) * Math.PI / 180;
-
-        //Account for robot rotation
-        double x_rotated = x * Math.cos(-radian) - y * Math.sin(-radian);
-        double y_rotated = x * Math.sin(-radian) + y * Math.cos(-radian);
-
-        double denominator = Math.max(Math.abs(y_rotated) + Math.abs(x_rotated) + Math.abs(h), 1);
-
-        double leftFrontPower = (x_rotated - y_rotated + h) / denominator;
-        double leftBackPower = (x_rotated + y_rotated + h) / denominator;
-        double rightFrontPower = (x_rotated + y_rotated - h) / denominator;
-        double rightBackPower = (x_rotated - y_rotated - h) / denominator;
-
-        // Send powers to the wheels.
-        front_left_drive.setPower(leftFrontPower);
-        front_right_drive.setPower(rightFrontPower);
-        back_left_drive.setPower(leftBackPower);
-        back_right_drive.setPower(rightBackPower);
-        sleep(.01);
-    }
-
-    public void sleep(double time) {
-        sleeptime.reset();
-        while (sleeptime.seconds() <= time) {
-
-        }
-
     }
 
 }

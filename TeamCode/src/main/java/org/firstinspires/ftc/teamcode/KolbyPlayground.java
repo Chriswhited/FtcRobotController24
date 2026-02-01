@@ -50,6 +50,7 @@ public class KolbyPlayground extends OpMode {
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
 
+        distanceGoal();
         if (gamepad1.left_bumper) { //Auto Align
             conf.AutoAlign();
         } else {
@@ -89,6 +90,16 @@ public class KolbyPlayground extends OpMode {
                 conf.back_right_drive.setPower(back_right_power / conf.max_power * 1.5);
             }
         }
+    }
+    public void distanceGoal(){
+        LLResult llresult = conf.limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            conf.idd = fiducial.getFiducialId(); //The ID number of the fiducial
+        }
+        telemetry.addData("Target X", llresult.getTx());
+        telemetry.addData("Target Area", llresult.getTa());
+
     }
 }
 

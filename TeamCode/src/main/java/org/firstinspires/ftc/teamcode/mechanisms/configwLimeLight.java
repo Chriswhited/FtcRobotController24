@@ -25,6 +25,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 import java.util.List;
 
@@ -44,6 +46,10 @@ public class configwLimeLight {
     public ColorSensor colorRight;
     public ColorSensor colorLeft;
     public ColorSensor colorCenter;
+    public ColorSensor colorIntake;
+    PrismAnimations.Solid solid = new PrismAnimations.Solid(org.firstinspires.ftc.teamcode.Prism.Color.BLUE);
+
+    PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
     Pose2D pos;
     double xProp = 0.05; //0.04
     double xInt = 0; //0.0
@@ -69,6 +75,7 @@ public class configwLimeLight {
     public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
+    public double idd = 0;
     public double idg = 0;
     public double updown = 200;
     public boolean intake_var;
@@ -92,6 +99,9 @@ public class configwLimeLight {
     public double status = 0;
     double currentX = 0;
     double currentY = 0;
+    public GoBildaPrismDriver prism;
+    public double velocity1 = 0;
+    public double wantedVelocity;
 
 
 
@@ -107,6 +117,7 @@ public class configwLimeLight {
         colorRight = hwMap.get(ColorSensor.class, "colorRight");
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
         colorCenter = hwMap.get(ColorSensor.class, "colorCenter");
+        colorIntake = hwMap.get(ColorSensor.class, "colorIntake");
         pinpoint = hwMap.get(GoBildaPinpointDriver .class, "pinpoint");
         franklin_flipper_right = hwMap.get(Servo .class, "franklin_flipper_right");
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
@@ -114,6 +125,7 @@ public class configwLimeLight {
         limelight.pipelineSwitch(2);
         redLED = hwMap.get(LED.class, "redLED");
         greenLED = hwMap.get(LED.class, "greenLED");
+        prism = hwMap.get(GoBildaPrismDriver.class,"prism");
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launch_motor_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -136,6 +148,15 @@ public class configwLimeLight {
         PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
         launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
         launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+
+        solid.setBrightness(100);
+        solid.setStartIndex(6);
+        solid.setStopIndex(17);
+
+        rainbowSnakes.setNumberOfSnakes(2);
+        rainbowSnakes.setSnakeLength(3);
+        rainbowSnakes.setSpacingBetween(6);
+        rainbowSnakes.setSpeed(0.5f);
 
     }
     public void moveRobot(double x, double y, double h){
@@ -166,6 +187,34 @@ public class configwLimeLight {
     public void setFlywheelPower(double velocity){
         launch_motor_1.setVelocity(velocity);
         launch_motor_2.setVelocity(velocity);
+        velocity1 = velocity;
+    }
+
+    public void ledColors(double velocity1){
+        if((velocity1-90) <= launch_motor_1.getVelocity() && (velocity1+30) > launch_motor_1.getVelocity()){
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+            if(hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
+            }
+            else{
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+            }
+        }
+        else{
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+            if(hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140){
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
+            }
+            else{
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
+            }
+        }
     }
     public void launch(){
         franklin_flipper_right.setPosition(.11); //shoot cycle 1

@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 
@@ -26,8 +27,10 @@ public class BlueTeleop extends OpMode {
         Pose2D pose2D = conf.pinpoint.getPosition();
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
         telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
         telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+        telemetry.addData("Center Hue", conf.hsvValuesCenter[0]);
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
@@ -45,6 +48,7 @@ public class BlueTeleop extends OpMode {
         conf.dashboardTelemetry.addData("PID", conf.launch_motor_1.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER));
         PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
         conf.launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        telemetry.addData("Velocity",conf.launch_motor_1.getVelocity());
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
 
@@ -52,6 +56,7 @@ public class BlueTeleop extends OpMode {
             conf.flywheelStart = true;
             conf.setFlywheelPower(1380);
         }
+        conf.ledColors(conf.velocity1);
         if(gamepad1.left_bumper) { //Auto Align
 
             conf.AutoAlign();
@@ -62,19 +67,23 @@ public class BlueTeleop extends OpMode {
             conf.odometryDrive(18,-51,0, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1680);//1660
-            conf.odometryDrive(7,-13,22, 1); // 2.5,-2.2,22
+            conf.setFlywheelPower(1720);//1680
+            conf.ledColors(1720);
+            conf.odometryDrive(5,-21.5,28.5, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
             conf.setFlywheelPower(1480);
+            conf.ledColors(1480);
             conf.odometryDrive(110,-51,83, 1);
         }
         else if(gamepad1.x){ //Middle shooting
             conf.setFlywheelPower(1380);
+            conf.ledColors(1380);
             conf.odometryDrive(66.5,-8.9,45.4, 1);
         }
         else if(gamepad1.a){ //Close shooting
             conf.setFlywheelPower(1260);
+            conf.ledColors(1260);
             conf.odometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
         }
         //else if(gamepad1.left_bumper){
@@ -184,15 +193,19 @@ public class BlueTeleop extends OpMode {
         //Flywheel launcher
         if (gamepad2.a) {
             conf.setFlywheelPower(1280);
+            conf.ledColors(1280);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.b) {
             conf.setFlywheelPower(1300);
+            conf.ledColors(1300);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.x) {
             conf.setFlywheelPower(1420);
+            conf.ledColors(1420);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.y) {
             conf.setFlywheelPower(1660);
+            conf.ledColors(1660);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         }
         else if (gamepad2.back) {
