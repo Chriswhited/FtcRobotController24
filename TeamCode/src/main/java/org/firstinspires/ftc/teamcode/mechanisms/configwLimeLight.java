@@ -85,6 +85,7 @@ public class configwLimeLight {
     public float hsvValuesLeft[] = {0F,0F,0F};
     public float hsvValuesRight[] = {0F,0F,0F};
     public float hsvValuesCenter[] = {0F,0F,0F};
+    public float hsvValuesIntake[] = {0F,0F,0F};
     boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime PIDtimer = new ElapsedTime();
@@ -200,7 +201,7 @@ public class configwLimeLight {
                 prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
             }
             else{
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_4);
             }
         }
         else{

@@ -51,6 +51,8 @@ public class BlueFarAuto extends OpMode {
         Spike2();
         Launch();
         Base();
+
+
         /*
 
         conf.limelight.start();
@@ -225,7 +227,8 @@ public class BlueFarAuto extends OpMode {
     }
 
     public void Gate(){
-
+        conf.AutoOdometryDrive(49.3, 43.15, -120, conf.xMaxSpeed); //Open Gate
+        conf.AutoOdometryDrive(47.4, 43.1, -121, conf.xMaxSpeed); //Move back to collect artifacts
     }
 
     public void Base(){
@@ -237,15 +240,20 @@ public class BlueFarAuto extends OpMode {
     }
 
     public void AltPark(){
-
+        conf.AutoOdometryDrive(51, 7, 0, conf.xMaxSpeed);
     }
 
     public void HumanPlayer(){
-
+        conf.AutoOdometryDrive(14, 45, -22, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(2, 44, -22, conf.xMaxSpeed);
     }
 
     public void Tunnel(){
+        conf.AutoOdometryDrive(33, 45, -144, conf.xMaxSpeed);
+    }
 
+    public void AltTunnel(){
+        conf.AutoOdometryDrive(21, 45, -148, conf.xMaxSpeed);
     }
 
     public void Launch(){
