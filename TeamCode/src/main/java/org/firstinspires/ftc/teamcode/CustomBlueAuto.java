@@ -9,8 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
-@Autonomous(name = "BlueFarAuto", group = "Robot")
-public class BlueFarAuto extends OpMode {
+@Autonomous(name = "CustomBlueAuto", group = "Robot")
+public class CustomBlueAuto extends OpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
@@ -46,9 +46,11 @@ public class BlueFarAuto extends OpMode {
     @Override
     public void start(){
         Start();
-        Spike1();
-        Launch();
         Spike2();
+        Launch();
+        Gate();
+        Launch();
+        Spike1();
         Launch();
         Base();
 

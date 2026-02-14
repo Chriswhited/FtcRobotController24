@@ -66,7 +66,7 @@ public class BlueTeleop extends OpMode {
 
         }
         else if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(18,-51,0, 1);
+            conf.odometryDrive(23,-48,90, 1);
         }
         else if(gamepad1.b){ //Far Shooting
             conf.setFlywheelPower(1720);//1680

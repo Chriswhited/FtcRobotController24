@@ -141,22 +141,23 @@ public class BlueCloseAuto extends OpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,6,-90, conf.xMaxSpeed);
-
+        conf.AutoOdometryDrive(25,41,-90, 0.4);
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
         Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(25,41,-90, 0.2);
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145){
             conf.intake_motor.setPower(-1);
             conf.sleep(250);
             conf.intake_motor.setPower(0);
         }
-        else{
-            conf.AutoOdometryDrive(25,41,-90, 0.2);
+        //Reverse kolby cage if full
+        else if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
             conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.intake_motor.setPower(1);
         }
 
         conf.xMaxSpeed = 1;
@@ -166,22 +167,26 @@ public class BlueCloseAuto extends OpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(48,41,-90, .4);
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
         Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
         //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(48,41,-90, .2);
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145){
             conf.intake_motor.setPower(-1);
             conf.sleep(250);
             conf.intake_motor.setPower(0);
         }
-        else{
-            conf.AutoOdometryDrive(48,41,-90, .2);
+        //Reverse kolby cage if full
+        else if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
             conf.intake_motor.setPower(0);
         }
+        else{
+            conf.intake_motor.setPower(1);
+        }
+
         conf.xMaxSpeed = 1;
         conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
 
@@ -190,29 +195,33 @@ public class BlueCloseAuto extends OpMode {
     public void Spike3(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
-
+        conf.AutoOdometryDrive(71.73,35.32,-90, 0.4);
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
         Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
         //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(71.73,35.32,-90, 0.3);
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145){
             conf.intake_motor.setPower(-1);
             conf.sleep(250);
             conf.intake_motor.setPower(0);
         }
-        else{
-            conf.AutoOdometryDrive(71.73,35.32,-90, 0.3);
+        //Reverse kolby cage if full
+        else if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
             conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.intake_motor.setPower(1);
         }
         conf.xMaxSpeed = 1;
     }
 
     public void Gate(){
         conf.AutoOdometryDrive(49.3, 43.15, -120, conf.xMaxSpeed); //Open Gate
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(47.4, 43.1, -121, conf.xMaxSpeed); //Move back to collect artifacts
+        conf.sleep(1000);
     }
 
     public void Base(){

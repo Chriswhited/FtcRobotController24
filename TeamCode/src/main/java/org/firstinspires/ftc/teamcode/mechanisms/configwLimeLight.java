@@ -252,7 +252,7 @@ public class configwLimeLight {
             xMaxSpeed = speed;
             yMaxSpeed = speed;
 
-            //ElapsedTime PIDtimer = new ElapsedTime();
+            PIDtimer.reset();
 
             pinpoint.update();
             Pose2D pose2D = pinpoint.getPosition();
