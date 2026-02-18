@@ -245,6 +245,7 @@ public class configwLimeLight {
 
     public void odometryDrive(double targetX, double targetY, double targetH, double speed){
 
+        /*
         if(!PIDreset){
             PIDreset = true;
             integralSumX = 0;
@@ -291,6 +292,50 @@ public class configwLimeLight {
             moveRobot(0, 0, 0);
         }
 
+         */
+        double integralSumX = 0;
+        double lastErrorX = 0;
+        double integralSumY = 0;
+        double lastErrorY = 0;
+        xMaxSpeed = speed;
+        yMaxSpeed = speed;
+        ElapsedTime timer = new ElapsedTime();
+        ElapsedTime initial = new ElapsedTime();
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+
+        //pos = myPosition();
+        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        while((Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) && initial.seconds() < 1){
+
+            pinpoint.update();
+            pose2D = pinpoint.getPosition();
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+            double derivativeX = (xError - lastErrorX) / timer.seconds();
+            integralSumX = integralSumX + (xError  * timer.seconds());
+            double derivativeY = (yError - lastErrorY) / timer.seconds();
+            integralSumY = integralSumY + (yError  * timer.seconds());
+
+            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+            moveRobot(x, y, h);
+
+            lastErrorX = xError;
+            lastErrorY = yError;
+            timer.reset();
+
+        }
+        moveRobot(0, 0, 0);
 
     }
     public void sleep(double time){
