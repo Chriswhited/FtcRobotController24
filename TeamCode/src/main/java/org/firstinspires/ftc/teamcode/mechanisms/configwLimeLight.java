@@ -41,6 +41,7 @@ public class configwLimeLight {
     public DcMotor intake_motor;
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
+    public Servo flag;
     public GoBildaPinpointDriver pinpoint;
     public Limelight3A limelight;
     public ColorSensor colorRight;
@@ -51,17 +52,17 @@ public class configwLimeLight {
 
     PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
     Pose2D pos;
-    double xProp = 0.05; //0.04
-    double xInt = 0; //0.0
-    double xDer = 0.001; //0.0
-    double yProp = 0.06; //0.04
-    double yInt = 0; //0.0
-    double yDer = 0.0015; //0.0
-    double hProp = 0.03;
-    double hDer = 0.006;
+    public double xProp = 0.05; //0.04
+    public double xInt = 0; //0.0
+    public double xDer = 0.001; //0.0
+    public double yProp = 0.06; //0.04
+    public double yInt = 0; //0.0
+    public double yDer = 0.0015; //0.0
+    public double hProp = 0.03;
+    public double hDer = 0.006;
     public double xMaxSpeed = 1;
-    double yMaxSpeed = 1;
-    double hMaxSpeed = 0.7;
+    public double yMaxSpeed = 1;
+    public double hMaxSpeed = 0.7;
     double xError = 0;
     double yError = 0;
     double hError = 0;
@@ -71,7 +72,7 @@ public class configwLimeLight {
     double lastErrorY = 0;
     double derivativeY = 0;
     double derivativeX = 0;
-    double derivativeH = 0;
+    public double derivativeH = 0;
     public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
@@ -127,6 +128,7 @@ public class configwLimeLight {
         redLED = hwMap.get(LED.class, "redLED");
         greenLED = hwMap.get(LED.class, "greenLED");
         prism = hwMap.get(GoBildaPrismDriver.class,"prism");
+        flag = hwMap.get(Servo.class, "flag");
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launch_motor_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -288,6 +290,8 @@ public class configwLimeLight {
             PIDreset = false;
             moveRobot(0, 0, 0);
         }
+
+
     }
     public void sleep(double time){
         sleeptime.reset();

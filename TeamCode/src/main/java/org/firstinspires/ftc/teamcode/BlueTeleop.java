@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -16,7 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 
 @TeleOp(name = "BlueTeleop", group = "Robot")
-public class BlueTeleop extends OpMode {
+public class BlueTeleop extends OpMode{
     configwLimeLight conf = new configwLimeLight();
 
     @Override
@@ -242,5 +244,106 @@ public class BlueTeleop extends OpMode {
             );
         }
 
+
+    }
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed){
+/*
+        if(!PIDreset){
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+
+            PIDtimer.reset();
+
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        }
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError  * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError  * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if(Math.abs(xError) < .0001 && Math.abs(yError) < .0001 && Math.abs(hError) < .5) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
+
+ */
+
+        double integralSumX = 0;
+        double lastErrorX = 0;
+        double integralSumY = 0;
+        double lastErrorY = 0;
+        conf.xMaxSpeed = speed;
+        conf.yMaxSpeed = speed;
+        ElapsedTime timer = new ElapsedTime();
+
+        conf.pinpoint.update();
+        Pose2D pose2D = conf.pinpoint.getPosition();
+
+        //pos = myPosition();
+        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        while((gamepad1.a || gamepad1.b || gamepad1.x || gamepad1.y)){
+
+            conf.pinpoint.update();
+            pose2D = conf.pinpoint.getPosition();
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+            double derivativeX = (xError - lastErrorX) / timer.seconds();
+            integralSumX = integralSumX + (xError  * timer.seconds());
+            double derivativeY = (yError - lastErrorY) / timer.seconds();
+            integralSumY = integralSumY + (yError  * timer.seconds());
+
+            double x = Range.clip((conf.xProp * xError) + (conf.xInt * integralSumX) + (conf.xDer * derivativeX),-conf.xMaxSpeed,conf.xMaxSpeed);
+            double y = Range.clip((conf.yProp * yError) + (conf.yInt * integralSumY) + (conf.yDer * derivativeY),-conf.yMaxSpeed,conf.yMaxSpeed);
+            double h = Range.clip((hError * conf.hProp) + (conf.hDer * conf.derivativeH), -conf.hMaxSpeed, conf.hMaxSpeed);
+
+
+            conf.moveRobot(x, y, h);
+
+            lastErrorX = xError;
+            lastErrorY = yError;
+            timer.reset();
+
+            conf.dashboardTelemetry.addData("X position", pose2D.getX(DistanceUnit.INCH));
+            conf.dashboardTelemetry.addData("Y position", pose2D.getY(DistanceUnit.INCH));
+            conf.dashboardTelemetry.addData("X Error", xError);
+            conf.dashboardTelemetry.addData("Y Error", yError);
+            conf.dashboardTelemetry.addData("H Error", hError);
+            conf.dashboardTelemetry.update();
+
+        }
+        conf.moveRobot(0, 0, 0);
     }
 }

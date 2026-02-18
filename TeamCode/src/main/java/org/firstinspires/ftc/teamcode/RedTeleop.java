@@ -41,6 +41,7 @@ public class RedTeleop extends OpMode {
         conf.greenLED.off();
         conf.limelight.start();
         conf.limelight.pipelineSwitch(7);
+        conf.flag.setPosition(0);
 
     }
 
@@ -69,9 +70,9 @@ public class RedTeleop extends OpMode {
             conf.odometryDrive(23,48,-90, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1720);//1680
-            conf.ledColors(1720);
-            conf.odometryDrive(5,21.5,-30, 1); // 2.5,-2.2,22
+            conf.setFlywheelPower(1740);//1680
+            conf.ledColors(1740);
+            conf.odometryDrive(5,21.5,-34, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
             conf.setFlywheelPower(1480);
