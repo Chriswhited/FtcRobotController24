@@ -18,6 +18,7 @@ public class RedCloseAuto extends OpMode {
 
         conf.init(hardwareMap);
         conf.configurePinpoint();
+        conf.flag.setPosition(0);
 
     }
     public void init_loop() {
@@ -48,6 +49,7 @@ public class RedCloseAuto extends OpMode {
 
         Start();
         Spike3();
+        //SpikeGate();
         Launch();
         Spike2();
         Launch();
@@ -130,6 +132,8 @@ public class RedCloseAuto extends OpMode {
         telemetry.addData("id", conf.id);
         telemetry.update();
         conf.limelight.stop();
+        conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
+        conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         while(conf.launch_motor_1.getVelocity() < 1300)
         {
@@ -223,6 +227,13 @@ public class RedCloseAuto extends OpMode {
         conf.sleep(1000);
     }
 
+    public void SpikeGate(){
+        conf.AutoOdometryDrive(62.5,-31,90,.7);
+        conf.AutoOdometryDrive(62.5,-39,90,.7);
+        conf.sleep(500);
+
+    }
+
     public void Base(){
         //Park
         conf.AutoOdometryDrive(59.5,-28,0,conf.xMaxSpeed);//FAR PARK
@@ -236,15 +247,18 @@ public class RedCloseAuto extends OpMode {
     }
 
     public void HumanPlayer(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(14, -45, 22, conf.xMaxSpeed);
         conf.AutoOdometryDrive(2, -44, 22, conf.xMaxSpeed);
     }
 
     public void Tunnel(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(33, -45, 144, conf.xMaxSpeed);
     }
 
     public void AltTunnel(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(21, -45, 148, conf.xMaxSpeed);
     }
 

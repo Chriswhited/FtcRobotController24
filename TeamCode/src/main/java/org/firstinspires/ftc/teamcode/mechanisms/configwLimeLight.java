@@ -93,6 +93,7 @@ public class configwLimeLight {
     public ElapsedTime intake_timer = new ElapsedTime();
 
     public ElapsedTime colorReadTimer = new ElapsedTime();
+    public ElapsedTime flagTimer = new ElapsedTime();
 
     public LED redLED;
     public LED greenLED;
@@ -243,10 +244,8 @@ public class configwLimeLight {
         pinpoint.resetPosAndIMU();
     }
 
-    public void odometryDrive(double targetX, double targetY, double targetH, double speed){
-
-        /*
-        if(!PIDreset){
+    public void limelightOdometryDrive(double targetX, double targetY, double targetH, double speed) {
+        if (!PIDreset) {
             PIDreset = true;
             integralSumX = 0;
             lastErrorX = 0;
@@ -272,12 +271,12 @@ public class configwLimeLight {
         hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
         derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
-        integralSumX = integralSumX + (xError  * PIDtimer.seconds());
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
         derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
-        integralSumY = integralSumY + (yError  * PIDtimer.seconds());
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
 
-        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
-        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
         double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
@@ -287,12 +286,61 @@ public class configwLimeLight {
         lastErrorY = yError;
         PIDtimer.reset();
 
-        if(Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
+        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
             PIDreset = false;
             moveRobot(0, 0, 0);
         }
+    }
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed){
 
-         */
+        if (!PIDreset) {
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+
+            PIDtimer.reset();
+
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        }
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
+    }
+
+         /*
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
@@ -338,6 +386,7 @@ public class configwLimeLight {
         moveRobot(0, 0, 0);
 
     }
+          */
     public void sleep(double time){
         sleeptime.reset();
         while(sleeptime.milliseconds() <= time){
@@ -431,11 +480,11 @@ public class configwLimeLight {
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {
-                odometryDrive(currentX, currentY, currentH, xMaxSpeed);
+                limelightOdometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
             else{
-                odometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
+                limelightOdometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
             }
         }
     }

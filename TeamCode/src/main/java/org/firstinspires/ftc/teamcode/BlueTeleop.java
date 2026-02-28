@@ -85,10 +85,8 @@ public class BlueTeleop extends OpMode{
             conf.ledColors(1380);
             conf.odometryDrive(66.5,-8.9,45.4, 1);
         }
-        else if(gamepad1.a){ //Close shooting
-            conf.setFlywheelPower(1260);
-            conf.ledColors(1260);
-            conf.odometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
+        else if(gamepad1.a){ //Open Gate
+            conf.odometryDrive(49.3, 43.15, -120, conf.xMaxSpeed);
         }
         //else if(gamepad1.left_bumper){
         //conf.AutoAlign();
@@ -217,11 +215,11 @@ public class BlueTeleop extends OpMode{
             conf.ledColors(1420);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.y) {
-            conf.setFlywheelPower(1660);
-            conf.ledColors(1660);
+            conf.setFlywheelPower(1720);
+            conf.ledColors(1720);
             //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         }
-        else if (gamepad2.back) {
+        else if (gamepad2.left_bumper) {
             telemetry.addLine("Flywheel off");
             conf.setFlywheelPower(0);
         }
@@ -242,6 +240,9 @@ public class BlueTeleop extends OpMode{
         else{
             conf.franklin_flipper_left.setPosition(0.64
             );
+        }
+        if(gamepad1.back && gamepad2.back && conf.flagTimer.seconds() > 115){
+            conf.flag.setPosition(0.4);
         }
 
 

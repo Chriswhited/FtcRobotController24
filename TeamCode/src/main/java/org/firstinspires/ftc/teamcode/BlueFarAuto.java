@@ -19,6 +19,7 @@ public class BlueFarAuto extends OpMode {
         conf.init(hardwareMap);
         conf.configurePinpoint();
         conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+        conf.flag.setPosition(0);
 
     }
     public void init_loop() {
@@ -45,13 +46,13 @@ public class BlueFarAuto extends OpMode {
 
     @Override
     public void start(){
+
         Start();
         Spike1();
         Launch();
         Spike2();
         Launch();
         Base();
-
 
         /*
 
@@ -252,15 +253,18 @@ public class BlueFarAuto extends OpMode {
     }
 
     public void HumanPlayer(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(14, 45, -22, conf.xMaxSpeed);
         conf.AutoOdometryDrive(2, 44, -22, conf.xMaxSpeed);
     }
 
     public void Tunnel(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(33, 45, -144, conf.xMaxSpeed);
     }
 
     public void AltTunnel(){
+        conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(21, 45, -148, conf.xMaxSpeed);
     }
 
