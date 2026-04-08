@@ -54,6 +54,7 @@ public class Presentation extends OpMode {
         telemetry.addData("Velocity",conf.launch_motor_1.getVelocity());
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+        conf.ledColors(1000);
 
         if(gamepad1.left_bumper) { //Auto Align
 
@@ -115,12 +116,12 @@ public class Presentation extends OpMode {
 
         //reverse kage
         if(gamepad2.right_bumper){
-            conf.intake_motor.setPower(-1);
+            conf.intake_motor.setPower(0);
             conf.intake_timer.reset();
         }
         else if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145) {
             if(conf.intake_timer.milliseconds() > 250) {
-                conf.intake_motor.setPower(-1);
+                conf.intake_motor.setPower(0);
             }
         }
         else if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.colorReadTimer.seconds() > 0.25) {
@@ -128,21 +129,10 @@ public class Presentation extends OpMode {
             conf.intake_timer.reset();
         }
         else{
-            conf.intake_motor.setPower(1);
+            conf.intake_motor.setPower(0);
             conf.intake_timer.reset();
         }
 
-        //Flywheel launcher
-        if (gamepad2.a) {
-            conf.setFlywheelPower(1000);
-            conf.ledColors(1000);
-            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
-        }
-        else if (gamepad2.left_bumper) {
-            telemetry.addLine("Flywheel off");
-            conf.launch_motor_1.setPower(0);
-            conf.launch_motor_2.setPower(0);
-        }
 
         //franklin flipper right
         if(gamepad2.right_trigger > 0.5) {
@@ -162,7 +152,7 @@ public class Presentation extends OpMode {
             );
         }
 
-        if(gamepad1.back && gamepad2.back){
+        if(gamepad2.back){
             conf.flag.setPosition(0.4);
         }
 

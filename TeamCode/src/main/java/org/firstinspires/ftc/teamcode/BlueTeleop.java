@@ -71,8 +71,8 @@ public class BlueTeleop extends OpMode{
             conf.odometryDrive(23,-48,90, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1720);//1680
-            conf.ledColors(1720);
+            conf.setFlywheelPower(1740);//1680
+            conf.ledColors(1740);
             conf.odometryDrive(5,-21.5,28.5, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
@@ -81,8 +81,8 @@ public class BlueTeleop extends OpMode{
             conf.odometryDrive(110,-51,83, 1);
         }
         else if(gamepad1.x){ //Middle shooting
-            conf.setFlywheelPower(1380);
-            conf.ledColors(1380);
+            conf.setFlywheelPower(1420);
+            conf.ledColors(1400);
             conf.odometryDrive(66.5,-8.9,45.4, 1);
         }
         else if(gamepad1.a){ //Open Gate

@@ -59,6 +59,7 @@ public class RedCloseAuto extends OpMode {
         conf.limelight.start();
         conf.setFlywheelPower(1280);
         conf.AutoOdometryDrive(87.45,6.59,-25.7, conf.xMaxSpeed);
+
         conf.ReadTag();
         conf.sleep(2000);
         telemetry.addData("id", conf.id);
@@ -145,7 +146,16 @@ public class RedCloseAuto extends OpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,-6,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(25,-41,90, 0.3);
+        conf.AutoOdometryDrive(25,-41,90, 0.2); //0.3
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
+
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -171,7 +181,15 @@ public class RedCloseAuto extends OpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,-9,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(48,-41,90, .3);
+        conf.AutoOdometryDrive(48,-41,90, .2); //0.2
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -198,7 +216,16 @@ public class RedCloseAuto extends OpMode {
     public void Spike3(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(71.73,-10.13,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(71.73,-35.32,90, 0.3);
+        conf.AutoOdometryDrive(71.73,-35.32,90, 0.2); //0.3
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
+
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);

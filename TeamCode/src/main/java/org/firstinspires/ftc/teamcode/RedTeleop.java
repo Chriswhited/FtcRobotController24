@@ -81,7 +81,7 @@ public class RedTeleop extends OpMode {
             conf.odometryDrive(110,51,-85, 1);
         }
         else if(gamepad1.x){ //Middle shooting
-            conf.setFlywheelPower(1380);
+            conf.setFlywheelPower(1420);
             conf.ledColors(1380);
             conf.odometryDrive(66.5,8.9,-47, 1);
         }
