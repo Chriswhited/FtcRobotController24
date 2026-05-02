@@ -73,7 +73,7 @@ public class BlueTeleop extends OpMode{
         else if(gamepad1.b){ //Far Shooting
             conf.setFlywheelPower(1740);//1680
             conf.ledColors(1740);
-            conf.odometryDrive(5,-21.5,28.5, 1); // 2.5,-2.2,22
+            conf.odometryDrive(10,-21.5,28.5, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
             conf.setFlywheelPower(1480);
