@@ -205,19 +205,20 @@ public class RedTeleop extends OpMode {
         if (gamepad2.a) {
             conf.setFlywheelPower(1280);
             conf.ledColors(1280);
-            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.b) {
             conf.setFlywheelPower(1300);
             conf.ledColors(1300);
-            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.x) {
             conf.setFlywheelPower(1420);
             conf.ledColors(1420);
-            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         } else if (gamepad2.y) {
-            conf.setFlywheelPower(1720);
+            conf.launch_motor_1.setPower(1);
+            conf.launch_motor_2.setPower(1);//conf.setFlywheelPower(1720);
             conf.ledColors(1720);
-            //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            telemetry.addData("Flywheel on", "1:" + conf.launch_motor_1.getVelocity() + " 2:" + conf.launch_motor_2.getVelocity());//telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         }
         else if (gamepad2.left_bumper) {
             telemetry.addLine("Flywheel off");
