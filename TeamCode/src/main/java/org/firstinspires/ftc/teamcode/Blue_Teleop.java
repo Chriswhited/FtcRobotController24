@@ -46,8 +46,12 @@ public class Blue_Teleop extends OpMode {
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
     DcMotor backRightDrive;
+    DcMotor springMotor;
     IMU imu;
     SparkFunOTOS opticalSensor;
+    int rotations = 1;
+
+
 
     double maxSpeed = 1.0;  // make this slower to drive slower
 
@@ -57,11 +61,13 @@ public class Blue_Teleop extends OpMode {
         frontRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_4");
         backLeftDrive = hardwareMap.get(DcMotor.class, "drive_motor_1");
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
+        springMotor = hardwareMap.get(DcMotor.class, "motor_5");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
 
         // We set the left motors in reverse which is needed for mecanum drive
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
+        springMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Set motors to run using encoders
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -82,6 +88,8 @@ public class Blue_Teleop extends OpMode {
         imu.resetYaw();
 
         configureOptical(); // Configure Optical Odometry Sensor
+
+        springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
     }
 
@@ -119,6 +127,12 @@ public class Blue_Teleop extends OpMode {
     @Override
     public void loop() {
         telemetry.addLine("Hold left bumper to drive in robot relative");
+        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+
+        telemetry.addData("IMU Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+
+        // Update the telemetry on the driver station
+        telemetry.update();
 
         // If you press the left bumper, you get a drive from the point of view of the robot
         if (gamepad1.left_bumper) {
@@ -127,12 +141,28 @@ public class Blue_Teleop extends OpMode {
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
 
-        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+        if(gamepad1.a) {
+            springMotor.setTargetPosition(rotations * 2786);
+            springMotor.setPower(1);
+            springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            while(springMotor.isBusy()){
 
-        telemetry.addData("IMU Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            }
+            springMotor.setTargetPosition(rotations * 2786-5);
+            while(springMotor.isBusy()){
 
-        // Update the telemetry on the driver station
-        telemetry.update();
+            }
+            springMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            springMotor.setPower(0);
+            rotations = rotations + 1;
+
+        } else if (gamepad1.x) {
+            springMotor.setPower(1);
+        } else if (gamepad1.b) {
+            springMotor.setPower(0);
+        } else if (gamepad1.y) {
+            springMotor.setPower(gamepad1.left_stick_y);
+        }
 
 
     }
