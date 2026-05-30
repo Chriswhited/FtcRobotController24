@@ -2,98 +2,70 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp
-@Disabled
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
+import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
+
+@TeleOp(name = "LaumchTest", group = "Robot")
 public class LaumchTest extends OpMode {
-
-    DcMotor launch_motor_1;
-    //ColorSensor color_sensor;
+    configwLimeLight conf = new configwLimeLight();
 
     @Override
     public void init() {
+        conf.init(hardwareMap);
+        telemetry.addLine("Push your robot around to see it track");
+        conf.pinpoint.update();
+        Pose2D pose2D = conf.pinpoint.getPosition();
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
+        telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
+        telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+        telemetry.addData("Center Hue", conf.hsvValuesCenter[0]);
+        telemetry.addData("Intake Hue", conf.hsvValuesIntake[0]);
+        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.update();
+        conf.redLED.off();
+        conf.greenLED.off();
+        conf.limelight.start();
+        conf.limelight.pipelineSwitch(3);
 
-        launch_motor_1 = hardwareMap.get(DcMotorEx.class, "launch_motor_1");
-        //color_sensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-        //color_sensor.enableLed(true);
-
-
-        launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        launch_motor_1.setDirection(DcMotorSimple.Direction.REVERSE);
-        //launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
     public void loop() {
+        //conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+        //conf.dashboardTelemetry.addData("PID", conf.launch_motor_1.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER));
+        //PIDFCoefficients PIDF = new PIDFCoefficients(500, 0, 0, 0);
+        //conf.launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        //telemetry.addData("Velocity 1", conf.launch_motor_1.getVelocity());
+        //telemetry.addData("Velocity 2", conf.launch_motor_2.getVelocity());
+        telemetry.addData("V 1", conf.launch_motor_1.getVelocity());
+        telemetry.addData("V 2", conf.launch_motor_2.getVelocity());
+        conf.dashboardTelemetry.update();
 
-        /*
-        //Color Sensor
-
-        float hsvValues[] = {0F,0F,0F};
-        //final float values[] = hsvValues;
-        Color.RGBToHSV(color_sensor.red() * 8, color_sensor.green() * 8, color_sensor.blue() * 8, hsvValues);
-
-
-
-        telemetry.addData("Red: ", color_sensor.red());
-        telemetry.addData("Green: ", color_sensor.green());
-        telemetry.addData("Blue: ", color_sensor.blue());
-        telemetry.addData("Hue",  hsvValues[0]);
-
-         */
-/*
-        Catapult
-        telemetry.addData("button_a",gamepad1.a);
-        telemetry.addData("launch position", launch_motor_1.getCurrentPosition());
-
-        if (gamepad1.a)
-        {
-            telemetry.addData("pressed", gamepad1.a);
-            launch_motor_1.setTargetPosition(135);
-            launch_motor_1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            launch_motor_1.setPower(1);
-            while (launch_motor_1.isBusy()){
-                telemetry.addData("Status", "Running");
-                telemetry.update();
-
-            }
-
-            launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            launch_motor_1.setPower(0);
-        }
-
- */
-
-        //Flywheel launcher
-        if (gamepad1.a) {
-            telemetry.addData("Flywheel on", gamepad1.a);
-            launch_motor_1.setPower(.60);
-        } else if (gamepad1.b) {
-            telemetry.addData("Flywheel off", gamepad1.b);
-            launch_motor_1.setPower(.80);
-        } else if (gamepad1.x) {
-            telemetry.addData("Flywheel off", gamepad1.x);
-            launch_motor_1.setPower(.90);
+        if (gamepad1.b) { //Far Shooting
+            conf.setFlywheelPower(1740);
+            //conf.launch_motor_1.setPower(1);
+            //conf.launch_motor_2.setPower(1);
+            conf.ledColors(1740);
         } else if (gamepad1.y) {
-            telemetry.addData("Flywheel off", gamepad1.y);
-            launch_motor_1.setPower(1);
+            conf.setFlywheelPower(1480);
+            conf.ledColors(1480);
         }
-        else if (gamepad1.right_bumper) {
-            telemetry.addData("Flywheel off", gamepad1.right_bumper);
-            launch_motor_1.setPower(0);
-        }
-
-
     }
 }
