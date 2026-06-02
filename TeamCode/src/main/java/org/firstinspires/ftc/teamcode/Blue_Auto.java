@@ -29,18 +29,22 @@ public class Blue_Auto extends OpMode {
     int rotations = 1;
     double maxSpeed = 1.0;  // make this slower to drive slower
     ElapsedTime sleeptime = new ElapsedTime();
-    public double xProp = 0.05; //0.04
+    public double xProp = 0.04; //0.04
     public double xInt = 0; //0.0
-    public double xDer = 0.001; //0.0
-    public double yProp = 0.06; //0.04
+    public double xDer = 0; //0.0
+    public double yProp = 0.04; //0.04
     public double yInt = 0; //0.0
-    public double yDer = 0.0015; //0.0
+    public double yDer = 0; //0.0
     public double hProp = 0.03;
     public double hDer = 0.006;
     public double derivativeH = 0;
     public double hMaxSpeed = 0.7;
     public double xMaxSpeed = 1;
     public double yMaxSpeed = 1;
+    public double CurrentX = 0;
+    public double CurrentY = 0;
+    public double CurrentH = 0;
+
 
     @Override
     public void init() {
@@ -79,9 +83,6 @@ public class Blue_Auto extends OpMode {
         springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void init_loop() {
-        // Get the latest position, which includes the x and y coordinates, plus the
-        // heading angle
-        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
 
         // Reset the tracking if the user requests it
         if (gamepad1.y) {
@@ -99,10 +100,10 @@ public class Blue_Auto extends OpMode {
         telemetry.addLine();
 
         // Log the position to the telemetry
-        telemetry.addData("X coordinate", pos.x);
-        telemetry.addData("Y coordinate", pos.y);
-        telemetry.addData("Heading angle", pos.h);
-        telemetry.addData("IMU Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        GetCurrentPosition();
+        telemetry.addData("X coordinate", CurrentX);
+        telemetry.addData("Y coordinate", CurrentY);
+        telemetry.addData("Heading angle", CurrentH);
 
         // Update the telemetry on the driver station
         telemetry.update();
@@ -114,7 +115,18 @@ public class Blue_Auto extends OpMode {
     public void start(){
 
 
-        AutoOdometryDrive(0,10,0,.3);
+        GetCurrentPosition();
+        telemetry.addData("X coordinate", CurrentX);
+        telemetry.addData("Y coordinate", CurrentY);
+        telemetry.addData("Heading angle", CurrentH);
+
+        // Update the telemetry on the driver station
+        telemetry.update();
+
+        AutoOdometryDrive(12,12,90,.3);
+        //Launch();
+        //AutoOdometryDrive(-48,20,8,.6);
+
 
     }
 
@@ -135,17 +147,26 @@ public class Blue_Auto extends OpMode {
 
 
         //Get initial error
-        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
-        double xError = targetX - pos.x;
-        double yError = targetY - pos.y;
-        double hError = targetH - pos.h;
+        GetCurrentPosition();
+
+        //SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+        double xError = targetX - CurrentX;
+        double yError = targetY - CurrentY;
+        double hError = targetH - CurrentH;
 
         while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5){
 
+            /*
             SparkFunOTOS.Pose2D pose2D = opticalSensor.getPosition();
             xError = targetX - pose2D.x;
             yError = targetY - pose2D.y;
             hError = targetH - pose2D.h;
+
+             */
+            GetCurrentPosition();
+            xError = targetX - CurrentX;
+            yError = targetY - CurrentY;
+            hError = targetH - CurrentH;
 
             double derivativeX = (xError - lastErrorX) / timer.seconds();
             integralSumX = integralSumX + (xError  * timer.seconds());
@@ -163,9 +184,9 @@ public class Blue_Auto extends OpMode {
             lastErrorY = yError;
             timer.reset();
 
-            telemetry.addData("X coordinate", pose2D.x);
-            telemetry.addData("Y coordinate", pose2D.y);
-            telemetry.addData("Heading angle", pose2D.h);
+            telemetry.addData("X coordinate", CurrentX);
+            telemetry.addData("Y coordinate", CurrentY);
+            telemetry.addData("Heading angle", CurrentH);
             telemetry.update();
 
         }
@@ -202,6 +223,31 @@ public class Blue_Auto extends OpMode {
         while(sleeptime.milliseconds() <= time){
         }
     }
+
+    public void GetCurrentPosition(){
+        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+
+        CurrentX = pos.y;
+        CurrentY = pos.x;
+        CurrentH = -pos.h;
+
+    }
+
+    public void Launch(){
+        springMotor.setTargetPosition(rotations * 2786);
+        springMotor.setPower(1);
+        springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while(springMotor.isBusy()){
+
+        }
+        springMotor.setTargetPosition(rotations * 2786-5);
+        while(springMotor.isBusy()){
+
+        }
+        springMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        springMotor.setPower(0);
+        rotations = rotations + 1;
+    }
     private void configureOptical() {
         telemetry.addLine("Configuring Optical Sensor...");
         telemetry.update();
@@ -227,7 +273,7 @@ public class Blue_Auto extends OpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(.35, -5.75, 0);
         opticalSensor.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
@@ -269,7 +315,9 @@ public class Blue_Auto extends OpMode {
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
+        //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(44.6, 119, -51);
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+        //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 24, 0);
         opticalSensor.setPosition(currentPosition);
 
         // Get the hardware and firmware version
