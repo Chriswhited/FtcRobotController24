@@ -68,6 +68,7 @@ public class TuningFlywheels extends OpMode{
         conf.dashboardTelemetry.addData("V2", conf.launch_motor_2.getVelocity());
         conf.dashboardTelemetry.addData("P1", conf.launch_motor_1.getPower());
         conf.dashboardTelemetry.addData("P2", conf.launch_motor_2.getPower());
+        conf.dashboardTelemetry.addData("Battery", conf.batteryVoltage.getVoltage());
 
 
         conf.dashboardTelemetry.update();
@@ -123,10 +124,10 @@ public class TuningFlywheels extends OpMode{
             speedVal -= 50;
         }
         else if(gamepad1.left_bumper){
-            conf.setFlywheelPower(0);
+            conf.launch_motor_1.setVelocity(0);
         }
         else if(gamepad1.right_bumper){
-            conf.setFlywheelPower(speedVal);
+            conf.launch_motor_1.setVelocity(speedVal);
         }
     }
 }

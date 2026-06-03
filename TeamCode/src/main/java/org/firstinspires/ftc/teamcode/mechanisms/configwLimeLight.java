@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
 import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
+
 
 import java.util.List;
 
@@ -105,6 +107,7 @@ public class configwLimeLight {
     public GoBildaPrismDriver prism;
     public double velocity1 = 0;
     public double wantedVelocity;
+    public VoltageSensor batteryVoltage;
 
 
 
@@ -130,6 +133,7 @@ public class configwLimeLight {
         greenLED = hwMap.get(LED.class, "greenLED");
         prism = hwMap.get(GoBildaPrismDriver.class,"prism");
         flag = hwMap.get(Servo.class, "flag");
+        batteryVoltage = hwMap.get(VoltageSensor.class, "Control Hub");
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launch_motor_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
