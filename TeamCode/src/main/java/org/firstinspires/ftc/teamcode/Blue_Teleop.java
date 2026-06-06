@@ -33,15 +33,20 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 @TeleOp(name = "Blue Teleop", group = "Robot")
 
 public class Blue_Teleop extends OpMode {
+    public double fieldColor = -1; //If Blue set to -1, if red set to 1
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -49,10 +54,38 @@ public class Blue_Teleop extends OpMode {
     DcMotor springMotor;
     IMU imu;
     SparkFunOTOS opticalSensor;
-    int rotations = 1;
+    ColorSensor colorLauncher;
+    int rotations = 0;
+    boolean aPress = false;
+    ElapsedTime sleeptime = new ElapsedTime();
 
-
-
+    //Odometry Dive Variables
+    boolean PIDreset = false;
+    ElapsedTime PIDtimer = new ElapsedTime();
+    public double xProp = 0.04; //0.04
+    public double xInt = 0; //0.0
+    public double xDer = 0; //0.0
+    public double yProp = 0.04; //0.04
+    public double yInt = 0; //0.0
+    public double yDer = 0; //0.0
+    public double hProp = 0.03;
+    public double hDer = 0.006;
+    public double derivativeH = 0;
+    public double hMaxSpeed = 0.7;
+    public double xMaxSpeed = 1;
+    public double yMaxSpeed = 1;
+    double integralSumX = 0;
+    double lastErrorX = 0;
+    double integralSumY = 0;
+    double lastErrorY = 0;
+    double xError = 0;
+    double yError = 0;
+    double hError = 0;
+    double derivativeY = 0;
+    double derivativeX = 0;
+    public double CurrentX = 0;
+    public double CurrentY = 0;
+    public double CurrentH = 0;
     double maxSpeed = 1.0;  // make this slower to drive slower
 
     @Override
@@ -63,6 +96,7 @@ public class Blue_Teleop extends OpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
         springMotor = hardwareMap.get(DcMotor.class, "motor_5");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
+        colorLauncher = hardwareMap.get(ColorSensor.class,"color_launcher");
 
         // We set the left motors in reverse which is needed for mecanum drive
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -87,17 +121,20 @@ public class Blue_Teleop extends OpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
 
-        configureOptical(); // Configure Optical Odometry Sensor
+        //configureOptical(); // Configure Optical Odometry Sensor
 
+        //Set up launch paddle motor
         springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        springMotor.setTargetPosition(0);
+        springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        springMotor.setPower(1);
 
     }
 
     @Override
     public void init_loop() {
-        // Get the latest position, which includes the x and y coordinates, plus the
-        // heading angle
-        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+        // Get the latest position
+        GetCurrentPosition();
 
         // Reset the tracking if the user requests it
         if (gamepad1.y) {
@@ -115,10 +152,9 @@ public class Blue_Teleop extends OpMode {
         telemetry.addLine();
 
         // Log the position to the telemetry
-        telemetry.addData("X coordinate", pos.x);
-        telemetry.addData("Y coordinate", pos.y);
-        telemetry.addData("Heading angle", pos.h);
-        telemetry.addData("IMU Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        telemetry.addData("X coordinate", CurrentX);
+        telemetry.addData("Y coordinate", CurrentY * fieldColor);
+        telemetry.addData("Heading angle", CurrentH * fieldColor);
 
         // Update the telemetry on the driver station
         telemetry.update();
@@ -127,44 +163,32 @@ public class Blue_Teleop extends OpMode {
     @Override
     public void loop() {
         telemetry.addLine("Hold left bumper to drive in robot relative");
-        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
 
-        telemetry.addData("IMU Heading", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        GetCurrentPosition();
+        telemetry.addData("X coordinate", CurrentX);
+        telemetry.addData("Y coordinate", CurrentY * fieldColor);
+        telemetry.addData("Heading angle", CurrentH * fieldColor);
 
         // Update the telemetry on the driver station
         telemetry.update();
 
         // If you press the left bumper, you get a drive from the point of view of the robot
-        if (gamepad1.left_bumper) {
+        if(gamepad1.y){ // Park Button
+            AutoOdometryDrive(26.5,-39.5,90,.6);
+        } else if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         } else {
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
 
-        if(gamepad1.a) {
-            springMotor.setTargetPosition(rotations * 2786);
-            springMotor.setPower(1);
-            springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(springMotor.isBusy()){
+        springMotor.setTargetPosition(rotations * 2786);
 
-            }
-            springMotor.setTargetPosition(rotations * 2786-5);
-            while(springMotor.isBusy()){
-
-            }
-            springMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            springMotor.setPower(0);
+        if(gamepad1.aWasPressed() && !aPress){
             rotations = rotations + 1;
-
-        } else if (gamepad1.x) {
-            springMotor.setPower(1);
-        } else if (gamepad1.b) {
-            springMotor.setPower(0);
-        } else if (gamepad1.y) {
-            springMotor.setPower(gamepad1.left_stick_y);
         }
-
-
+        if (gamepad1.aWasReleased()){
+            gamepad1.reset();
+        }
     }
 
     // This routine drives the robot field relative
@@ -192,6 +216,12 @@ public class Blue_Teleop extends OpMode {
         double backRightPower = forward + right - rotate;
         double backLeftPower = forward - right + rotate;
 
+        if (gamepad1.right_bumper){
+            maxSpeed = 0.3;
+        } else {
+            maxSpeed = 1.0;
+        }
+
         double maxPower = 1.0;
 
         // Prevent motor clipped and keep proportional
@@ -206,6 +236,91 @@ public class Blue_Teleop extends OpMode {
         backRightDrive.setPower(maxSpeed * (backRightPower / maxPower));
     }
 
+    public void AutoOdometryDrive(double targetX, double targetY, double targetH, double speed){
+        if (!PIDreset){
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+            PIDtimer.reset();
+
+            //Get initial error
+            GetCurrentPosition();
+            double xError = (targetX) - CurrentX;
+            double yError = (targetY * fieldColor) - CurrentY;
+            double hError = (targetH * fieldColor) - CurrentH;
+        }
+
+        GetCurrentPosition();
+        xError = (targetX) - CurrentX;
+        yError = (targetY * fieldColor) - CurrentY;
+        hError = (targetH * fieldColor) - CurrentH;
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError  * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError  * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        telemetry.addData("X coordinate", CurrentX);
+        telemetry.addData("Y coordinate", CurrentY * fieldColor);
+        telemetry.addData("Heading angle", CurrentH * fieldColor);
+        telemetry.update();
+
+        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
+    }
+
+    //calculate and normalize wheel powers, then send powers to wheels
+    void moveRobot(double x, double y, double h){
+        //Convert to radians
+        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+        double radian = pos.h * Math.PI / 180;
+
+        //Account for robot rotation
+        double x_rotated = x * Math.cos(radian) - y * Math.sin(radian);
+        double y_rotated = x * Math.sin(radian) + y * Math.cos(radian);
+
+        double denominator = Math.max(Math.abs(y_rotated) + Math.abs(x_rotated) + Math.abs(h), 1);
+
+        double leftFrontPower = (x_rotated + y_rotated + h) / denominator;
+        double leftBackPower = (x_rotated - y_rotated + h) / denominator;
+        double rightFrontPower = (x_rotated - y_rotated - h) / denominator;
+        double rightBackPower = (x_rotated + y_rotated - h) / denominator;
+
+
+        // Send powers to the wheels.
+        frontLeftDrive.setPower(leftFrontPower);
+        frontRightDrive.setPower(rightFrontPower);
+        backLeftDrive.setPower(leftBackPower);
+        backRightDrive.setPower(rightBackPower);
+        sleep(10);
+    }
+    public void sleep(double time){
+        sleeptime.reset();
+        while(sleeptime.milliseconds() <= time){
+        }
+    }
+    public void GetCurrentPosition(){
+        SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
+        CurrentX = pos.y;
+        CurrentY = pos.x;
+        CurrentH = -pos.h;
+    }
     private void configureOptical() {
         telemetry.addLine("Configuring Optical Sensor...");
         telemetry.update();

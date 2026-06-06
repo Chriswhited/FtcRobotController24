@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @Autonomous(name = "Blue_Auto", group = "Robot")
 public class Blue_Auto extends OpMode {
+    public double fieldColor = -1; //If Blue set to -1, if red set to 1
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -26,8 +27,7 @@ public class Blue_Auto extends OpMode {
     DcMotor springMotor;
     IMU imu;
     SparkFunOTOS opticalSensor;
-    int rotations = 1;
-    double maxSpeed = 1.0;  // make this slower to drive slower
+    int rotations = 0;
     ElapsedTime sleeptime = new ElapsedTime();
     public double xProp = 0.04; //0.04
     public double xInt = 0; //0.0
@@ -66,21 +66,12 @@ public class Blue_Auto extends OpMode {
         backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        imu = hardwareMap.get(IMU.class, "imu");
-        // Set the orientation of the control hub for IMU
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
-
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-        imu.resetYaw();
-
         configureOptical(); // Configure Optical Odometry Sensor
 
         springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        springMotor.setTargetPosition(0);
+        springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        springMotor.setPower(1);
     }
     public void init_loop() {
 
@@ -114,19 +105,9 @@ public class Blue_Auto extends OpMode {
     @Override
     public void start(){
 
-
-        GetCurrentPosition();
-        telemetry.addData("X coordinate", CurrentX);
-        telemetry.addData("Y coordinate", CurrentY);
-        telemetry.addData("Heading angle", CurrentH);
-
-        // Update the telemetry on the driver station
-        telemetry.update();
-
-        AutoOdometryDrive(12,12,90,.3);
-        //Launch();
-        //AutoOdometryDrive(-48,20,8,.6);
-
+        AutoOdometryDrive(83,21,45,.6);
+        Launch();
+        AutoOdometryDrive(70,28,90,.6);
 
     }
 
@@ -144,29 +125,18 @@ public class Blue_Auto extends OpMode {
         yMaxSpeed = speed;
         ElapsedTime timer = new ElapsedTime();
 
-
-
         //Get initial error
         GetCurrentPosition();
+        double xError = (targetX) - CurrentX;
+        double yError = (targetY * fieldColor) - CurrentY;
+        double hError = (targetH * fieldColor) - CurrentH;
 
-        //SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
-        double xError = targetX - CurrentX;
-        double yError = targetY - CurrentY;
-        double hError = targetH - CurrentH;
+        while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > 1){
 
-        while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5){
-
-            /*
-            SparkFunOTOS.Pose2D pose2D = opticalSensor.getPosition();
-            xError = targetX - pose2D.x;
-            yError = targetY - pose2D.y;
-            hError = targetH - pose2D.h;
-
-             */
             GetCurrentPosition();
-            xError = targetX - CurrentX;
-            yError = targetY - CurrentY;
-            hError = targetH - CurrentH;
+            xError = (targetX) - CurrentX;
+            yError = (targetY * fieldColor) - CurrentY;
+            hError = (targetH * fieldColor) - CurrentH;
 
             double derivativeX = (xError - lastErrorX) / timer.seconds();
             integralSumX = integralSumX + (xError  * timer.seconds());
@@ -177,7 +147,6 @@ public class Blue_Auto extends OpMode {
             double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
             double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
-
             moveRobot(x, y, h);
 
             lastErrorX = xError;
@@ -185,8 +154,8 @@ public class Blue_Auto extends OpMode {
             timer.reset();
 
             telemetry.addData("X coordinate", CurrentX);
-            telemetry.addData("Y coordinate", CurrentY);
-            telemetry.addData("Heading angle", CurrentH);
+            telemetry.addData("Y coordinate", CurrentY * fieldColor);
+            telemetry.addData("Heading angle", CurrentH * fieldColor);
             telemetry.update();
 
         }
@@ -200,8 +169,8 @@ public class Blue_Auto extends OpMode {
         double radian = pos.h * Math.PI / 180;
 
         //Account for robot rotation
-        double x_rotated = x * Math.cos(-radian) - y * Math.sin(-radian);
-        double y_rotated = x * Math.sin(-radian) + y * Math.cos(-radian);
+        double x_rotated = x * Math.cos(radian) - y * Math.sin(radian);
+        double y_rotated = x * Math.sin(radian) + y * Math.cos(radian);
 
         double denominator = Math.max(Math.abs(y_rotated) + Math.abs(x_rotated) + Math.abs(h), 1);
 
@@ -226,27 +195,17 @@ public class Blue_Auto extends OpMode {
 
     public void GetCurrentPosition(){
         SparkFunOTOS.Pose2D pos = opticalSensor.getPosition();
-
         CurrentX = pos.y;
         CurrentY = pos.x;
         CurrentH = -pos.h;
-
     }
 
     public void Launch(){
-        springMotor.setTargetPosition(rotations * 2786);
-        springMotor.setPower(1);
-        springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while(springMotor.isBusy()){
-
-        }
-        springMotor.setTargetPosition(rotations * 2786-5);
-        while(springMotor.isBusy()){
-
-        }
-        springMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        springMotor.setPower(0);
         rotations = rotations + 1;
+        springMotor.setTargetPosition(rotations * 2786);
+        while(springMotor.isBusy()){
+
+        }
     }
     private void configureOptical() {
         telemetry.addLine("Configuring Optical Sensor...");
@@ -315,9 +274,11 @@ public class Blue_Auto extends OpMode {
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
-        //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(44.6, 119, -51);
-        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
-        //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 24, 0);
+        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D((fieldColor * 48.5), 110, (fieldColor * -50));
+
+        //Zero Starting Position
+        //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
+
         opticalSensor.setPosition(currentPosition);
 
         // Get the hardware and firmware version
