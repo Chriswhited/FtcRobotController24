@@ -21,7 +21,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 public class TuningFlywheels extends OpMode{
     configwLimeLight conf = new configwLimeLight();
     boolean press = false;
-    double speedVal = 0;
+    double speedVal1 = 0;
+    double speedVal2 = 0;
 
     @Override
     public void init() {
@@ -49,19 +50,24 @@ public class TuningFlywheels extends OpMode{
 
     @Override
     public void loop() {
-        if(speedVal < 0){
-            speedVal = 1280;
+        if(speedVal1 < 0){
+            speedVal1 = 1280;
+        }
+        if(speedVal2 < 0){
+            speedVal2 = 1280;
         }
         telemetry.addData("V1", conf.launch_motor_1.getVelocity());
         telemetry.addData("V2", conf.launch_motor_2.getVelocity());
         telemetry.addData("P1", conf.launch_motor_1.getPower());
         telemetry.addData("P2", conf.launch_motor_2.getPower());
-        telemetry.addData("Goal", speedVal);
-        //conf.pinpoint.update();
-        //Pose2D pose2D = conf.pinpoint.getPosition();
-        //telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        //telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        //telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("Goal1", speedVal1);
+        telemetry.addData("Goal2", speedVal2);
+        conf.pinpoint.update();
+        Pose2D pose2D = conf.pinpoint.getPosition();
+        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+        telemetry.update();
 
 
         conf.dashboardTelemetry.addData("V1", conf.launch_motor_1.getVelocity());
@@ -111,23 +117,70 @@ public class TuningFlywheels extends OpMode{
         }
 
         //flywheel speed controls
-        if(gamepad1.b){
-            speedVal += 20;
+        if(gamepad1.dpad_right){
+            speedVal2 += 20;
         }
-        else if(gamepad1.x){
-            speedVal -= 20;
+        else if(gamepad1.dpad_left){
+            speedVal2 -= 20;
         }
-        else if(gamepad1.y){
-            speedVal += 50;
+        else if(gamepad1.dpad_up){
+            speedVal1 += 20;
         }
-        else if(gamepad1.a){
-            speedVal -= 50;
+        else if(gamepad1.dpad_down){
+            speedVal1 -= 20;
         }
         else if(gamepad1.left_bumper){
             conf.launch_motor_1.setVelocity(0);
+            conf.launch_motor_2.setVelocity(0);
         }
         else if(gamepad1.right_bumper){
-            conf.launch_motor_1.setVelocity(speedVal);
+            conf.launch_motor_1.setVelocity(speedVal1);
+            conf.launch_motor_2.setVelocity(speedVal2);
         }
+
+        //Presents
+        if(gamepad1.b){ //Far Shooting
+            conf.setFlywheelPower(1740);//1680
+            conf.ledColors(1740);
+            conf.odometryDrive(5,21.5,-34, 1); // 2.5,-2.2,22
+        }
+        else if(gamepad1.y){
+            conf.setFlywheelPower(1480);
+            conf.ledColors(1480);
+            conf.odometryDrive(110,51,-85, 1);
+        }
+        else if(gamepad1.x){ //Middle shooting
+            conf.setFlywheelPower(1420);
+            conf.ledColors(1380);
+            conf.odometryDrive(66.5,8.9,-47, 1);
+        }
+        else if(gamepad1.a){ //Open gate
+            conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
+        }
+
+        //Drive
+        else {
+            conf.status = 0;
+            double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
+            double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_right_power = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+            double back_left_power = -gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x;
+
+
+            conf.max_power = 1;
+            conf.max_power = Math.max(conf.max_power, Math.abs(front_left_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(front_right_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(back_right_power));
+            conf.max_power = Math.max(conf.max_power, Math.abs(back_left_power));
+
+            conf.front_left_drive.setPower(front_left_power / conf.max_power * 1.5);
+            conf.back_left_drive.setPower(back_left_power / conf.max_power * 1.5);
+            conf.front_right_drive.setPower(front_right_power / conf.max_power * 1.5);
+            conf.back_right_drive.setPower(back_right_power / conf.max_power * 1.5);
+
+        }
+
+
     }
+
 }
