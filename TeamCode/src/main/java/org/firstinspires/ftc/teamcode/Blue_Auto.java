@@ -105,7 +105,7 @@ public class Blue_Auto extends OpMode {
     @Override
     public void start(){
 
-        AutoOdometryDrive(83,21,45,.6);
+        AutoOdometryDrive(79,18,45,.6);
         Launch();
         AutoOdometryDrive(70,28,90,.6);
 
@@ -274,7 +274,7 @@ public class Blue_Auto extends OpMode {
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
-        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D((fieldColor * 48.5), 110, (fieldColor * -50));
+        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D((fieldColor * 55.7), 111.4, (fieldColor * -51));
 
         //Zero Starting Position
         //SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);

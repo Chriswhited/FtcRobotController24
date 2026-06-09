@@ -28,14 +28,18 @@
  */
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -54,7 +58,7 @@ public class Blue_Teleop extends OpMode {
     DcMotor springMotor;
     IMU imu;
     SparkFunOTOS opticalSensor;
-    ColorSensor colorLauncher;
+    RevColorSensorV3 colorLauncher;
     int rotations = 0;
     boolean aPress = false;
     ElapsedTime sleeptime = new ElapsedTime();
@@ -96,7 +100,8 @@ public class Blue_Teleop extends OpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
         springMotor = hardwareMap.get(DcMotor.class, "motor_5");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
-        colorLauncher = hardwareMap.get(ColorSensor.class,"color_launcher");
+        colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
+
 
         // We set the left motors in reverse which is needed for mecanum drive
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -146,6 +151,8 @@ public class Blue_Teleop extends OpMode {
             opticalSensor.calibrateImu();
         }
 
+        double distance = colorLauncher.getDistance(DistanceUnit.MM);
+
         // Inform user of available controls
         telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
         telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
@@ -155,6 +162,8 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
+
+        telemetry.addData("Distance", distance);
 
         // Update the telemetry on the driver station
         telemetry.update();
@@ -173,8 +182,9 @@ public class Blue_Teleop extends OpMode {
         telemetry.update();
 
         // If you press the left bumper, you get a drive from the point of view of the robot
-        if(gamepad1.y){ // Park Button
-            AutoOdometryDrive(26.5,-39.5,90,.6);
+        if(gamepad1.y){ // Auto Position Button
+            //AutoOdometryDrive(26.5,-39.5,90,.6);
+            AutoOdometryDrive(69.5,7,53,1);
         } else if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         } else {
@@ -183,10 +193,10 @@ public class Blue_Teleop extends OpMode {
 
         springMotor.setTargetPosition(rotations * 2786);
 
-        if(gamepad1.aWasPressed() && !aPress){
+        if(gamepad1.rightBumperWasPressed() && !aPress){
             rotations = rotations + 1;
         }
-        if (gamepad1.aWasReleased()){
+        if (gamepad1.rightBumperWasReleased()){
             gamepad1.reset();
         }
     }
@@ -216,7 +226,7 @@ public class Blue_Teleop extends OpMode {
         double backRightPower = forward + right - rotate;
         double backLeftPower = forward - right + rotate;
 
-        if (gamepad1.right_bumper){
+        if (gamepad1.right_trigger > 0.5){
             maxSpeed = 0.3;
         } else {
             maxSpeed = 1.0;
