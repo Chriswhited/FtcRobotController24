@@ -134,8 +134,10 @@ public class TuningFlywheels extends OpMode{
             conf.launch_motor_2.setVelocity(0);
         }
         else if(gamepad1.right_bumper){
-            conf.launch_motor_1.setVelocity(speedVal1);
-            conf.launch_motor_2.setVelocity(speedVal2);
+            //conf.launch_motor_1.setVelocity(speedVal1);
+            //conf.launch_motor_2.setVelocity(speedVal2);
+            conf.launch_motor_1.setPower(1);
+            conf.launch_motor_2.setPower(1);
         }
 
         //Presents
