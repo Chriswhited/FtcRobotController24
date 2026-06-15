@@ -56,6 +56,7 @@ public class Blue_Teleop extends OpMode {
     DcMotor backLeftDrive;
     DcMotor backRightDrive;
     DcMotor springMotor;
+    DcMotor intakeMotor;
     IMU imu;
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
@@ -99,6 +100,7 @@ public class Blue_Teleop extends OpMode {
         backLeftDrive = hardwareMap.get(DcMotor.class, "drive_motor_1");
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
         springMotor = hardwareMap.get(DcMotor.class, "motor_5");
+        intakeMotor = hardwareMap.get(DcMotor.class,"motor_6");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
 
@@ -198,6 +200,11 @@ public class Blue_Teleop extends OpMode {
         }
         if (gamepad1.rightBumperWasReleased()){
             gamepad1.reset();
+        }
+        if(gamepad1.a){
+            intakeMotor.setPower(1);
+        } else {
+            intakeMotor.setPower(0);
         }
     }
 
