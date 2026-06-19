@@ -146,21 +146,23 @@ public class configwLimeLight {
         front_left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //launch_motor_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launch_motor_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launch_motor_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        launch_motor_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-/*
-        PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
+        //launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //launch_motor_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        /*PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
         launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
         launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        
+         */
 
- */
+ 
 
         solid.setBrightness(100);
         solid.setStartIndex(6);
