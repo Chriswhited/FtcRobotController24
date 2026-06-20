@@ -71,18 +71,19 @@ public class RedTeleop extends OpMode {
             conf.odometryDrive(23,48,-90, 1);
         }
         else if(gamepad1.b){ //Far Shooting
-            conf.setFlywheelPower(1740);//1680
-            conf.ledColors(1740);
-            conf.odometryDrive(5,21.5,-34, 1); // 2.5,-2.2,22
+            conf.setFlywheelPower(1500);//1680
+            conf.ledColors(1500);
+            conf.odometryDrive(5.5,22.5,-35, 1); // 2.5,-2.2,22
         }
         else if(gamepad1.y){
-            conf.setFlywheelPower(1480);
-            conf.ledColors(1480);
+            conf.launch_motor_1.setVelocity(1300);
+            conf.launch_motor_2.setVelocity(1320);
+            conf.ledColors(1320);
             conf.odometryDrive(110,51,-85, 1);
         }
         else if(gamepad1.x){ //Middle shooting
-            conf.setFlywheelPower(1420);
-            conf.ledColors(1380);
+            conf.setFlywheelPower(1200);
+            conf.ledColors(1200);
             conf.odometryDrive(66.5,8.9,-47, 1);
         }
         else if(gamepad1.a){ //Open gate
