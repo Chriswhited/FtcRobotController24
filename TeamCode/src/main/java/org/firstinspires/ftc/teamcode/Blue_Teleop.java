@@ -34,12 +34,14 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -57,6 +59,8 @@ public class Blue_Teleop extends OpMode {
     DcMotor backRightDrive;
     DcMotor springMotor;
     DcMotor intakeMotor;
+    CRServo sweeper;
+    Servo launchAngle;
     IMU imu;
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
@@ -92,6 +96,7 @@ public class Blue_Teleop extends OpMode {
     public double CurrentY = 0;
     public double CurrentH = 0;
     double maxSpeed = 1.0;  // make this slower to drive slower
+    double servoPosition = 1;
 
     @Override
     public void init() {
@@ -103,6 +108,8 @@ public class Blue_Teleop extends OpMode {
         intakeMotor = hardwareMap.get(DcMotor.class,"motor_6");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
+        sweeper = hardwareMap.get(CRServo.class,"sweeper");
+        launchAngle = hardwareMap.get(Servo.class,"launch_servo");
 
 
         // We set the left motors in reverse which is needed for mecanum drive
@@ -166,6 +173,7 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Heading angle", CurrentH * fieldColor);
 
         telemetry.addData("Distance", distance);
+        telemetry.addData("Servo Position", servoPosition);
 
         // Update the telemetry on the driver station
         telemetry.update();
@@ -179,14 +187,18 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
+        telemetry.addData("Servo Position", servoPosition);
 
         // Update the telemetry on the driver station
         telemetry.update();
+        sweeper.setPower(-1);
+        intakeMotor.setPower(1);
 
         // If you press the left bumper, you get a drive from the point of view of the robot
         if(gamepad1.y){ // Auto Position Button
-            //AutoOdometryDrive(26.5,-39.5,90,.6);
-            AutoOdometryDrive(69.5,7,53,1);
+            AutoOdometryDrive(69.5,7,50,1);
+        } else if (gamepad1.a) {
+            AutoOdometryDrive(14,-53,50,1);
         } else if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         } else {
@@ -201,11 +213,17 @@ public class Blue_Teleop extends OpMode {
         if (gamepad1.rightBumperWasReleased()){
             gamepad1.reset();
         }
-        if(gamepad1.a){
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
+
+        if(gamepad1.dpad_up){
+            servoPosition = servoPosition + .01;
         }
+        if(gamepad1.dpad_down){
+            servoPosition = servoPosition - .01;
+        }
+        if(gamepad1.x){
+            launchAngle.setPosition(servoPosition);
+        }
+
     }
 
     // This routine drives the robot field relative
