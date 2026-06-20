@@ -156,11 +156,9 @@ public class configwLimeLight {
         //launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //launch_motor_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        /*PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
+        PIDFCoefficients PIDF = new PIDFCoefficients(130,3,110,0);
         launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
         launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
-        
-         */
 
  
 

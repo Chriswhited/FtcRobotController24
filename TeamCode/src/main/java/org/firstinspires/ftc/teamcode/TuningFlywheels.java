@@ -56,12 +56,18 @@ public class TuningFlywheels extends OpMode{
         if(speedVal2 < 0){
             speedVal2 = 1280;
         }
+        PIDFCoefficients default1 = conf.launch_motor_1.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("V1", conf.launch_motor_1.getVelocity());
         telemetry.addData("V2", conf.launch_motor_2.getVelocity());
         telemetry.addData("P1", conf.launch_motor_1.getPower());
         telemetry.addData("P2", conf.launch_motor_2.getPower());
         telemetry.addData("Goal1", speedVal1);
         telemetry.addData("Goal2", speedVal2);
+        telemetry.addData("P", default1.p);
+        telemetry.addData("I", default1.i);
+        telemetry.addData("D", default1.d);
+        telemetry.addData("F", default1.f);
+
         conf.pinpoint.update();
         Pose2D pose2D = conf.pinpoint.getPosition();
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
