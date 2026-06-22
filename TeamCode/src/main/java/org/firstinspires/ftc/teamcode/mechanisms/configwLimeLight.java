@@ -85,10 +85,10 @@ public class configwLimeLight {
     public boolean flywheelStart = false;
     public boolean intake_var2;
     public double max_power = 1.0;
-    public float hsvValuesLeft[] = {0F,0F,0F};
-    public float hsvValuesRight[] = {0F,0F,0F};
-    public float hsvValuesCenter[] = {0F,0F,0F};
-    public float hsvValuesIntake[] = {0F,0F,0F};
+    public float hsvValuesLeft[] = {0F, 0F, 0F};
+    public float hsvValuesRight[] = {0F, 0F, 0F};
+    public float hsvValuesCenter[] = {0F, 0F, 0F};
+    public float hsvValuesIntake[] = {0F, 0F, 0F};
     boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime PIDtimer = new ElapsedTime();
@@ -110,9 +110,7 @@ public class configwLimeLight {
     public VoltageSensor batteryVoltage;
 
 
-
-
-    public void init(HardwareMap hwMap)  {
+    public void init(HardwareMap hwMap) {
         back_left_drive = hwMap.get(DcMotor.class, "back_left_drive");
         front_left_drive = hwMap.get(DcMotor.class, "front_left_drive");
         back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
@@ -124,14 +122,14 @@ public class configwLimeLight {
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
         colorCenter = hwMap.get(ColorSensor.class, "colorCenter");
         colorIntake = hwMap.get(ColorSensor.class, "colorIntake");
-        pinpoint = hwMap.get(GoBildaPinpointDriver .class, "pinpoint");
-        franklin_flipper_right = hwMap.get(Servo .class, "franklin_flipper_right");
+        pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        franklin_flipper_right = hwMap.get(Servo.class, "franklin_flipper_right");
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
         limelight = hwMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(2);
         redLED = hwMap.get(LED.class, "redLED");
         greenLED = hwMap.get(LED.class, "greenLED");
-        prism = hwMap.get(GoBildaPrismDriver.class,"prism");
+        prism = hwMap.get(GoBildaPrismDriver.class, "prism");
         flag = hwMap.get(Servo.class, "flag");
         batteryVoltage = hwMap.get(VoltageSensor.class, "Control Hub");
 
@@ -156,11 +154,10 @@ public class configwLimeLight {
         //launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //launch_motor_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        PIDFCoefficients PIDF = new PIDFCoefficients(130,3,110,0);
+        PIDFCoefficients PIDF = new PIDFCoefficients(130, 3, 110, 0);
         launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
         launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
 
- 
 
         solid.setBrightness(100);
         solid.setStartIndex(6);
@@ -172,7 +169,8 @@ public class configwLimeLight {
         rainbowSnakes.setSpeed(0.5f);
 
     }
-    public void moveRobot(double x, double y, double h){
+
+    public void moveRobot(double x, double y, double h) {
         //Convert to radians
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
@@ -197,39 +195,38 @@ public class configwLimeLight {
         back_right_drive.setPower(rightBackPower);
         sleep(10);
     }
-    public void setFlywheelPower(double velocity){
+
+    public void setFlywheelPower(double velocity) {
         launch_motor_1.setVelocity(velocity);
         launch_motor_2.setVelocity(velocity);
         velocity1 = velocity;
     }
 
-    public void ledColors(double velocity1){
-        if((velocity1-90) <= launch_motor_1.getVelocity() && (velocity1+30) > launch_motor_1.getVelocity()){
+    public void ledColors(double velocity1) {
+        if ((velocity1 - 90) <= launch_motor_1.getVelocity() && (velocity1 + 30) > launch_motor_1.getVelocity()) {
             Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
             Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
             Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
 
-            if(hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140){
+            if (hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140) {
                 prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
-            }
-            else{
+            } else {
                 prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_4);
             }
-        }
-        else{
+        } else {
             Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
             Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
             Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
 
-            if(hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140){
+            if (hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140) {
                 prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
-            }
-            else{
+            } else {
                 prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
             }
         }
     }
-    public void launch(){
+
+    public void launch() {
         franklin_flipper_right.setPosition(.11); //shoot cycle 1
         sleep(200);
         franklin_flipper_right.setPosition(.44);
@@ -244,7 +241,8 @@ public class configwLimeLight {
         franklin_flipper_left.setPosition(.64);
         franklin_flipper_right.setPosition(.44);
     }
-    public void configurePinpoint(){
+
+    public void configurePinpoint() {
         pinpoint.setOffsets(0.945, 6.5, DistanceUnit.INCH); //Set robot offset
         //pinpoint.setOffsets(-6.5, -0.945, DistanceUnit.INCH); //Set robot offset
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); //Sets type of pod
@@ -300,7 +298,8 @@ public class configwLimeLight {
             moveRobot(0, 0, 0);
         }
     }
-    public void odometryDrive(double targetX, double targetY, double targetH, double speed){
+
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
 
         if (!PIDreset) {
             PIDreset = true;
@@ -349,61 +348,62 @@ public class configwLimeLight {
         }
     }
 
-         /*
-        double integralSumX = 0;
-        double lastErrorX = 0;
-        double integralSumY = 0;
-        double lastErrorY = 0;
-        xMaxSpeed = speed;
-        yMaxSpeed = speed;
-        ElapsedTime timer = new ElapsedTime();
-        ElapsedTime initial = new ElapsedTime();
+    /*
+   double integralSumX = 0;
+   double lastErrorX = 0;
+   double integralSumY = 0;
+   double lastErrorY = 0;
+   xMaxSpeed = speed;
+   yMaxSpeed = speed;
+   ElapsedTime timer = new ElapsedTime();
+   ElapsedTime initial = new ElapsedTime();
 
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
+   pinpoint.update();
+   Pose2D pose2D = pinpoint.getPosition();
 
-        //pos = myPosition();
-        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+   //pos = myPosition();
+   double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+   double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+   double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while((Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) && initial.seconds() < 1){
+   while((Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) && initial.seconds() < 1){
 
-            pinpoint.update();
-            pose2D = pinpoint.getPosition();
-            xError = targetX - pose2D.getX(DistanceUnit.INCH);
-            yError = targetY - pose2D.getY(DistanceUnit.INCH);
-            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+       pinpoint.update();
+       pose2D = pinpoint.getPosition();
+       xError = targetX - pose2D.getX(DistanceUnit.INCH);
+       yError = targetY - pose2D.getY(DistanceUnit.INCH);
+       hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-            double derivativeX = (xError - lastErrorX) / timer.seconds();
-            integralSumX = integralSumX + (xError  * timer.seconds());
-            double derivativeY = (yError - lastErrorY) / timer.seconds();
-            integralSumY = integralSumY + (yError  * timer.seconds());
+       double derivativeX = (xError - lastErrorX) / timer.seconds();
+       integralSumX = integralSumX + (xError  * timer.seconds());
+       double derivativeY = (yError - lastErrorY) / timer.seconds();
+       integralSumY = integralSumY + (yError  * timer.seconds());
 
-            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
-            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
-            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+       double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+       double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+       double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
-            moveRobot(x, y, h);
+       moveRobot(x, y, h);
 
-            lastErrorX = xError;
-            lastErrorY = yError;
-            timer.reset();
+       lastErrorX = xError;
+       lastErrorY = yError;
+       timer.reset();
 
-        }
-        moveRobot(0, 0, 0);
+   }
+   moveRobot(0, 0, 0);
 
-    }
-          */
-    public void sleep(double time){
+}
+     */
+    public void sleep(double time) {
         sleeptime.reset();
-        while(sleeptime.milliseconds() <= time){
+        while (sleeptime.milliseconds() <= time) {
             dashboardTelemetry.addData("Flywheel on", launch_motor_1.getVelocity());
             dashboardTelemetry.update();
         }
     }
-    public void AutoOdometryDrive(double targetX, double targetY, double targetH, double speed){
+
+    public void AutoOdometryDrive(double targetX, double targetY, double targetH, double speed) {
         double integralSumX = 0;
         double lastErrorX = 0;
         double integralSumY = 0;
@@ -420,7 +420,7 @@ public class configwLimeLight {
         double yError = targetY - pose2D.getY(DistanceUnit.INCH);
         double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5){
+        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) {
 
             pinpoint.update();
             pose2D = pinpoint.getPosition();
@@ -429,12 +429,12 @@ public class configwLimeLight {
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
             double derivativeX = (xError - lastErrorX) / timer.seconds();
-            integralSumX = integralSumX + (xError  * timer.seconds());
+            integralSumX = integralSumX + (xError * timer.seconds());
             double derivativeY = (yError - lastErrorY) / timer.seconds();
-            integralSumY = integralSumY + (yError  * timer.seconds());
+            integralSumY = integralSumY + (yError * timer.seconds());
 
-            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
-            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
             double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
@@ -453,7 +453,8 @@ public class configwLimeLight {
         }
         moveRobot(0, 0, 0);
     }
-    public void ReadTag(){
+
+    public void ReadTag() {
         LLResult llresult = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
@@ -467,7 +468,7 @@ public class configwLimeLight {
         //Getting Current Pinpoint
         pinpoint.update();
         Pose2D pos = pinpoint.getPosition();
-        if(status == 0) {
+        if (status == 0) {
             currentX = pos.getX(DistanceUnit.INCH);
             currentY = pos.getY(DistanceUnit.INCH);
         }
@@ -492,7 +493,7 @@ public class configwLimeLight {
                 limelightOdometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
-            else{
+            else {
                 limelightOdometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
             }
         }
@@ -691,5 +692,198 @@ public class configwLimeLight {
 
         }
     }
+
+    public void ColorLaunch1(double tag) {
+
+        String green = "";
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+        if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
+            green = "right";
+        } else if (hsvValuesLeft[0] > 140 && hsvValuesLeft[0] < 180) {
+            green = "left";
+        } else if (hsvValuesCenter[0] > 140 && hsvValuesCenter[0] < 180) {
+            green = "center";
+        } else {
+            green = "NA";
+        }
+
+        //GPP
+        if (tag == 21) {
+            if (green.equals("right")) {
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            } else if (green.equals("left")) {
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else {
+                rapidLaunch();
+            }
+
+        }
+        //PGP
+        else if (tag == 22) {
+            if (green.equals("right")) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else if (green.equals("left")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            } else if (green.equals("center")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(1000);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else {
+                rapidLaunch();
+            }
+
+        }
+
+        //PPG
+        else if (tag == 23) {
+            if (green.equals("right")) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(1000);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            }
+            //If Green Artifact is not on the right side then it must be on left
+            else if (green.equals("left")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(1000);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            }
+
+            else if (green.equals("center")){
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+            }
+            else {
+                rapidLaunch();
+            }
+
+        }
+
+        else{
+            rapidLaunch();
+        }
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+        //Checks if any artifacts were not launched
+        while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+            franklin_flipper_left.setPosition(1);
+            franklin_flipper_right.setPosition(.11);
+            sleep(updown);
+            franklin_flipper_left.setPosition(.64);
+            franklin_flipper_right.setPosition(.44);
+            sleep(600);
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        }
+    }
+
+        public void rapidLaunch() {
+            franklin_flipper_right.setPosition(.11);
+            sleep(updown);
+            franklin_flipper_right.setPosition(.44);
+
+            franklin_flipper_left.setPosition(1);
+            sleep(updown);
+            franklin_flipper_left.setPosition(.64);
+
+            franklin_flipper_right.setPosition(.11);
+            franklin_flipper_left.setPosition(1);
+            sleep(updown);
+            franklin_flipper_right.setPosition(.44);
+            franklin_flipper_left.setPosition(.64);
+        }
 }
+
 
