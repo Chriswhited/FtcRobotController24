@@ -54,26 +54,26 @@ public class configwLimeLight {
 
     PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
     Pose2D pos;
-    public double xProp = 0.05; //0.04
-    public double xInt = 0; //0.0
-    public double xDer = 0.001; //0.0
-    public double yProp = 0.06; //0.04
-    public double yInt = 0; //0.0
-    public double yDer = 0.0015; //0.0
-    public double hProp = 0.03;
-    public double hDer = 0.006;
+    public double xProp = 0.05; //0.05
+    public double xInt = 0; //0
+    public double xDer = 0; //0.001
+    public double yProp = 0.06; //0.06
+    public double yInt = 0; //0
+    public double yDer = 0; //0.0015
+    public double hProp = 0.03; //0.03
+    public double hDer = 0.006; //0.006
     public double xMaxSpeed = 1;
     public double yMaxSpeed = 1;
     public double hMaxSpeed = 0.7;
-    double xError = 0;
-    double yError = 0;
-    double hError = 0;
-    double integralSumX = 0;
-    double lastErrorX = 0;
-    double integralSumY = 0;
-    double lastErrorY = 0;
-    double derivativeY = 0;
-    double derivativeX = 0;
+    public double xError = 0;
+    public double yError = 0;
+    public double hError = 0;
+    public double integralSumX = 0;
+    public double lastErrorX = 0;
+    public double integralSumY = 0;
+    public double lastErrorY = 0;
+    public double derivativeY = 0;
+    public double derivativeX = 0;
     public double derivativeH = 0;
     public boolean ColorReadVar = false;
     public double tag = 0;
@@ -89,9 +89,9 @@ public class configwLimeLight {
     public float hsvValuesRight[] = {0F, 0F, 0F};
     public float hsvValuesCenter[] = {0F, 0F, 0F};
     public float hsvValuesIntake[] = {0F, 0F, 0F};
-    boolean PIDreset = false;
+    public boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
-    ElapsedTime PIDtimer = new ElapsedTime();
+    public ElapsedTime PIDtimer = new ElapsedTime();
     public ElapsedTime intake_timer = new ElapsedTime();
 
     public ElapsedTime colorReadTimer = new ElapsedTime();
@@ -299,28 +299,9 @@ public class configwLimeLight {
         }
     }
 
+
+
     public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
-
-        /*if (!PIDreset) {
-            PIDreset = true;
-            integralSumX = 0;
-            lastErrorX = 0;
-            integralSumY = 0;
-            lastErrorY = 0;
-            xMaxSpeed = speed;
-            yMaxSpeed = speed;
-
-            PIDtimer.reset();
-
-            pinpoint.update();
-            Pose2D pose2D = pinpoint.getPosition();
-
-            xError = targetX - pose2D.getX(DistanceUnit.INCH);
-            yError = targetY - pose2D.getY(DistanceUnit.INCH);
-            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-        }
-
-         */
 
         if (!PIDreset) {
             PIDreset = true;
@@ -336,13 +317,12 @@ public class configwLimeLight {
             pinpoint.update();
             Pose2D pose2D = pinpoint.getPosition();
 
-            lastErrorX = targetX - pose2D.getX(DistanceUnit.INCH);
-            lastErrorY = targetY - pose2D.getY(DistanceUnit.INCH);
-
             xError = targetX - pose2D.getX(DistanceUnit.INCH);
             yError = targetY - pose2D.getY(DistanceUnit.INCH);
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+            
         }
+
 
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
@@ -350,9 +330,9 @@ public class configwLimeLight {
         yError = targetY - pose2D.getY(DistanceUnit.INCH);
         hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();  //I FOUND THE ERROR!!!! lets say xError = 15 so the code will do (15-0)/0.01 which makes derivativeX = 150 (bad). LAST X and Y ERROR IS WRONG!!!!
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
         integralSumX = integralSumX + (xError * PIDtimer.seconds());
-        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();  //This has same error
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
         integralSumY = integralSumY + (yError * PIDtimer.seconds());
 
         double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
@@ -371,6 +351,9 @@ public class configwLimeLight {
             moveRobot(0, 0, 0);
         }
     }
+
+
+
 
     /*
    double integralSumX = 0;
