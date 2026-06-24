@@ -46,29 +46,29 @@ public class RedTeleop extends OpMode {
     }
 
     @Override
-    public void loop()  {
+    public void loop() {
         conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         conf.dashboardTelemetry.addData("PID", conf.launch_motor_1.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER));
-        PIDFCoefficients PIDF = new PIDFCoefficients(500,0,0,0);
+        PIDFCoefficients PIDF = new PIDFCoefficients(500, 0, 0, 0);
         conf.launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
-        telemetry.addData("Velocity",conf.launch_motor_1.getVelocity());
+        telemetry.addData("Velocity", conf.launch_motor_1.getVelocity());
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
 
-        if(!conf.flywheelStart){
+        if (!conf.flywheelStart) {
             conf.flywheelStart = true;
             conf.setFlywheelPower(1380);
             conf.flagTimer.startTime();
         }
         conf.ledColors(conf.velocity1);
-        if(gamepad1.left_bumper) { //Auto Align
+        if (gamepad1.left_bumper) { //Auto Align
 
             conf.AutoAlign();
             conf.status = conf.status + 1;
 
         }
         else if(gamepad1.right_bumper){ //Endgame Parking
-            conf.odometryDrive(23,48,-90, 1);
+        conf.odometryDrive(23,48,-90, 1);
         }
         else if(gamepad1.b){ //Far Shooting
             conf.setFlywheelPower(1500);//1680
@@ -85,6 +85,12 @@ public class RedTeleop extends OpMode {
             conf.setFlywheelPower(1200);
             conf.ledColors(1200);
             conf.odometryDrive(66.5,8.9,-47, 1);
+            telemetry.addData("xError", conf.xError);
+            telemetry.addData("yError", conf.yError);
+            telemetry.addData("derivativeX",conf.derivativeX);
+            telemetry.addData("derivativeY", conf.derivativeY);
+            telemetry.addData("dt", conf.PIDtimer.seconds());
+            telemetry.update();
         }
         else if(gamepad1.a){ //Open gate
             conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
@@ -93,6 +99,7 @@ public class RedTeleop extends OpMode {
         //conf.AutoAlign();
         //}
         else {
+
             conf.status = 0;
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
