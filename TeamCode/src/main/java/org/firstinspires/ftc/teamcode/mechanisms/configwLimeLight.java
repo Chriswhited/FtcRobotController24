@@ -301,7 +301,7 @@ public class configwLimeLight {
 
     public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
 
-        if (!PIDreset) {
+        /*if (!PIDreset) {
             PIDreset = true;
             integralSumX = 0;
             lastErrorX = 0;
@@ -320,15 +320,39 @@ public class configwLimeLight {
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
         }
 
+         */
+
+        if (!PIDreset) {
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+
+            PIDtimer.reset();
+
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+
+            lastErrorX = targetX - pose2D.getX(DistanceUnit.INCH);
+            lastErrorY = targetY - pose2D.getY(DistanceUnit.INCH);
+
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        }
+
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
         xError = targetX - pose2D.getX(DistanceUnit.INCH);
         yError = targetY - pose2D.getY(DistanceUnit.INCH);
         hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();  //I FOUND THE ERROR!!!! lets say xError = 15 so the code will do (15-0)/0.01 which makes derivativeX = 150 (bad). LAST X and Y ERROR IS WRONG!!!!
         integralSumX = integralSumX + (xError * PIDtimer.seconds());
-        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();  //This has same error
         integralSumY = integralSumY + (yError * PIDtimer.seconds());
 
         double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
