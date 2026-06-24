@@ -58,7 +58,7 @@ public class BlueFarAuto extends OpMode {
     }
     public void Start(){
         conf.limelight.start();
-        conf.setFlywheelPower(1500);
+        conf.setFlywheelPower(1480);
         conf.sleep(200);
         conf.ReadTag();
         telemetry.addData("id", conf.id);

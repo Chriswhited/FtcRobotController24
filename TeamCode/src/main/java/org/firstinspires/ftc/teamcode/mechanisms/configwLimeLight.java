@@ -499,7 +499,7 @@ public class configwLimeLight {
         }
     }
 
-    public void ColorLaunch(double tag) {
+    public void ColorLaunch1(double tag) {
 
         //GPP
         if (tag == 21) {
@@ -693,7 +693,7 @@ public class configwLimeLight {
         }
     }
 
-    public void ColorLaunch1(double tag) {
+    public void ColorLaunch(double tag) {
 
         String green = "";
 
@@ -722,6 +722,8 @@ public class configwLimeLight {
                 sleep(updown);
                 franklin_flipper_left.setPosition(.64);
 
+                sleep(350);
+
                 franklin_flipper_right.setPosition(.11); //shoots purple
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
@@ -734,6 +736,8 @@ public class configwLimeLight {
                 franklin_flipper_right.setPosition(.11); //shoots purple
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
 
                 franklin_flipper_left.setPosition(1); //shoots purple
                 sleep(updown);
@@ -755,6 +759,8 @@ public class configwLimeLight {
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
 
+                sleep(350);
+
                 franklin_flipper_left.setPosition(1); //shoots purple
                 sleep(updown);
                 franklin_flipper_left.setPosition(.64);
@@ -767,6 +773,8 @@ public class configwLimeLight {
                 franklin_flipper_left.setPosition(1); //shoots green
                 sleep(updown);
                 franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
 
                 franklin_flipper_right.setPosition(.11); //shoots purple
                 sleep(updown);
@@ -782,6 +790,8 @@ public class configwLimeLight {
                 franklin_flipper_right.setPosition(.11); //shoots green
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
 
                 franklin_flipper_left.setPosition(1); //shoots purple
                 sleep(updown);
@@ -806,6 +816,8 @@ public class configwLimeLight {
                 sleep(updown);
                 franklin_flipper_left.setPosition(.64);
 
+                sleep(350);
+
                 franklin_flipper_right.setPosition(.11); //shoots green
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
@@ -823,6 +835,8 @@ public class configwLimeLight {
                 sleep(updown);
                 franklin_flipper_right.setPosition(.44);
 
+                sleep(350);
+
 
                 franklin_flipper_left.setPosition(1); //shoots green
                 sleep(updown);
@@ -838,6 +852,8 @@ public class configwLimeLight {
                 franklin_flipper_left.setPosition(1); //shoots purple
                 sleep(updown);
                 franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
 
                 franklin_flipper_right.setPosition(.11); //shoots green
                 sleep(updown);
@@ -878,11 +894,22 @@ public class configwLimeLight {
             sleep(updown);
             franklin_flipper_left.setPosition(.64);
 
-            franklin_flipper_right.setPosition(.11);
-            franklin_flipper_left.setPosition(1);
-            sleep(updown);
-            franklin_flipper_right.setPosition(.44);
-            franklin_flipper_left.setPosition(.64);
+            sleep(350);
+
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+            //Checks if any artifacts were not launched
+            while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                franklin_flipper_left.setPosition(1);
+                franklin_flipper_right.setPosition(.11);
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            }
         }
 }
 
