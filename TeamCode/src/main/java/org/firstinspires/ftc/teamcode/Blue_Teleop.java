@@ -59,11 +59,15 @@ public class Blue_Teleop extends OpMode {
     DcMotor backRightDrive;
     DcMotor springMotor;
     DcMotor intakeMotor;
+    DcMotor transferMotor;
     CRServo sweeper;
     Servo launchAngle;
+    Servo transferServo;
     IMU imu;
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
+    RevColorSensorV3 intakeSensorRight;
+    RevColorSensorV3 intakeSensorLeft;
     int rotations = 0;
     boolean aPress = false;
     ElapsedTime sleeptime = new ElapsedTime();
@@ -106,10 +110,14 @@ public class Blue_Teleop extends OpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
         springMotor = hardwareMap.get(DcMotor.class, "motor_5");
         intakeMotor = hardwareMap.get(DcMotor.class,"motor_6");
+        transferMotor = hardwareMap.get(DcMotor.class,"motor_7");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
+        intakeSensorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
+        intakeSensorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
+        transferServo = hardwareMap.get(Servo.class,"transfer_servo");
 
 
         // We set the left motors in reverse which is needed for mecanum drive
@@ -160,7 +168,9 @@ public class Blue_Teleop extends OpMode {
             opticalSensor.calibrateImu();
         }
 
-        double distance = colorLauncher.getDistance(DistanceUnit.MM);
+        transferServo.setPosition(.3);
+        double launchDistance = colorLauncher.getDistance(DistanceUnit.MM);
+        //double intakeDistance = intakeSensor.getDistance(DistanceUnit.MM);
 
         // Inform user of available controls
         telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
@@ -172,7 +182,8 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
 
-        telemetry.addData("Distance", distance);
+        telemetry.addData("Launch Distance", launchDistance);
+        //telemetry.addData("Intake Distance",intakeDistance);
         telemetry.addData("Servo Position", servoPosition);
 
         // Update the telemetry on the driver station
@@ -181,19 +192,34 @@ public class Blue_Teleop extends OpMode {
 
     @Override
     public void loop() {
+        //Telemetry
         telemetry.addLine("Hold left bumper to drive in robot relative");
-
         GetCurrentPosition();
+        double intakeDistanceRight = intakeSensorRight.getDistance(DistanceUnit.MM);
+        double intakeDistanceLeft = intakeSensorLeft.getDistance(DistanceUnit.MM);
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
         telemetry.addData("Servo Position", servoPosition);
+        telemetry.addData("Right Intake", intakeDistanceRight);
+        telemetry.addData("Left Intake", intakeDistanceLeft);
 
         // Update the telemetry on the driver station
         telemetry.update();
-        sweeper.setPower(-1);
-        intakeMotor.setPower(1);
 
+        //Set motor and survo powers/positions
+        intakeMotor.setPower(1);
+        springMotor.setTargetPosition(rotations * 2786);
+        transferMotor.setPower(1);
+
+        if(intakeDistanceRight > 40 || intakeDistanceLeft > 40){
+            sweeper.setPower(-1);
+        } else {
+            sweeper.setPower(0);
+        }
+
+
+        //Set Driving conditions and drive
         // If you press the left bumper, you get a drive from the point of view of the robot
         if(gamepad1.y){ // Auto Position Button
             AutoOdometryDrive(69.5,7,50,1);
@@ -205,8 +231,8 @@ public class Blue_Teleop extends OpMode {
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
 
-        springMotor.setTargetPosition(rotations * 2786);
 
+        //Launch Controls
         if(gamepad1.rightBumperWasPressed() && !aPress){
             rotations = rotations + 1;
         }
@@ -214,6 +240,13 @@ public class Blue_Teleop extends OpMode {
             gamepad1.reset();
         }
 
+        if(gamepad1.x){
+            transferServo.setPosition(.16);
+        } else {
+            transferServo.setPosition(.3);
+        }
+
+        //Set Launch Angle
         if(gamepad1.dpad_up){
             servoPosition = servoPosition + .01;
         }
