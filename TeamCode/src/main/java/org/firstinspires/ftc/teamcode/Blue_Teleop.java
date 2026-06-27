@@ -28,6 +28,8 @@
  */
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -66,11 +68,17 @@ public class Blue_Teleop extends OpMode {
     IMU imu;
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
-    RevColorSensorV3 intakeSensorRight;
-    RevColorSensorV3 intakeSensorLeft;
+    RevColorSensorV3 colorRight;
+    RevColorSensorV3 colorLeft;
+    //ColorSensor colorRight;
+    //ColorSensor colorLeft;
+    public float hsvValuesRight[] = {0F,0F,0F};
+    public float hsvValuesLeft[] = {0F,0F,0F};
+    public float hsvValuesLauncher[] = {0F,0F,0F};
     int rotations = 0;
-    boolean aPress = false;
     ElapsedTime sleeptime = new ElapsedTime();
+    ElapsedTime manualTransitionTime = new ElapsedTime();
+    ElapsedTime autoTransitionTime = new ElapsedTime();
 
     //Odometry Dive Variables
     boolean PIDreset = false;
@@ -113,8 +121,10 @@ public class Blue_Teleop extends OpMode {
         transferMotor = hardwareMap.get(DcMotor.class,"motor_7");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
-        intakeSensorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
-        intakeSensorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
+        //colorRight = hardwareMap.get(ColorSensor.class, "intake_sensor_right");
+        //colorLeft = hardwareMap.get(ColorSensor.class, "intake_sensor_left");
+        colorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
+        colorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
         transferServo = hardwareMap.get(Servo.class,"transfer_servo");
@@ -155,8 +165,12 @@ public class Blue_Teleop extends OpMode {
 
     @Override
     public void init_loop() {
-        // Get the latest position
+        // Get sensor data
         GetCurrentPosition();
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        Color.RGBToHSV(colorLauncher.red() * 8, colorLauncher.green() * 8, colorLauncher.blue() * 8, hsvValuesLauncher);
+
 
         // Reset the tracking if the user requests it
         if (gamepad1.y) {
@@ -168,51 +182,73 @@ public class Blue_Teleop extends OpMode {
             opticalSensor.calibrateImu();
         }
 
+        //Set flywheel position
         transferServo.setPosition(.3);
-        double launchDistance = colorLauncher.getDistance(DistanceUnit.MM);
-        //double intakeDistance = intakeSensor.getDistance(DistanceUnit.MM);
 
         // Inform user of available controls
         telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
         telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
         telemetry.addLine();
 
-        // Log the position to the telemetry
+        // Log the sensors to the telemetry
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
-
-        telemetry.addData("Launch Distance", launchDistance);
-        //telemetry.addData("Intake Distance",intakeDistance);
+        telemetry.addLine();
+        telemetry.addData("Launch Hue", hsvValuesLauncher[0]);
+        telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
+        telemetry.addLine();
+        telemetry.addData("Right Hue", hsvValuesRight[0]);
+        telemetry.addData("Right Distance", colorRight.getDistance(DistanceUnit.INCH));
+        telemetry.addLine();
+        telemetry.addData("Left Hue", hsvValuesLeft[0]);
+        telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
+        telemetry.addLine();
         telemetry.addData("Servo Position", servoPosition);
 
-        // Update the telemetry on the driver station
         telemetry.update();
     }
 
     @Override
     public void loop() {
+
+        //Get Sensor Data
+        GetCurrentPosition();
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        //Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        //Color.RGBToHSV(colorLauncher.red() * 8, colorLauncher.green() * 8, colorLauncher.blue() * 8, hsvValuesLauncher);
+
         //Telemetry
         telemetry.addLine("Hold left bumper to drive in robot relative");
-        GetCurrentPosition();
-        double intakeDistanceRight = intakeSensorRight.getDistance(DistanceUnit.MM);
-        double intakeDistanceLeft = intakeSensorLeft.getDistance(DistanceUnit.MM);
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
         telemetry.addData("Servo Position", servoPosition);
-        telemetry.addData("Right Intake", intakeDistanceRight);
-        telemetry.addData("Left Intake", intakeDistanceLeft);
-
-        // Update the telemetry on the driver station
+        //telemetry.addData("Launch Hue", hsvValuesLauncher[0]);
+        telemetry.addData("Right Hue", hsvValuesRight[0]);
+        //telemetry.addData("Left Hue", hsvValuesLeft[0]);
+        telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
+        //telemetry.addData("Right Distance", colorRight.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
         telemetry.update();
 
         //Set motor and survo powers/positions
-        intakeMotor.setPower(1);
         springMotor.setTargetPosition(rotations * 2786);
         transferMotor.setPower(1);
+        intakeMotor.setPower(1);
 
-        if(intakeDistanceRight > 40 || intakeDistanceLeft > 40){
+        /*
+        if(hsvValuesRight[0] < 35 && hsvValuesLeft[0] < 35){
+        //if(colorRight.getDistance(DistanceUnit.INCH) < 35 && colorLeft.getDistance(DistanceUnit.INCH) < 35){
+            intakeMotor.setPower(0);
+        } else {
+            intakeMotor.setPower(1);
+        }
+
+         */
+
+        if(colorRight.getDistance(DistanceUnit.INCH) > 1.5 || colorLeft.getDistance(DistanceUnit.INCH) > 2.5){
+        //if(colorRight.getDistance(DistanceUnit.INCH) > 40 || colorLeft.getDistance(DistanceUnit.INCH) > 40){
             sweeper.setPower(-1);
         } else {
             sweeper.setPower(0);
@@ -233,18 +269,29 @@ public class Blue_Teleop extends OpMode {
 
 
         //Launch Controls
-        if(gamepad1.rightBumperWasPressed() && !aPress){
+        if(gamepad1.rightBumperWasPressed()){
             rotations = rotations + 1;
+            autoTransitionTime.reset();
+
         }
         if (gamepad1.rightBumperWasReleased()){
             gamepad1.reset();
         }
 
-        if(gamepad1.x){
+        //Transition artifacts to the launcher 
+        if(autoTransitionTime.milliseconds() > 300 && autoTransitionTime.milliseconds() < 550){
+            transferServo.setPosition(.16);
+        } else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime .milliseconds() < 550) {
             transferServo.setPosition(.16);
         } else {
             transferServo.setPosition(.3);
         }
+
+        //Transition artifacts to the launcher manually
+        if(gamepad1.x){
+            manualTransitionTime.reset();
+        }
+
 
         //Set Launch Angle
         if(gamepad1.dpad_up){
