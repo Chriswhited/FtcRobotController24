@@ -85,12 +85,6 @@ public class RedTeleop extends OpMode {
             conf.setFlywheelPower(1200);
             conf.ledColors(1200);
             conf.odometryDrive(66.5,8.9,-47, 1);
-            telemetry.addData("xError", conf.xError);
-            telemetry.addData("yError", conf.yError);
-            telemetry.addData("derivativeX",conf.derivativeX);
-            telemetry.addData("derivativeY", conf.derivativeY);
-            telemetry.addData("dt", conf.PIDtimer.seconds());
-            telemetry.update();
         }
         else if(gamepad1.a){ //Open gate
             conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
