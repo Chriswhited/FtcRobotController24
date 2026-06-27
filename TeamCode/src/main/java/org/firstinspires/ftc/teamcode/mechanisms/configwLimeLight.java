@@ -54,26 +54,26 @@ public class configwLimeLight {
 
     PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
     Pose2D pos;
-    public double xProp = 0.05; //0.05
-    public double xInt = 0; //0
-    public double xDer = 0; //0.001
-    public double yProp = 0.06; //0.06
-    public double yInt = 0; //0
-    public double yDer = 0; //0.0015
-    public double hProp = 0.03; //0.03
-    public double hDer = 0.006; //0.006
+    public double xProp = 0.05; //0.04
+    public double xInt = 0; //0.0
+    public double xDer = 0.001; //0.0
+    public double yProp = 0.06; //0.04
+    public double yInt = 0; //0.0
+    public double yDer = 0.0015; //0.0
+    public double hProp = 0.03;
+    public double hDer = 0.006;
     public double xMaxSpeed = 1;
     public double yMaxSpeed = 1;
     public double hMaxSpeed = 0.7;
-    public double xError = 0;
-    public double yError = 0;
-    public double hError = 0;
-    public double integralSumX = 0;
-    public double lastErrorX = 0;
-    public double integralSumY = 0;
-    public double lastErrorY = 0;
-    public double derivativeY = 0;
-    public double derivativeX = 0;
+    double xError = 0;
+    double yError = 0;
+    double hError = 0;
+    double integralSumX = 0;
+    double lastErrorX = 0;
+    double integralSumY = 0;
+    double lastErrorY = 0;
+    double derivativeY = 0;
+    double derivativeX = 0;
     public double derivativeH = 0;
     public boolean ColorReadVar = false;
     public double tag = 0;
@@ -89,9 +89,9 @@ public class configwLimeLight {
     public float hsvValuesRight[] = {0F, 0F, 0F};
     public float hsvValuesCenter[] = {0F, 0F, 0F};
     public float hsvValuesIntake[] = {0F, 0F, 0F};
-    public boolean PIDreset = false;
+    boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
-    public ElapsedTime PIDtimer = new ElapsedTime();
+    ElapsedTime PIDtimer = new ElapsedTime();
     public ElapsedTime intake_timer = new ElapsedTime();
 
     public ElapsedTime colorReadTimer = new ElapsedTime();
@@ -299,8 +299,6 @@ public class configwLimeLight {
         }
     }
 
-
-
     public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
 
         if (!PIDreset) {
@@ -320,9 +318,7 @@ public class configwLimeLight {
             xError = targetX - pose2D.getX(DistanceUnit.INCH);
             yError = targetY - pose2D.getY(DistanceUnit.INCH);
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-            
         }
-
 
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
@@ -351,9 +347,6 @@ public class configwLimeLight {
             moveRobot(0, 0, 0);
         }
     }
-
-
-
 
     /*
    double integralSumX = 0;
@@ -892,32 +885,32 @@ public class configwLimeLight {
         }
     }
 
-        public void rapidLaunch() {
+    public void rapidLaunch() {
+        franklin_flipper_right.setPosition(.11);
+        sleep(updown);
+        franklin_flipper_right.setPosition(.44);
+
+        franklin_flipper_left.setPosition(1);
+        sleep(updown);
+        franklin_flipper_left.setPosition(.64);
+
+        sleep(350);
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+        //Checks if any artifacts were not launched
+        while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+            franklin_flipper_left.setPosition(1);
             franklin_flipper_right.setPosition(.11);
             sleep(updown);
-            franklin_flipper_right.setPosition(.44);
-
-            franklin_flipper_left.setPosition(1);
-            sleep(updown);
             franklin_flipper_left.setPosition(.64);
-
-            sleep(350);
-
+            franklin_flipper_right.setPosition(.44);
+            sleep(500);
             Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
             Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-            //Checks if any artifacts were not launched
-            while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                franklin_flipper_left.setPosition(1);
-                franklin_flipper_right.setPosition(.11);
-                sleep(updown);
-                franklin_flipper_left.setPosition(.64);
-                franklin_flipper_right.setPosition(.44);
-                sleep(500);
-                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-            }
         }
+    }
 }
 
 

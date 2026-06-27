@@ -95,9 +95,6 @@ public class RedTeleop extends OpMode {
         else if(gamepad1.a){ //Open gate
             conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
         }
-        //else if(gamepad1.left_bumper){
-        //conf.AutoAlign();
-        //}
         else {
 
             conf.status = 0;
