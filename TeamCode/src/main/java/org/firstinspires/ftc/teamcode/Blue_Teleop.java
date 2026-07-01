@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -61,7 +62,7 @@ public class Blue_Teleop extends OpMode {
     DcMotor backRightDrive;
     DcMotor springMotor;
     DcMotor intakeMotor;
-    DcMotor transferMotor;
+    DcMotorEx transferMotor;
     CRServo sweeper;
     Servo launchAngle;
     Servo transferServo;
@@ -79,6 +80,9 @@ public class Blue_Teleop extends OpMode {
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime manualTransitionTime = new ElapsedTime();
     ElapsedTime autoTransitionTime = new ElapsedTime();
+    ElapsedTime launchTransitionTime = new ElapsedTime();
+    boolean autoTransitionVariable = false;
+    double servoPosition = 1;
 
     //Odometry Dive Variables
     boolean PIDreset = false;
@@ -108,7 +112,7 @@ public class Blue_Teleop extends OpMode {
     public double CurrentY = 0;
     public double CurrentH = 0;
     double maxSpeed = 1.0;  // make this slower to drive slower
-    double servoPosition = 1;
+
 
     @Override
     public void init() {
@@ -118,16 +122,16 @@ public class Blue_Teleop extends OpMode {
         backRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_2");
         springMotor = hardwareMap.get(DcMotor.class, "motor_5");
         intakeMotor = hardwareMap.get(DcMotor.class,"motor_6");
-        transferMotor = hardwareMap.get(DcMotor.class,"motor_7");
+        transferMotor = hardwareMap.get(DcMotorEx.class,"motor_7");
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
-        //colorRight = hardwareMap.get(ColorSensor.class, "intake_sensor_right");
-        //colorLeft = hardwareMap.get(ColorSensor.class, "intake_sensor_left");
         colorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
         colorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
         transferServo = hardwareMap.get(Servo.class,"transfer_servo");
+        //colorRight = hardwareMap.get(ColorSensor.class, "intake_sensor_right");
+        //colorLeft = hardwareMap.get(ColorSensor.class, "intake_sensor_left");
 
 
         // We set the left motors in reverse which is needed for mecanum drive
@@ -183,7 +187,7 @@ public class Blue_Teleop extends OpMode {
         }
 
         //Set flywheel position
-        transferServo.setPosition(.3);
+        transferServo.setPosition(.56);
 
         // Inform user of available controls
         telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
@@ -230,26 +234,20 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
         //telemetry.addData("Right Distance", colorRight.getDistance(DistanceUnit.INCH));
         telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Velocoty", transferMotor.getVelocity());
         telemetry.update();
 
         //Set motor and survo powers/positions
         springMotor.setTargetPosition(rotations * 2786);
-        transferMotor.setPower(1);
+        //transferMotor.setPower(0.9);
+        transferMotor.setVelocity(2400);
         intakeMotor.setPower(1);
 
-        /*
-        if(hsvValuesRight[0] < 35 && hsvValuesLeft[0] < 35){
-        //if(colorRight.getDistance(DistanceUnit.INCH) < 35 && colorLeft.getDistance(DistanceUnit.INCH) < 35){
-            intakeMotor.setPower(0);
-        } else {
-            intakeMotor.setPower(1);
-        }
-
-         */
-
+        //Set sweeper direction
         if(colorRight.getDistance(DistanceUnit.INCH) > 1.5 || colorLeft.getDistance(DistanceUnit.INCH) > 2.5){
-        //if(colorRight.getDistance(DistanceUnit.INCH) > 40 || colorLeft.getDistance(DistanceUnit.INCH) > 40){
             sweeper.setPower(-1);
+        } else if (gamepad2.x) {
+            sweeper.setPower(1);
         } else {
             sweeper.setPower(0);
         }
@@ -271,25 +269,42 @@ public class Blue_Teleop extends OpMode {
         //Launch Controls
         if(gamepad1.rightBumperWasPressed()){
             rotations = rotations + 1;
-            autoTransitionTime.reset();
-
+            launchTransitionTime.reset();
         }
         if (gamepad1.rightBumperWasReleased()){
             gamepad1.reset();
         }
 
-        //Transition artifacts to the launcher 
-        if(autoTransitionTime.milliseconds() > 300 && autoTransitionTime.milliseconds() < 550){
-            transferServo.setPosition(.16);
-        } else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime .milliseconds() < 550) {
-            transferServo.setPosition(.16);
-        } else {
-            transferServo.setPosition(.3);
-        }
-
-        //Transition artifacts to the launcher manually
+        //Transition artifacts to the launcher
+        //Transition manually
         if(gamepad1.x){
             manualTransitionTime.reset();
+        }
+
+        //Auto transition time
+        if(colorLeft.getDistance(DistanceUnit.INCH) < 2 && !autoTransitionVariable){
+            autoTransitionTime.reset();
+            autoTransitionVariable = true;
+        }
+
+        //Actual Transiiton Actions
+        //Auto transfer after a launch
+        if(launchTransitionTime.milliseconds() > 300 && launchTransitionTime.milliseconds() < 550){
+            transferServo.setPosition(.4);
+        //Manual transfer
+        } else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime.milliseconds() < 550) {
+            transferServo.setPosition(.4);
+        //Auto load if there is no artifact in launcher
+        /*} else if (colorLeft.getDistance(DistanceUnit.INCH) < 2 && colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && autoTransitionTime.milliseconds() > 300) {
+            transferServo.setPosition(.4);
+        } else if (autoTransitionTime.milliseconds() > 550) {
+            autoTransitionVariable = false;
+
+         */
+
+            //Raise transfer motor
+        } else {
+            transferServo.setPosition(.56);
         }
 
 
@@ -300,7 +315,7 @@ public class Blue_Teleop extends OpMode {
         if(gamepad1.dpad_down){
             servoPosition = servoPosition - .01;
         }
-        if(gamepad1.x){
+        if(gamepad1.b){
             launchAngle.setPosition(servoPosition);
         }
 

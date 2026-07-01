@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Color;
-
 import com.qualcomm.hardware.rev.RevColorSensorV3;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -17,13 +14,10 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.mechanisms.config;
-import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
-@Autonomous(name = "Blue_Auto", group = "Robot")
-public class Blue_Auto extends OpMode {
-    public double fieldColor = -1; //If Blue set to -1, if red set to 1
+@Autonomous(name = "Red_Auto", group = "Robot")
+public class Red_Auto extends OpMode {
+    public double fieldColor = 1; //If Blue set to -1, if red set to 1
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -96,6 +90,7 @@ public class Blue_Auto extends OpMode {
     public void init_loop() {
         //Set flywheel position
         transferServo.setPosition(.56);
+        launchAngle.setPosition(.65);
 
         // Reset the tracking if the user requests it
         if (gamepad1.y) {
@@ -127,21 +122,36 @@ public class Blue_Auto extends OpMode {
     @Override
     public void start(){
         intakeMotor.setPower(1);
-
+        transferMotor.setVelocity(2400);
+        sweeper.setPower(-1);
         //move to launch location
         AutoOdometryDrive(79,18,45,.6);
-        sweeper.setPower(-1);
 
+        while (transferMotor.getVelocity()<2360){
+
+        }
         //Launch artifacts
         Launch();
         Launch();
         Launch3();
 
         //Move to first spike mark
+        AutoOdometryDrive(77,33,90,.6);
+        //Intake first 2 artifacts
+        AutoOdometryDrive(77,44,90,.2);
+        //Transfer 1st artifact to launcher
+        transferServo.setPosition(.4);
+        sleep(250);
+        transferServo.setPosition(.56);
+        //Intake third artifact
+        AutoOdometryDrive(77,52,90,.2);
 
-        //Move to parking spot
-        AutoOdometryDrive(70,28,90,.6);
-
+        //Move to Launch position
+        AutoOdometryDrive(79,18,45,.6);
+        //Launch artifacts
+        Launch();
+        Launch();
+        Launch3();
     }
 
 
