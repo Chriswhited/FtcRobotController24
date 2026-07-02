@@ -33,6 +33,7 @@ public class Red_Auto extends OpMode {
     RevColorSensorV3 colorLeft;
     IMU imu;
     SparkFunOTOS opticalSensor;
+    int attempts = 0;
     int rotations = 0;
     ElapsedTime sleeptime = new ElapsedTime();
     public double xProp = 0.04; //0.04
@@ -121,9 +122,11 @@ public class Red_Auto extends OpMode {
 
     @Override
     public void start(){
+
         intakeMotor.setPower(1);
         transferMotor.setVelocity(2400);
-        sweeper.setPower(-1);
+        //sweeper.setPower(-1);
+
         //move to launch location
         AutoOdometryDrive(79,18,45,.6);
 
@@ -132,26 +135,59 @@ public class Red_Auto extends OpMode {
         }
         //Launch artifacts
         Launch();
+        Verify();
         Launch();
+        Verify();
         Launch3();
 
         //Move to first spike mark
         AutoOdometryDrive(77,33,90,.6);
         //Intake first 2 artifacts
         AutoOdometryDrive(77,44,90,.2);
+
         //Transfer 1st artifact to launcher
         transferServo.setPosition(.4);
         sleep(250);
         transferServo.setPosition(.56);
+        sleep(750);
+        Verify();
         //Intake third artifact
         AutoOdometryDrive(77,52,90,.2);
 
         //Move to Launch position
         AutoOdometryDrive(79,18,45,.6);
+        sweeper.setPower(0);
         //Launch artifacts
         Launch();
+        Verify();
         Launch();
+        Verify();
         Launch3();
+
+        AutoOdometryDrive(55,33,90,.6);
+        //Intake first 2 artifacts
+        AutoOdometryDrive(55,44,90,.2);
+
+        //Transfer 1st artifact to launcher
+        transferServo.setPosition(.4);
+        sleep(250);
+        transferServo.setPosition(.56);
+        sleep(750);
+        Verify();
+        //Intake third artifact
+        AutoOdometryDrive(55,52,90,.2);
+
+        //Move to Launch position
+        AutoOdometryDrive(79,18,45,.6);
+        sweeper.setPower(0);
+        //Launch artifacts
+        Launch();
+        Verify();
+        Launch();
+        Verify();
+        Launch3();
+
+        AutoOdometryDrive(67,29.5,45,.6);
     }
 
 
@@ -260,6 +296,34 @@ public class Red_Auto extends OpMode {
         while(springMotor.isBusy()){
 
         }
+    }
+    public void Verify(){
+        if (colorLauncher.getDistance(DistanceUnit.INCH) < 2 || (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && colorLeft.getDistance(DistanceUnit.INCH) > 2.75 && colorRight.getDistance(DistanceUnit.INCH) > 1.5)) {
+            sweeper.setPower(-1);
+        } else if (colorLeft.getDistance(DistanceUnit.INCH) < 2.3) {
+            sweeper.setPower(0);
+            while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3) {
+                transferServo.setPosition(.4);
+                sleep(250);
+                transferServo.setPosition(.56);
+                sleep(1000);
+                attempts = attempts + 1;
+            }
+            attempts = 0;
+            sweeper.setPower(-1);
+        } else {
+            sweeper.setPower(-1);
+            sleep(750);
+            while (colorLauncher.getDistance(DistanceUnit.INCH) < 2.3 && attempts < 3) {
+                transferServo.setPosition(.4);
+                sleep(250);
+                transferServo.setPosition(.56);
+                sleep(1000);
+                attempts = attempts + 1;
+            }
+            attempts = 0;
+        }
+
     }
     private void configureOptical() {
         telemetry.addLine("Configuring Optical Sensor...");
