@@ -49,48 +49,54 @@ public class RedTeleop extends OpMode {
     public void loop() {
         conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
         conf.dashboardTelemetry.addData("PID", conf.launch_motor_1.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER));
-        PIDFCoefficients PIDF = new PIDFCoefficients(500, 0, 0, 0);
-        conf.launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
-        telemetry.addData("Velocity", conf.launch_motor_1.getVelocity());
+        telemetry.addData("Velocity 1", conf.launch_motor_1.getVelocity());
+        telemetry.addData("Velocity 2", conf.launch_motor_2.getVelocity());
         conf.dashboardTelemetry.update();
         //telemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
 
-        if (!conf.flywheelStart) {
+        if (!conf.flywheelStart) { //Initially start flywheel
             conf.flywheelStart = true;
             conf.setFlywheelPower(1380);
             conf.flagTimer.startTime();
         }
-        conf.ledColors(conf.velocity1);
+        //conf.ledColors(conf.velocity1);
+
         if (gamepad1.left_bumper) { //Auto Align
 
             conf.AutoAlign();
             conf.status = conf.status + 1;
-
         }
+
         else if(gamepad1.right_bumper){ //Endgame Parking
         conf.odometryDrive(23,48,-90, 1);
         }
+
         else if(gamepad1.b){ //Far Shooting
             conf.setFlywheelPower(1500);//1680
-            conf.ledColors(1500);
+            //conf.ledColors(1500);
             conf.odometryDrive(5.5,22.5,-35, 1); // 2.5,-2.2,22
         }
-        else if(gamepad1.y){
+
+        else if(gamepad1.y){ //Opponent Shooting
             conf.launch_motor_1.setVelocity(1300);
             conf.launch_motor_2.setVelocity(1320);
-            conf.ledColors(1320);
+            //conf.ledColors(1320);
             conf.odometryDrive(110,51,-85, 1);
         }
+
         else if(gamepad1.x){ //Middle shooting
             conf.setFlywheelPower(1200);
-            conf.ledColors(1200);
+            //conf.ledColors(1200);
             conf.odometryDrive(66.5,8.9,-47, 1);
         }
         else if(gamepad1.a){ //Open gate
             conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
         }
+
         else {
 
+            conf.PIDreset = false;
+            conf.aa = true;
             conf.status = 0;
             double front_left_power = -gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x;
             double front_right_power = -gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
@@ -157,49 +163,8 @@ public class RedTeleop extends OpMode {
             conf.intake_motor.setPower(1);
             conf.intake_timer.reset();
         }
+
         /*
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
-
-            if (!conf.ColorReadVar){
-                conf.ColorReadVar = true;
-                conf.colorReadTimer.reset();
-            }
-            Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-            Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-            Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-            if (conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140 && conf.colorReadTimer.seconds() > 0.25){
-                conf.ColorReadVar = false;
-                conf.redLED.off();
-                conf.greenLED.off();
-                conf.intake_motor.setPower(0);
-            }
-        }
-        //start kolby kage
-        else if(gamepad1.right_trigger > .5){
-            conf.greenLED.on();
-            conf.redLED.off();
-            conf.intake_motor.setPower(1);
-        }
-
-        //reverse kage
-        if(gamepad2.right_bumper && conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
-            conf.intake_motor.setPower(-1);
-            conf.redLED.on();
-            conf.greenLED.off();
-            conf.intake_var2 = false;
-            conf.intake_timer.reset();
-        }
-        else if(gamepad2.right_bumper && !conf.intake_var2 && conf.intake_timer.seconds() > 0.5){
-            conf.intake_motor.setPower(0);
-            conf.redLED.off();
-            conf.greenLED.off();
-            conf.intake_var2 = true;
-            conf.intake_timer.reset();
-        }
-
-         */
-
         //Flywheel launcher
         if (gamepad2.a) {
             conf.setFlywheelPower(1280);
@@ -223,6 +188,8 @@ public class RedTeleop extends OpMode {
             telemetry.addLine("Flywheel off");
             conf.setFlywheelPower(0);
         }
+
+         */
 
         //franklin flipper right
         if(gamepad2.right_trigger > 0.5) {

@@ -30,8 +30,12 @@ public class RedFarAuto extends OpMode {
         Pose2D pose2D = conf.pinpoint.getPosition();
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
         telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
         telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+        telemetry.addData("Center Hue", conf.hsvValuesCenter[0]);
+        telemetry.addData("Intake Hue", conf.hsvValuesIntake[0]);
         telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
         telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
         telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));

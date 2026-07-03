@@ -56,12 +56,12 @@ public class configwLimeLight {
     Pose2D pos;
     public double xProp = 0.05; //0.04
     public double xInt = 0; //0.0
-    public double xDer = 0.001; //0.0
+    public double xDer = 0.002; //0.001
     public double yProp = 0.06; //0.04
     public double yInt = 0; //0.0
-    public double yDer = 0.0015; //0.0
+    public double yDer = 0.003; //0.0015
     public double hProp = 0.03;
-    public double hDer = 0.006;
+    public double hDer = 0.011; //0.006
     public double xMaxSpeed = 1;
     public double yMaxSpeed = 1;
     public double hMaxSpeed = 0.7;
@@ -89,7 +89,7 @@ public class configwLimeLight {
     public float hsvValuesRight[] = {0F, 0F, 0F};
     public float hsvValuesCenter[] = {0F, 0F, 0F};
     public float hsvValuesIntake[] = {0F, 0F, 0F};
-    boolean PIDreset = false;
+    public boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime PIDtimer = new ElapsedTime();
     public ElapsedTime intake_timer = new ElapsedTime();
@@ -108,6 +108,8 @@ public class configwLimeLight {
     public double velocity1 = 0;
     public double wantedVelocity;
     public VoltageSensor batteryVoltage;
+
+    public boolean aa = true;
 
 
     public void init(HardwareMap hwMap) {
@@ -320,32 +322,37 @@ public class configwLimeLight {
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
         }
 
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-        xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
-        integralSumX = integralSumX + (xError * PIDtimer.seconds());
-        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
-        integralSumY = integralSumY + (yError * PIDtimer.seconds());
-
-        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
-        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
-        moveRobot(x, y, h);
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        lastErrorX = xError;
-        lastErrorY = yError;
-        PIDtimer.reset();
+            derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+            integralSumX = integralSumX + (xError * PIDtimer.seconds());
+            derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+            integralSumY = integralSumY + (yError * PIDtimer.seconds());
 
-        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
+            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+            moveRobot(x, y, h);
+
+            lastErrorX = xError;
+            lastErrorY = yError;
+            PIDtimer.reset();
+
+            if (Math.abs(xError) < .5 && Math.abs(yError) < .5 && Math.abs(hError) < 4 && aa) { //.25
             PIDreset = false;
             moveRobot(0, 0, 0);
-        }
+            AutoAlign();
+            aa = false;
+            }
+
     }
 
     /*
@@ -486,15 +493,15 @@ public class configwLimeLight {
             double tx = llresult.getTx(); //target x
             dashboardTelemetry.addData("Target X", tx);
             dashboardTelemetry.update();
-            double alignerror = 1.5;   //How much error
+            double alignerror = 1;   //How much error
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {
-                limelightOdometryDrive(currentX, currentY, currentH, xMaxSpeed);
+                AutoOdometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
             else {
-                limelightOdometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
+                AutoOdometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
             }
         }
     }
@@ -871,7 +878,9 @@ public class configwLimeLight {
 
         Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
         Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
+        dashboardTelemetry.addData("Right",hsvValuesRight[0]);
+        dashboardTelemetry.addData("Left",hsvValuesLeft[0]);
+        dashboardTelemetry.update();
         //Checks if any artifacts were not launched
         while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
             franklin_flipper_left.setPosition(1);
@@ -898,6 +907,9 @@ public class configwLimeLight {
 
         Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
         Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        dashboardTelemetry.addData("Right",hsvValuesRight[0]);
+        dashboardTelemetry.addData("Left",hsvValuesLeft[0]);
+        dashboardTelemetry.update();
 
         //Checks if any artifacts were not launched
         while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {

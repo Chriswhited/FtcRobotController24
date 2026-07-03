@@ -126,7 +126,7 @@ public class RedCloseAuto extends OpMode {
     }
     public void Start(){
         conf.limelight.start();
-        conf.setFlywheelPower(1360);
+        conf.setFlywheelPower(1200);
         conf.AutoOdometryDrive(77,3.6,5, conf.xMaxSpeed);
         conf.sleep(200);
         conf.ReadTag();
@@ -136,7 +136,7 @@ public class RedCloseAuto extends OpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1300)
+        while(conf.launch_motor_1.getVelocity() < 1200)
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
