@@ -124,26 +124,25 @@ public class Red_Auto extends OpMode {
     public void start(){
 
         intakeMotor.setPower(1);
-        transferMotor.setVelocity(2400);
+        transferMotor.setVelocity(2500);
         //sweeper.setPower(-1);
 
         //move to launch location
         AutoOdometryDrive(79,18,45,.6);
 
-        while (transferMotor.getVelocity()<2360){
+        while (transferMotor.getVelocity()<2460){
 
         }
         //Launch artifacts
-        Launch();
-        Verify();
-        Launch();
-        Verify();
-        Launch3();
+        Launch(1);
+        Launch(2);
+        Launch(3);
 
         //Move to first spike mark
         AutoOdometryDrive(77,33,90,.6);
         //Intake first 2 artifacts
         AutoOdometryDrive(77,44,90,.2);
+        sweeper.setPower(0);
 
         //Transfer 1st artifact to launcher
         transferServo.setPosition(.4);
@@ -151,22 +150,22 @@ public class Red_Auto extends OpMode {
         transferServo.setPosition(.56);
         sleep(750);
         Verify();
+        sweeper.setPower(-1);
         //Intake third artifact
         AutoOdometryDrive(77,52,90,.2);
 
         //Move to Launch position
         AutoOdometryDrive(79,18,45,.6);
-        sweeper.setPower(0);
+
         //Launch artifacts
-        Launch();
-        Verify();
-        Launch();
-        Verify();
-        Launch3();
+        Launch(1);
+        Launch(2);
+        Launch(3);
 
         AutoOdometryDrive(55,33,90,.6);
         //Intake first 2 artifacts
         AutoOdometryDrive(55,44,90,.2);
+        sweeper.setPower(0);
 
         //Transfer 1st artifact to launcher
         transferServo.setPosition(.4);
@@ -174,19 +173,19 @@ public class Red_Auto extends OpMode {
         transferServo.setPosition(.56);
         sleep(750);
         Verify();
+        sweeper.setPower(-1);
         //Intake third artifact
         AutoOdometryDrive(55,52,90,.2);
 
         //Move to Launch position
         AutoOdometryDrive(79,18,45,.6);
-        sweeper.setPower(0);
-        //Launch artifacts
-        Launch();
-        Verify();
-        Launch();
-        Verify();
-        Launch3();
 
+        //Launch artifacts
+        Launch(1);
+        Launch(2);
+        Launch(3);
+
+        //Park
         AutoOdometryDrive(67,29.5,45,.6);
     }
 
@@ -279,7 +278,7 @@ public class Red_Auto extends OpMode {
         CurrentH = -pos.h;
     }
 
-    public void Launch(){
+    /*public void Launch(){
         rotations = rotations + 1;
         springMotor.setTargetPosition(rotations * 2786);
         sleep(300);
@@ -290,7 +289,56 @@ public class Red_Auto extends OpMode {
 
         }
     }
+
+     */
+    public void Launch(double number){
+        if(number == 1){
+            sweeper.setPower(0);
+            rotations = rotations + 1;
+            springMotor.setTargetPosition(rotations * 2786);
+            sleep(300);
+            transferServo.setPosition(.4);
+            sleep(250);
+            transferServo.setPosition(.56);
+            sleep(1000);
+            if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
+                while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3){
+                    transferServo.setPosition(.4);
+                    sleep(250);
+                    transferServo.setPosition(.56);
+                    sleep(1000);
+                    attempts = attempts + 1;
+                }
+            }
+            sweeper.setPower(-1);
+        }
+        if(number == 2){
+            rotations = rotations + 1;
+            springMotor.setTargetPosition(rotations * 2786);
+            sleep(300);
+            transferServo.setPosition(.4);
+            sleep(250);
+            transferServo.setPosition(.56);
+            sleep(1000);
+            if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
+                while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3){
+                    transferServo.setPosition(.4);
+                    sleep(250);
+                    transferServo.setPosition(.56);
+                    sleep(1000);
+                    attempts = attempts + 1;
+                }
+            }
+        }
+        if(number == 3){
+            rotations = rotations + 1;
+            springMotor.setTargetPosition(rotations * 2786);
+            sleep(550);
+        }
+        transferMotor.setVelocity(2400);
+    }
     public void Launch3(){
+        sleep(250);
         rotations = rotations + 1;
         springMotor.setTargetPosition(rotations * 2786);
         while(springMotor.isBusy()){
@@ -298,7 +346,14 @@ public class Red_Auto extends OpMode {
         }
     }
     public void Verify(){
-        if (colorLauncher.getDistance(DistanceUnit.INCH) < 2 || (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && colorLeft.getDistance(DistanceUnit.INCH) > 2.75 && colorRight.getDistance(DistanceUnit.INCH) > 1.5)) {
+        while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3) {
+            transferServo.setPosition(.4);
+            sleep(250);
+            transferServo.setPosition(.56);
+            sleep(1000);
+            attempts = attempts + 1;
+        }
+        /*if (colorLauncher.getDistance(DistanceUnit.INCH) < 2 || (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && colorLeft.getDistance(DistanceUnit.INCH) > 2.75 && colorRight.getDistance(DistanceUnit.INCH) > 1.5)) {
             sweeper.setPower(-1);
         } else if (colorLeft.getDistance(DistanceUnit.INCH) < 2.3) {
             sweeper.setPower(0);
@@ -323,6 +378,8 @@ public class Red_Auto extends OpMode {
             }
             attempts = 0;
         }
+
+         */
 
     }
     private void configureOptical() {
