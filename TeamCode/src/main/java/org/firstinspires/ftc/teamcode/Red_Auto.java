@@ -1,9 +1,39 @@
+/* Copyright (c) 2017 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,9 +45,13 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Autonomous(name = "Red_Auto", group = "Robot")
-public class Red_Auto extends OpMode {
+
+@Autonomous(name="Red_Auto", group="Linear OpMode")
+
+public class Red_Auto extends LinearOpMode {
+
     public double fieldColor = 1; //If Blue set to -1, if red set to 1
+    public double offset = 0; //If Blue set to 5, if red set to 0
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -54,7 +88,7 @@ public class Red_Auto extends OpMode {
 
 
     @Override
-    public void init() {
+    public void runOpMode() {
         frontLeftDrive = hardwareMap.get(DcMotor.class, "drive_motor_3");
         frontRightDrive = hardwareMap.get(DcMotor.class, "drive_motor_4");
         backLeftDrive = hardwareMap.get(DcMotor.class, "drive_motor_1");
@@ -87,50 +121,48 @@ public class Red_Auto extends OpMode {
         springMotor.setTargetPosition(0);
         springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         springMotor.setPower(1);
-    }
-    public void init_loop() {
-        //Set flywheel position
-        transferServo.setPosition(.56);
-        launchAngle.setPosition(.65);
 
-        // Reset the tracking if the user requests it
-        if (gamepad1.y) {
-            opticalSensor.resetTracking();
+        while (opModeInInit()) {
+            //Set flywheel position
+            transferServo.setPosition(.56);
+            launchAngle.setPosition(.6);
+
+            // Reset the tracking if the user requests it
+            if (gamepad1.y) {
+                opticalSensor.resetTracking();
+            }
+
+            // Re-calibrate the IMU if the user requests it
+            if (gamepad1.x) {
+                opticalSensor.calibrateImu();
+            }
+
+            // Inform user of available controls
+            telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
+            telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
+            telemetry.addLine();
+
+            // Log the position to the telemetry
+            GetCurrentPosition();
+            telemetry.addData("X coordinate", CurrentX);
+            telemetry.addData("Y coordinate", CurrentY);
+            telemetry.addData("Heading angle", CurrentH);
+
+            // Update the telemetry on the driver station
+            telemetry.update();
         }
 
-        // Re-calibrate the IMU if the user requests it
-        if (gamepad1.x) {
-            opticalSensor.calibrateImu();
-        }
-
-        // Inform user of available controls
-        telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
-        telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
-        telemetry.addLine();
-
-        // Log the position to the telemetry
-        GetCurrentPosition();
-        telemetry.addData("X coordinate", CurrentX);
-        telemetry.addData("Y coordinate", CurrentY);
-        telemetry.addData("Heading angle", CurrentH);
-
-        // Update the telemetry on the driver station
-        telemetry.update();
-
-    }
-
-
-    @Override
-    public void start(){
+        // Wait for the game to start (driver presses START)
+        waitForStart();
 
         intakeMotor.setPower(1);
-        transferMotor.setVelocity(2500);
+        transferMotor.setVelocity(2000);
         //sweeper.setPower(-1);
 
         //move to launch location
-        AutoOdometryDrive(79,18,45,.6);
+        AutoOdometryDrive(72,18,35,.8);
 
-        while (transferMotor.getVelocity()<2460){
+        while (opModeIsActive() && (transferMotor.getVelocity()<1960)){
 
         }
         //Launch artifacts
@@ -139,46 +171,56 @@ public class Red_Auto extends OpMode {
         Launch(3);
 
         //Move to first spike mark
-        AutoOdometryDrive(77,33,90,.6);
+        AutoOdometryDrive(77 - offset,33,90,.6);
         //Intake first 2 artifacts
-        AutoOdometryDrive(77,44,90,.2);
+        AutoOdometryDrive(77 - offset,44,90,.2);
+        sleep(250);
         sweeper.setPower(0);
 
         //Transfer 1st artifact to launcher
-        transferServo.setPosition(.4);
+        Transfer();
+        /*
+        transferServo.setPosition(.42);
         sleep(250);
         transferServo.setPosition(.56);
         sleep(750);
         Verify();
+
+         */
         sweeper.setPower(-1);
         //Intake third artifact
-        AutoOdometryDrive(77,52,90,.2);
+        AutoOdometryDrive(77 - offset,52,90,.2);
 
         //Move to Launch position
-        AutoOdometryDrive(79,18,45,.6);
+        AutoOdometryDrive(72,18,35,.8);
 
         //Launch artifacts
         Launch(1);
         Launch(2);
         Launch(3);
 
-        AutoOdometryDrive(55,33,90,.6);
+        AutoOdometryDrive(52 - offset,33,90,.6);
         //Intake first 2 artifacts
-        AutoOdometryDrive(55,44,90,.2);
+        AutoOdometryDrive(52 - offset,44,90,.2);
+        sleep(250);
         sweeper.setPower(0);
 
         //Transfer 1st artifact to launcher
-        transferServo.setPosition(.4);
+        Transfer();
+        /*
+        transferServo.setPosition(.42);
         sleep(250);
         transferServo.setPosition(.56);
         sleep(750);
         Verify();
+
+         */
         sweeper.setPower(-1);
         //Intake third artifact
-        AutoOdometryDrive(55,52,90,.2);
+        AutoOdometryDrive(52 - offset,52,90,.2);
 
         //Move to Launch position
-        AutoOdometryDrive(79,18,45,.6);
+        AutoOdometryDrive(72,18,35,.8);
 
         //Launch artifacts
         Launch(1);
@@ -186,11 +228,7 @@ public class Red_Auto extends OpMode {
         Launch(3);
 
         //Park
-        AutoOdometryDrive(67,29.5,45,.6);
-    }
-
-
-    public void loop(){
+        AutoOdometryDrive(67,29.5,35,.6);
 
     }
 
@@ -209,7 +247,7 @@ public class Red_Auto extends OpMode {
         double yError = (targetY * fieldColor) - CurrentY;
         double hError = (targetH * fieldColor) - CurrentH;
 
-        while(Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > 1){
+        while(opModeIsActive() && (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > 1)){
 
             GetCurrentPosition();
             xError = (targetX) - CurrentX;
@@ -267,7 +305,7 @@ public class Red_Auto extends OpMode {
     }
     public void sleep(double time){
         sleeptime.reset();
-        while(sleeptime.milliseconds() <= time){
+        while(opModeIsActive() && (sleeptime.milliseconds() <= time)){
         }
     }
 
@@ -278,108 +316,90 @@ public class Red_Auto extends OpMode {
         CurrentH = -pos.h;
     }
 
-    /*public void Launch(){
-        rotations = rotations + 1;
-        springMotor.setTargetPosition(rotations * 2786);
-        sleep(300);
-        transferServo.setPosition(.4);
-        sleep(250);
-        transferServo.setPosition(.56);
-        while(springMotor.isBusy()){
 
-        }
-    }
-
-     */
     public void Launch(double number){
         if(number == 1){
             sweeper.setPower(0);
+            if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
+                Transfer();
+            }
             rotations = rotations + 1;
             springMotor.setTargetPosition(rotations * 2786);
             sleep(300);
-            transferServo.setPosition(.4);
+            Transfer();
+
+            /*transferServo.setPosition(.42);
             sleep(250);
             transferServo.setPosition(.56);
             sleep(1000);
             if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
-                while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3){
-                    transferServo.setPosition(.4);
+                attempts = 1;
+                while(opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
+                    transferServo.setPosition(.42);
                     sleep(250);
                     transferServo.setPosition(.56);
                     sleep(1000);
                     attempts = attempts + 1;
                 }
             }
+
+             */
             sweeper.setPower(-1);
         }
         if(number == 2){
             rotations = rotations + 1;
             springMotor.setTargetPosition(rotations * 2786);
             sleep(300);
-            transferServo.setPosition(.4);
+            Transfer();
+            /*
+            transferServo.setPosition(.42);
             sleep(250);
             transferServo.setPosition(.56);
             sleep(1000);
             if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
-                while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3){
-                    transferServo.setPosition(.4);
+                attempts = 1;
+                while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
+                    transferServo.setPosition(.42);
                     sleep(250);
                     transferServo.setPosition(.56);
                     sleep(1000);
                     attempts = attempts + 1;
                 }
             }
+
+             */
         }
         if(number == 3){
             rotations = rotations + 1;
             springMotor.setTargetPosition(rotations * 2786);
-            sleep(550);
+            sleep(750);
         }
-        transferMotor.setVelocity(2400);
     }
-    public void Launch3(){
-        sleep(250);
-        rotations = rotations + 1;
-        springMotor.setTargetPosition(rotations * 2786);
-        while(springMotor.isBusy()){
 
+    public void Transfer(){
+        transferServo.setPosition(.42);
+        sleep(250);
+        transferServo.setPosition(.56);
+        sleep(1000);
+        if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
+            attempts = 1;
+            while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
+                transferServo.setPosition(.42);
+                sleep(250);
+                transferServo.setPosition(.56);
+                sleep(1000);
+                attempts = attempts + 1;
+            }
         }
     }
     public void Verify(){
-        while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3) {
+        while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)) {
             transferServo.setPosition(.4);
             sleep(250);
             transferServo.setPosition(.56);
             sleep(1000);
             attempts = attempts + 1;
         }
-        /*if (colorLauncher.getDistance(DistanceUnit.INCH) < 2 || (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && colorLeft.getDistance(DistanceUnit.INCH) > 2.75 && colorRight.getDistance(DistanceUnit.INCH) > 1.5)) {
-            sweeper.setPower(-1);
-        } else if (colorLeft.getDistance(DistanceUnit.INCH) < 2.3) {
-            sweeper.setPower(0);
-            while (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3) {
-                transferServo.setPosition(.4);
-                sleep(250);
-                transferServo.setPosition(.56);
-                sleep(1000);
-                attempts = attempts + 1;
-            }
-            attempts = 0;
-            sweeper.setPower(-1);
-        } else {
-            sweeper.setPower(-1);
-            sleep(750);
-            while (colorLauncher.getDistance(DistanceUnit.INCH) < 2.3 && attempts < 3) {
-                transferServo.setPosition(.4);
-                sleep(250);
-                transferServo.setPosition(.56);
-                sleep(1000);
-                attempts = attempts + 1;
-            }
-            attempts = 0;
-        }
-
-         */
 
     }
     private void configureOptical() {
@@ -462,3 +482,4 @@ public class Red_Auto extends OpMode {
         opticalSensor.getVersionInfo(hwVersion, fwVersion);
     }
 }
+

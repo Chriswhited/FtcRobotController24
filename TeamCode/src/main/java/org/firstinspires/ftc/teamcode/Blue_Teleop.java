@@ -82,6 +82,7 @@ public class Blue_Teleop extends OpMode {
     ElapsedTime autoTransitionTime = new ElapsedTime();
     ElapsedTime launchTransitionTime = new ElapsedTime();
     boolean autoTransitionVariable = false;
+    boolean transferring = false;
     double servoPosition = 1;
 
     //Odometry Dive Variables
@@ -219,8 +220,6 @@ public class Blue_Teleop extends OpMode {
         //Get Sensor Data
         GetCurrentPosition();
         Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-        //Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-        //Color.RGBToHSV(colorLauncher.red() * 8, colorLauncher.green() * 8, colorLauncher.blue() * 8, hsvValuesLauncher);
 
         //Telemetry
         telemetry.addLine("Hold left bumper to drive in robot relative");
@@ -228,26 +227,39 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
         telemetry.addData("Servo Position", servoPosition);
-        //telemetry.addData("Launch Hue", hsvValuesLauncher[0]);
         telemetry.addData("Right Hue", hsvValuesRight[0]);
-        //telemetry.addData("Left Hue", hsvValuesLeft[0]);
         telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
-        //telemetry.addData("Right Distance", colorRight.getDistance(DistanceUnit.INCH));
         telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
         telemetry.addData("Velocoty", transferMotor.getVelocity());
+        telemetry.addData("Transfering", transferring);
+        telemetry.addData("Auto Timer", autoTransitionTime);
+        telemetry.addData("Manual", manualTransitionTime);
         telemetry.update();
 
         //Set motor and survo powers/positions
         springMotor.setTargetPosition(rotations * 2786);
-        //transferMotor.setPower(0.9);
-        transferMotor.setVelocity(2400);
-        intakeMotor.setPower(1);
+        transferMotor.setVelocity(2000);
+
+        if (colorLeft.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
+            intakeMotor.setPower(0);
+        } else {
+            intakeMotor.setPower(1);
+        }
+
+        if(colorLauncher.getDistance(DistanceUnit.INCH) < 2.0 && launchTransitionTime.milliseconds() > 1000 && manualTransitionTime.milliseconds() > 1000){
+            transferring = false;
+        }
 
         //Set sweeper direction
-        if(colorRight.getDistance(DistanceUnit.INCH) > 1.5 || colorLeft.getDistance(DistanceUnit.INCH) > 2.5){
-            sweeper.setPower(-1);
-        } else if (gamepad2.x) {
+        if (gamepad1.back) {
+            transferMotor.setVelocity(-2000);
             sweeper.setPower(1);
+            intakeMotor.setPower(-1);
+            transferring = false;
+        } else if (colorLeft.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
+            sweeper.setPower(0);
+        } else if(!transferring){
+            sweeper.setPower(-1);
         } else {
             sweeper.setPower(0);
         }
@@ -279,21 +291,29 @@ public class Blue_Teleop extends OpMode {
         //Transition manually
         if(gamepad1.x){
             manualTransitionTime.reset();
+            transferServo.setPosition(.42);
+            transferring = true;
+            sweeper.setPower(0);
         }
 
         //Auto transition time
         if(colorLeft.getDistance(DistanceUnit.INCH) < 2 && !autoTransitionVariable){
             autoTransitionTime.reset();
             autoTransitionVariable = true;
+            transferring = true;
+            sweeper.setPower(0);
         }
 
         //Actual Transiiton Actions
         //Auto transfer after a launch
         if(launchTransitionTime.milliseconds() > 300 && launchTransitionTime.milliseconds() < 550){
-            transferServo.setPosition(.4);
+            transferServo.setPosition(.42);
+            transferring = true;
         //Manual transfer
-        } else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime.milliseconds() < 550) {
-            transferServo.setPosition(.4);
+        //} else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime.milliseconds() < 550) {
+        } else if (manualTransitionTime.milliseconds() < 550) {
+            transferServo.setPosition(.42);
+            transferring = true;
         //Auto load if there is no artifact in launcher
         /*} else if (colorLeft.getDistance(DistanceUnit.INCH) < 2 && colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && autoTransitionTime.milliseconds() > 300) {
             transferServo.setPosition(.4);
@@ -302,8 +322,10 @@ public class Blue_Teleop extends OpMode {
 
          */
 
-            //Raise transfer motor
-        } else {
+
+        } else if (gamepad1.back) {
+            transferServo.setPosition(.42);
+        } else { //Raise transfer motor
             transferServo.setPosition(.56);
         }
 
@@ -318,6 +340,7 @@ public class Blue_Teleop extends OpMode {
         if(gamepad1.b){
             launchAngle.setPosition(servoPosition);
         }
+
 
     }
 
