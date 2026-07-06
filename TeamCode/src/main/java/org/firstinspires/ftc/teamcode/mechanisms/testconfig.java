@@ -217,8 +217,8 @@ public class testconfig {
         }
     }
 
-    public static double flyhweelSpeed(double goalDistance){
-        return 1;
+    public double flywheelSpeed(double goalDistance){
+        return Range.clip(0.017011 * Math.pow(goalDistance , 2) -3.96432 * goalDistance + 1408.42972,0, 1500);
     }
 
     public void setFlywheelPower(double velocity) {

@@ -22,7 +22,7 @@ public class AprilTagTest extends OpMode {
 
     testconfig conf = new testconfig();
 
-    double kP = 0.0190;
+    double kP = 0.0150;
     double error = 0;
     double lastError = 0;
     double goalX = 0;
@@ -83,7 +83,7 @@ public class AprilTagTest extends OpMode {
         telemetry.addData("Velocity 2", conf.launch_motor_2.getVelocity());
         conf.dashboardTelemetry.update();
 
-        boolean wantDrive = false;
+        boolean wantDrive = true;
 
         if (!conf.flywheelStart) { //Initially start flywheel
             conf.flywheelStart = true;
@@ -91,16 +91,21 @@ public class AprilTagTest extends OpMode {
             conf.flagTimer.startTime();
         }
 
+        conf.getDistance();
+        if(conf.distance > 0 && conf.distance < 200 && wantDrive && gamepad2.left_bumper){
+            conf.setFlywheelPower(conf.flywheelSpeed(conf.distance));
+        }
+
         else if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(23,48,-90, 1);
-            wantDrive = true;
+            wantDrive = false;
         }
 
         else if(gamepad1.b){ //Far Shooting
             conf.setFlywheelPower(1500);//1680
             //conf.ledColors(1500);
             conf.odometryDrive(5.5,22.5,-35, 1); // 2.5,-2.2,22
-            wantDrive = true;
+            wantDrive = false;
         }
 
         else if(gamepad1.y){ //Opponent Shooting
@@ -108,18 +113,18 @@ public class AprilTagTest extends OpMode {
             conf.launch_motor_2.setVelocity(1320);
             //conf.ledColors(1320);
             conf.odometryDrive(110,51,-85, 1);
-            wantDrive = true;
+            wantDrive = false;
         }
 
         else if(gamepad1.x){ //Middle shooting
             conf.setFlywheelPower(1200);
             //conf.ledColors(1200);
             conf.odometryDrive(66.5,8.9,-47, 1);
-            wantDrive = true;
+            wantDrive = false;
         }
         else if(gamepad1.a){ //Open gate
             conf.odometryDrive(49.3, -43.15, 120, conf.xMaxSpeed);
-            wantDrive = true;
+            wantDrive = false;
         }
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
@@ -220,7 +225,7 @@ public class AprilTagTest extends OpMode {
 
         }
 
-        if (!wantDrive) {
+        if (wantDrive) {
             drive(forward, strafe, rotate);
         }
 
