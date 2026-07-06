@@ -19,6 +19,7 @@ public class RedCloseAuto extends OpMode {
         conf.init(hardwareMap);
         conf.configurePinpoint();
         conf.flag.setPosition(0);
+        //conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, -30.68, AngleUnit.DEGREES, -51));
 
     }
     public void init_loop() {
@@ -47,82 +48,19 @@ public class RedCloseAuto extends OpMode {
     @Override
     public void start(){
 
-        Start();
+        StartNoLimelight();
         Spike3();
-        //SpikeGate();
         Launch();
         Spike2();
         Launch();
+        Gate();
+        Launch();
+        Gate();
+        Launch();
+        Gate();
+        Launch();
         Base();
 
-        /*
-        conf.limelight.start();
-        conf.setFlywheelPower(1280);
-        conf.AutoOdometryDrive(87.45,6.59,-25.7, conf.xMaxSpeed);
-
-        conf.ReadTag();
-        conf.sleep(2000);
-        telemetry.addData("id", conf.id);
-        telemetry.update();
-        conf.limelight.stop();
-        conf.AutoOdometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
-        conf.ColorLaunch(conf.id); //Launch PreLoad
-
-        conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-
-        //Get Color Sensor Values
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(71.73,35.32,-90, 0.4);
-            conf.intake_motor.setPower(-1);
-            conf.sleep(250);
-            conf.intake_motor.setPower(0);
-        }
-        else{
-            conf.AutoOdometryDrive(71.73,35.32,-90, 0.4);
-            conf.intake_motor.setPower(1);
-        }
-
-        //Launch 2nd Cycle
-        conf.AutoOdometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-        conf.ColorLaunch(conf.id);
-        conf.intake_motor.setPower(0);
-
-        //Intake 3rd Cycle
-        conf.AutoOdometryDrive(48.39,10.13,-90, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-
-        //Reverse kolby cage if full
-        if(conf.hsvValuesRight[0] > 140 || conf.hsvValuesLeft[0] > 140 || conf.hsvValuesCenter[0] > 140){
-            conf.AutoOdometryDrive(48.39,40.98,-90, conf.xMaxSpeed);
-            conf.intake_motor.setPower(-1);
-            conf.sleep(250);
-            conf.intake_motor.setPower(0);
-        }
-        else{
-            conf.AutoOdometryDrive(48.39,40.98,-90, conf.xMaxSpeed);
-            conf.intake_motor.setPower(1);
-        }
-
-        //Launch 3rd Cycle
-        conf.AutoOdometryDrive(87.45,6.59,45.4, conf.xMaxSpeed);
-        conf.intake_motor.setPower(1);
-        conf.ColorLaunch(conf.id);
-        conf.intake_motor.setPower(0);
-
-        conf.AutoOdometryDrive(68.14,10.18,45.4, conf.xMaxSpeed);
-        conf.setFlywheelPower(0);
-    */
     }
     public void Start(){
         conf.limelight.start();
@@ -136,7 +74,21 @@ public class RedCloseAuto extends OpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1200)
+        while(conf.launch_motor_1.getVelocity() < 1160)
+        {
+            conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            conf.dashboardTelemetry.update();
+        }
+        conf.ColorLaunch(conf.id); //Launch PreLoad
+    }
+
+    public void StartNoLimelight(){
+        conf.limelight.start();
+        conf.setFlywheelPower(1200);
+        conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
+        conf.sleep(10);
+        conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
+        while(conf.launch_motor_1.getVelocity() < 1160)
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -146,7 +98,7 @@ public class RedCloseAuto extends OpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,-6,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(25,-41,90, 0.2); //0.3
+        conf.AutoOdometryDrive(25,-41,90, 0.9); //0.3
 
         /*
         //the gavin idea
@@ -181,7 +133,7 @@ public class RedCloseAuto extends OpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,-9,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(48,-41,90, .2); //0.2
+        conf.AutoOdometryDrive(48,-41,90, .9); //0.2
 
         /*
         //the gavin idea
@@ -210,13 +162,13 @@ public class RedCloseAuto extends OpMode {
         }
 
         conf.xMaxSpeed = 1;
-        conf.AutoOdometryDrive(48,-9,90, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(48,-30,90, conf.xMaxSpeed);
     }
 
     public void Spike3(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(71.73,-10.13,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(71.73,-35.32,90, 0.2); //0.3
+        conf.AutoOdometryDrive(71.73,-35.32,90, 0.7); //0.3
 
         /*
         //the gavin idea
@@ -248,10 +200,29 @@ public class RedCloseAuto extends OpMode {
     }
 
     public void Gate(){
-        conf.AutoOdometryDrive(49.3, -43.15, 120, conf.xMaxSpeed); //Open Gate
+        conf.AutoOdometryDrive(46.8, -40.3, 121, conf.xMaxSpeed); //Open Gate
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(47.4, -43.1, 121, conf.xMaxSpeed); //Move back to collect artifacts
-        conf.sleep(1000);
+        conf.AutoOdometryDrive(48.33, -43.8, 119.5, conf.xMaxSpeed); //Move back to collect artifacts
+        conf.sleep(1200);
+
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
+        //Reverse kolby cage if full
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145){
+            conf.intake_motor.setPower(-1);
+            conf.sleep(250);
+            conf.intake_motor.setPower(0);
+        }
+        //Reverse kolby cage if full
+        else if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
+            conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.intake_motor.setPower(1);
+        }
+        conf.xMaxSpeed = 1;
     }
 
     public void SpikeGate(){

@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 
 @TeleOp(name = "TuningFlywheels", group = "Robot")
 public class TuningFlywheels extends OpMode{
-    configwLimeLight conf = new configwLimeLight();
+    testconfig conf = new testconfig();
     boolean press = false;
     double speedVal1 = 0;
     double speedVal2 = 0;
@@ -44,7 +44,7 @@ public class TuningFlywheels extends OpMode{
         conf.redLED.off();
         conf.greenLED.off();
         conf.limelight.start();
-        conf.limelight.pipelineSwitch(3);
+        conf.limelight.pipelineSwitch(7);
 
     }
 
@@ -67,6 +67,10 @@ public class TuningFlywheels extends OpMode{
         telemetry.addData("I", default1.i);
         telemetry.addData("D", default1.d);
         telemetry.addData("F", default1.f);
+        conf.ReadTag();
+        conf.getDistance();
+        telemetry.addData("Distance", conf.distance);
+
 
         conf.pinpoint.update();
         Pose2D pose2D = conf.pinpoint.getPosition();

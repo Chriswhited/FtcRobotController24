@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
 
+//import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -10,21 +12,26 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
+
 
 import java.util.List;
+
 
 public class testconfig {
     public DcMotor back_left_drive;
@@ -32,25 +39,32 @@ public class testconfig {
     public DcMotor back_right_drive;
     public DcMotor front_right_drive;
     public DcMotorEx launch_motor_1;
+    public DcMotorEx launch_motor_2;
     public DcMotor intake_motor;
     public Servo franklin_flipper_right;
     public Servo franklin_flipper_left;
+    public Servo flag;
     public GoBildaPinpointDriver pinpoint;
     public Limelight3A limelight;
     public ColorSensor colorRight;
     public ColorSensor colorLeft;
     public ColorSensor colorCenter;
+    public ColorSensor colorIntake;
+    PrismAnimations.Solid solid = new PrismAnimations.Solid(org.firstinspires.ftc.teamcode.Prism.Color.BLUE);
+
+    PrismAnimations.RainbowSnakes rainbowSnakes = new PrismAnimations.RainbowSnakes();
     Pose2D pos;
-    double xProp = 0.04;
-    double xInt = 0.0;
-    double xDer = 0.0;
-    double yProp = 0.04;
-    double yInt = 0.0;
-    double yDer = 0.0;
-    double hProp = 0.03;
+    public double xProp = 0.05; //0.04
+    public double xInt = 0; //0.0
+    public double xDer = 0.002; //0.001
+    public double yProp = 0.06; //0.04
+    public double yInt = 0; //0.0
+    public double yDer = 0.003; //0.0015
+    public double hProp = 0.03;
+    public double hDer = 0.011; //0.006
     public double xMaxSpeed = 1;
-    double yMaxSpeed = 1;
-    double hMaxSpeed = 0.7;
+    public double yMaxSpeed = 1;
+    public double hMaxSpeed = 0.7;
     double xError = 0;
     double yError = 0;
     double hError = 0;
@@ -60,29 +74,47 @@ public class testconfig {
     double lastErrorY = 0;
     double derivativeY = 0;
     double derivativeX = 0;
+    public double derivativeH = 0;
     public boolean ColorReadVar = false;
     public double tag = 0;
     public double id = 0;
+    public double idd = 0;
+    public double idg = 0;
     public double updown = 200;
     public boolean intake_var;
+    public boolean flywheelStart = false;
     public boolean intake_var2;
     public double max_power = 1.0;
-    public double idg = 0;
     public float hsvValuesLeft[] = {0F, 0F, 0F};
     public float hsvValuesRight[] = {0F, 0F, 0F};
     public float hsvValuesCenter[] = {0F, 0F, 0F};
-    boolean PIDreset = false;
+    public float hsvValuesIntake[] = {0F, 0F, 0F};
+    public boolean PIDreset = false;
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime PIDtimer = new ElapsedTime();
     public ElapsedTime intake_timer = new ElapsedTime();
 
     public ElapsedTime colorReadTimer = new ElapsedTime();
+    public ElapsedTime flagTimer = new ElapsedTime();
 
     public LED redLED;
     public LED greenLED;
-
     FtcDashboard dashboard = FtcDashboard.getInstance();
     public Telemetry dashboardTelemetry = dashboard.getTelemetry();
+    public double status = 0;
+    double currentX = 0;
+    double currentY = 0;
+    public GoBildaPrismDriver prism;
+    public double velocity1 = 0;
+    public double wantedVelocity;
+    public VoltageSensor batteryVoltage;
+
+    public boolean aa = true;
+
+    public double cameraHeight = 26.67; //CM
+    public double cameraAngle = 6; //90 minus tilt
+    public double goalHeight = 74.95;
+    public double distance = 0;
 
 
     public void init(HardwareMap hwMap) {
@@ -91,10 +123,12 @@ public class testconfig {
         back_right_drive = hwMap.get(DcMotor.class, "back_right_drive");
         front_right_drive = hwMap.get(DcMotor.class, "front_right_drive");
         launch_motor_1 = hwMap.get(DcMotorEx.class, "launch_motor_1");
+        launch_motor_2 = hwMap.get(DcMotorEx.class, "launch_motor_2");
         intake_motor = hwMap.get(DcMotor.class, "intake_motor");
         colorRight = hwMap.get(ColorSensor.class, "colorRight");
         colorLeft = hwMap.get(ColorSensor.class, "colorLeft");
         colorCenter = hwMap.get(ColorSensor.class, "colorCenter");
+        colorIntake = hwMap.get(ColorSensor.class, "colorIntake");
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
         franklin_flipper_right = hwMap.get(Servo.class, "franklin_flipper_right");
         franklin_flipper_left = hwMap.get(Servo.class, "franklin_flipper_left");
@@ -102,8 +136,12 @@ public class testconfig {
         limelight.pipelineSwitch(2);
         redLED = hwMap.get(LED.class, "redLED");
         greenLED = hwMap.get(LED.class, "greenLED");
+        prism = hwMap.get(GoBildaPrismDriver.class, "prism");
+        flag = hwMap.get(Servo.class, "flag");
+        batteryVoltage = hwMap.get(VoltageSensor.class, "Control Hub");
 
         launch_motor_1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        launch_motor_2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         front_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         back_left_drive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -114,7 +152,28 @@ public class testconfig {
         back_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         front_right_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launch_motor_1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        launch_motor_2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake_motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        launch_motor_1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launch_motor_2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        //launch_motor_1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //launch_motor_2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        PIDFCoefficients PIDF = new PIDFCoefficients(130, 3, 110, 0);
+        launch_motor_1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+        launch_motor_2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, PIDF);
+
+
+        solid.setBrightness(100);
+        solid.setStartIndex(6);
+        solid.setStopIndex(17);
+
+        rainbowSnakes.setNumberOfSnakes(2);
+        rainbowSnakes.setSnakeLength(3);
+        rainbowSnakes.setSpacingBetween(6);
+        rainbowSnakes.setSpeed(0.5f);
 
     }
 
@@ -144,6 +203,54 @@ public class testconfig {
         sleep(10);
     }
 
+    public void getDistance(){
+        LLResult llResult = limelight.getLatestResult();
+
+        double ty = llResult.getTy();
+
+        double angleToTarget = cameraAngle + ty;
+        double heightDifference = goalHeight - cameraHeight;
+
+
+        if (llResult != null && llResult.isValid()) {
+            distance = heightDifference / Math.tan(Math.toRadians(angleToTarget));
+        }
+    }
+
+    public static double flyhweelSpeed(double goalDistance){
+        return 1;
+    }
+
+    public void setFlywheelPower(double velocity) {
+        launch_motor_1.setVelocity(velocity);
+        launch_motor_2.setVelocity(velocity);
+        velocity1 = velocity;
+    }
+
+    public void ledColors(double velocity1) {
+        if ((velocity1 - 90) <= launch_motor_1.getVelocity() && (velocity1 + 30) > launch_motor_1.getVelocity()) {
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+            if (hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140) {
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
+            } else {
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_4);
+            }
+        } else {
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+            if (hsvValuesRight[0] > 140 && hsvValuesLeft[0] > 140 && hsvValuesCenter[0] > 140) {
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
+            } else {
+                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
+            }
+        }
+    }
+
     public void launch() {
         franklin_flipper_right.setPosition(.11); //shoot cycle 1
         sleep(200);
@@ -169,8 +276,7 @@ public class testconfig {
         pinpoint.resetPosAndIMU();
     }
 
-    public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
-
+    public void limelightOdometryDrive(double targetX, double targetY, double targetH, double speed) {
         if (!PIDreset) {
             PIDreset = true;
             integralSumX = 0;
@@ -180,7 +286,7 @@ public class testconfig {
             xMaxSpeed = speed;
             yMaxSpeed = speed;
 
-            //ElapsedTime PIDtimer = new ElapsedTime();
+            PIDtimer.reset();
 
             pinpoint.update();
             Pose2D pose2D = pinpoint.getPosition();
@@ -203,7 +309,7 @@ public class testconfig {
 
         double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
         double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-        double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
         moveRobot(x, y, h);
@@ -218,10 +324,112 @@ public class testconfig {
         }
     }
 
+    public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
+
+        if (!PIDreset) {
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
+
+            PIDtimer.reset();
+
+            pinpoint.update();
+            Pose2D pose2D = pinpoint.getPosition();
+
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        }
+
+
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if (Math.abs(xError) < .5 && Math.abs(yError) < .5 && Math.abs(hError) < 4 && aa) { //.25
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+            AutoAlign();
+            aa = false;
+        }
+
+    }
+
+    /*
+   double integralSumX = 0;
+   double lastErrorX = 0;
+   double integralSumY = 0;
+   double lastErrorY = 0;
+   xMaxSpeed = speed;
+   yMaxSpeed = speed;
+   ElapsedTime timer = new ElapsedTime();
+   ElapsedTime initial = new ElapsedTime();
+
+   pinpoint.update();
+   Pose2D pose2D = pinpoint.getPosition();
+
+   //pos = myPosition();
+   double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+   double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+   double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+   while((Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) && initial.seconds() < 1){
+
+       pinpoint.update();
+       pose2D = pinpoint.getPosition();
+       xError = targetX - pose2D.getX(DistanceUnit.INCH);
+       yError = targetY - pose2D.getY(DistanceUnit.INCH);
+       hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+       double derivativeX = (xError - lastErrorX) / timer.seconds();
+       integralSumX = integralSumX + (xError  * timer.seconds());
+       double derivativeY = (yError - lastErrorY) / timer.seconds();
+       integralSumY = integralSumY + (yError  * timer.seconds());
+
+       double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX),-xMaxSpeed,xMaxSpeed);
+       double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY),-yMaxSpeed,yMaxSpeed);
+       double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+       moveRobot(x, y, h);
+
+       lastErrorX = xError;
+       lastErrorY = yError;
+       timer.reset();
+
+   }
+   moveRobot(0, 0, 0);
+
+}
+     */
     public void sleep(double time) {
         sleeptime.reset();
         while (sleeptime.milliseconds() <= time) {
-
+            dashboardTelemetry.addData("Flywheel on", launch_motor_1.getVelocity());
+            dashboardTelemetry.update();
         }
     }
 
@@ -257,7 +465,7 @@ public class testconfig {
 
             double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
             double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-            double h = Range.clip(hError * hProp, -hMaxSpeed, hMaxSpeed);
+            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
             moveRobot(x, y, h);
@@ -265,6 +473,13 @@ public class testconfig {
             lastErrorX = xError;
             lastErrorY = yError;
             timer.reset();
+
+            dashboardTelemetry.addData("X position", pose2D.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y position", pose2D.getY(DistanceUnit.INCH));
+            dashboardTelemetry.addData("X Error", xError);
+            dashboardTelemetry.addData("Y Error", yError);
+            dashboardTelemetry.addData("H Error", hError);
+            dashboardTelemetry.update();
         }
         moveRobot(0, 0, 0);
     }
@@ -277,293 +492,460 @@ public class testconfig {
         }
     }
 
+
     public void AutoAlign() {
 
         //Getting Current Pinpoint
         pinpoint.update();
         Pose2D pos = pinpoint.getPosition();
-        double currentX = pos.getX(DistanceUnit.INCH);
-        double currentY = pos.getY(DistanceUnit.INCH);
+        if (status == 0) {
+            currentX = pos.getX(DistanceUnit.INCH);
+            currentY = pos.getY(DistanceUnit.INCH);
+        }
         double currentH = pos.getHeading(AngleUnit.DEGREES);
+        pinpoint.update();
+
 
         //Read tag
         LLResult llresult = limelight.getLatestResult();
         List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            idg = fiducial.getFiducialId();
+            idg = fiducial.getFiducialId(); //The ID number of the fiducial
         }
-        if (llresult.isValid() && (idg == 25 || idg == 26)) { //Change idg for what ever the goal tag value is for each one
+        if (idg == 20 || idg == 24) {
             double tx = llresult.getTx(); //target x
+            dashboardTelemetry.addData("Target X", tx);
+            dashboardTelemetry.update();
             double alignerror = 1;   //How much error
 
             //Stop when we are centered on april tag
             if (Math.abs(tx) < alignerror) {
-                odometryDrive(currentX, currentY, currentH, xMaxSpeed);
+                AutoOdometryDrive(currentX, currentY, currentH, xMaxSpeed);
             }
             //Keep driving till we are in the error margin
-            else{
-                odometryDrive(currentX, currentY, currentH + tx, xMaxSpeed);
-            }
-        }
-    }
-
-        public void ColorLaunch(double tag) {
-
-            //GPP
-            if (tag == 21) {
-                //Reading in Hue Values
-                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
-
-                //Checking if Green Artifact is on the right side
-                if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
-                    franklin_flipper_right.setPosition(.11); //shoots green
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-                //If Green Artifact is not on the right side then it must be on left
-                else {
-                    franklin_flipper_left.setPosition(1); //shoots green
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    //Checks if any artifacts were not launched
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-            }
-            //PGP
-            else if (tag == 22) {
-                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
-
-                //If Green is on Right
-                if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots green
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    //Checks if any artifacts were not launched
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-                //If Green is in middle
-                else if (hsvValuesCenter[0] > 140 && hsvValuesCenter[0] < 180) {
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(1000);
-                    franklin_flipper_left.setPosition(1); //shoots green
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    //Checks if any artifacts were not launched
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-                //If Green Artifact is not on the right side or middle then it must be on left
-                else {
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots green
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-            }
-
-            //PPG
             else {
-                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                //If Green is on Right
-                if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(1000);
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots green
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-                //If Green is in middle
-                else if (hsvValuesCenter[0] > 140 && hsvValuesCenter[0] < 180) {
-                    franklin_flipper_left.setPosition(1); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(550);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots green
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
-                //If Green Artifact is not on the right side or middle then it must be on left
-                else {
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(1000);
-                    franklin_flipper_right.setPosition(.11); //shoots purple
-                    sleep(updown);
-                    franklin_flipper_right.setPosition(.44);
-                    sleep(550);
-                    franklin_flipper_left.setPosition(1); //shoots green
-                    sleep(updown);
-                    franklin_flipper_left.setPosition(.64);
-                    sleep(500);
-                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-
-                    while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
-                        franklin_flipper_left.setPosition(1);
-                        franklin_flipper_right.setPosition(.11);
-                        sleep(updown);
-                        franklin_flipper_left.setPosition(.64);
-                        franklin_flipper_right.setPosition(.44);
-                        sleep(600);
-                        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-                        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
-                    }
-                }
-
+                AutoOdometryDrive(currentX, currentY, (currentH - tx), xMaxSpeed);
             }
         }
     }
+
+    public void ColorLaunch1(double tag) {
+
+        //GPP
+        if (tag == 21) {
+            //Reading in Hue Values
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+            Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+            //Checking if Green Artifact is on the right side
+            if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(550);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(550);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+            //If Green Artifact is not on the right side then it must be on left
+            else {
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(550);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(550);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+                //Checks if any artifacts were not launched
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+
+        }
+        //PGP
+        else if (tag == 22) {
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+            //Checking if Green Artifact is on the right side
+            if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(550);
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(550);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+                //Checks if any artifacts were not launched
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+            //If Green Artifact is not on the right side then it must be on left
+            else {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(550);
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(550);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+
+        }
+
+        //PPG
+        else {
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+            //Checking if Green Artifact is on the right side
+            if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(1000);
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(550);
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+            //If Green Artifact is not on the right side then it must be on left
+            else {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(1000);
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+                sleep(550);
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+                sleep(500);
+                Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                    franklin_flipper_left.setPosition(1);
+                    franklin_flipper_right.setPosition(.11);
+                    sleep(updown);
+                    franklin_flipper_left.setPosition(.64);
+                    franklin_flipper_right.setPosition(.44);
+                    sleep(600);
+                    Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+                    Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+                }
+            }
+
+        }
+    }
+
+    public void ColorLaunch(double tag) {
+
+        String green = "";
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        Color.RGBToHSV(colorCenter.red() * 8, colorCenter.green() * 8, colorCenter.blue() * 8, hsvValuesCenter);
+
+        if (hsvValuesRight[0] > 140 && hsvValuesRight[0] < 180) {
+            green = "right";
+        } else if (hsvValuesLeft[0] > 140 && hsvValuesLeft[0] < 180) {
+            green = "left";
+        } else if (hsvValuesCenter[0] > 140 && hsvValuesCenter[0] < 180) {
+            green = "center";
+        } else {
+            green = "NA";
+        }
+
+        //GPP
+        if (tag == 21) {
+            if (green.equals("right")) {
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            } else if (green.equals("left")) {
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else {
+                rapidLaunch();
+            }
+
+        }
+        //PGP
+        else if (tag == 22) {
+            if (green.equals("right")) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else if (green.equals("left")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            } else if (green.equals("center")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(1000);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            } else {
+                rapidLaunch();
+            }
+
+        }
+
+        //PPG
+        else if (tag == 23) {
+            if (green.equals("right")) {
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(1000);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+            }
+            //If Green Artifact is not on the right side then it must be on left
+            else if (green.equals("left")) {
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(1000);
+
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                sleep(350);
+
+
+                franklin_flipper_left.setPosition(1); //shoots green
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+            }
+
+            else if (green.equals("center")){
+                franklin_flipper_right.setPosition(.11); //shoots purple
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+
+                franklin_flipper_left.setPosition(1); //shoots purple
+                sleep(updown);
+                franklin_flipper_left.setPosition(.64);
+
+                sleep(350);
+
+                franklin_flipper_right.setPosition(.11); //shoots green
+                sleep(updown);
+                franklin_flipper_right.setPosition(.44);
+            }
+            else {
+                rapidLaunch();
+            }
+
+        }
+
+        else{
+            rapidLaunch();
+        }
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        dashboardTelemetry.addData("Right",hsvValuesRight[0]);
+        dashboardTelemetry.addData("Left",hsvValuesLeft[0]);
+        dashboardTelemetry.update();
+        //Checks if any artifacts were not launched
+        while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+            franklin_flipper_left.setPosition(1);
+            franklin_flipper_right.setPosition(.11);
+            sleep(updown);
+            franklin_flipper_left.setPosition(.64);
+            franklin_flipper_right.setPosition(.44);
+            sleep(600);
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        }
+    }
+
+    public void rapidLaunch() {
+        franklin_flipper_right.setPosition(.11);
+        sleep(updown);
+        franklin_flipper_right.setPosition(.44);
+
+        franklin_flipper_left.setPosition(1);
+        sleep(updown);
+        franklin_flipper_left.setPosition(.64);
+
+        sleep(350);
+
+        Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        dashboardTelemetry.addData("Right",hsvValuesRight[0]);
+        dashboardTelemetry.addData("Left",hsvValuesLeft[0]);
+        dashboardTelemetry.update();
+
+        //Checks if any artifacts were not launched
+        while (hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+            franklin_flipper_left.setPosition(1);
+            franklin_flipper_right.setPosition(.11);
+            sleep(updown);
+            franklin_flipper_left.setPosition(.64);
+            franklin_flipper_right.setPosition(.44);
+            sleep(500);
+            Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
+            Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        }
+    }
+}
+
+

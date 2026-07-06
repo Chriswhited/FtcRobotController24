@@ -254,51 +254,54 @@ public class configwLimeLight {
     }
 
     public void limelightOdometryDrive(double targetX, double targetY, double targetH, double speed) {
-        if (!PIDreset) {
-            PIDreset = true;
-            integralSumX = 0;
-            lastErrorX = 0;
-            integralSumY = 0;
-            lastErrorY = 0;
-            xMaxSpeed = speed;
-            yMaxSpeed = speed;
-
-            PIDtimer.reset();
-
-            pinpoint.update();
-            Pose2D pose2D = pinpoint.getPosition();
-
-            xError = targetX - pose2D.getX(DistanceUnit.INCH);
-            yError = targetY - pose2D.getY(DistanceUnit.INCH);
-            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-        }
+        double integralSumX = 0;
+        double lastErrorX = 0;
+        double integralSumY = 0;
+        double lastErrorY = 0;
+        xMaxSpeed = speed;
+        yMaxSpeed = speed;
+        ElapsedTime timer = new ElapsedTime();
 
         pinpoint.update();
         Pose2D pose2D = pinpoint.getPosition();
-        xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
-        integralSumX = integralSumX + (xError * PIDtimer.seconds());
-        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
-        integralSumY = integralSumY + (yError * PIDtimer.seconds());
+        //pos = myPosition();
+        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
-        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) {
+
+            pinpoint.update();
+            pose2D = pinpoint.getPosition();
+            xError = targetX - pose2D.getX(DistanceUnit.INCH);
+            yError = targetY - pose2D.getY(DistanceUnit.INCH);
+            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+            double derivativeX = (xError - lastErrorX) / timer.seconds();
+            integralSumX = integralSumX + (xError * timer.seconds());
+            double derivativeY = (yError - lastErrorY) / timer.seconds();
+            integralSumY = integralSumY + (yError * timer.seconds());
+
+            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
-        moveRobot(x, y, h);
+            moveRobot(x, y, h);
 
-        lastErrorX = xError;
-        lastErrorY = yError;
-        PIDtimer.reset();
+            lastErrorX = xError;
+            lastErrorY = yError;
+            timer.reset();
 
-        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
-            PIDreset = false;
-            moveRobot(0, 0, 0);
+            dashboardTelemetry.addData("X position", pose2D.getX(DistanceUnit.INCH));
+            dashboardTelemetry.addData("Y position", pose2D.getY(DistanceUnit.INCH));
+            dashboardTelemetry.addData("X Error", xError);
+            dashboardTelemetry.addData("Y Error", yError);
+            dashboardTelemetry.addData("H Error", hError);
+            dashboardTelemetry.update();
         }
+        moveRobot(0, 0, 0);
     }
 
     public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
@@ -427,7 +430,7 @@ public class configwLimeLight {
         double yError = targetY - pose2D.getY(DistanceUnit.INCH);
         double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) {
+        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .75) { //.5
 
             pinpoint.update();
             pose2D = pinpoint.getPosition();
