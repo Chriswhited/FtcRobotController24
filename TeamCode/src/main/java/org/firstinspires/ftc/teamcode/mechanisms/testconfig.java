@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 //import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -201,6 +203,42 @@ public class testconfig {
         back_left_drive.setPower(leftBackPower);
         back_right_drive.setPower(rightBackPower);
         sleep(10);
+    }
+
+    public void drive(double forward, double strafe, double rotate) {
+        double front_left_power = forward + strafe - rotate;
+        double front_right_power = forward - strafe + rotate;
+        double back_right_power = forward + strafe + rotate;
+        double back_left_power = forward - strafe - rotate;
+
+        max_power = 1;
+        max_power = Math.max(max_power, Math.abs(front_left_power));
+        max_power = Math.max(max_power, Math.abs(front_right_power));
+        max_power = Math.max(max_power, Math.abs(back_right_power));
+        max_power = Math.max(max_power, Math.abs(back_left_power));
+
+
+        front_left_drive.setPower(front_left_power / (max_power));
+        back_left_drive.setPower(back_left_power / (max_power));
+        front_right_drive.setPower(front_right_power / (max_power));
+        back_right_drive.setPower(back_right_power / (max_power));
+
+        if (gamepad1.left_trigger > 0.5) {
+            front_left_drive.setPower(front_left_power / (max_power * 4));
+            back_left_drive.setPower(back_left_power / (max_power * 4));
+            front_right_drive.setPower(front_right_power / (max_power * 4));
+            back_right_drive.setPower(back_right_power / (max_power * 4));
+        } else if (gamepad1.right_trigger > 0.5) {
+            front_left_drive.setPower(front_left_power / (max_power));
+            back_left_drive.setPower(back_left_power / (max_power));
+            front_right_drive.setPower(front_right_power / (max_power));
+            back_right_drive.setPower(back_right_power / (max_power));
+        } else {
+            front_left_drive.setPower(front_left_power / max_power * 1.5);
+            back_left_drive.setPower(back_left_power / max_power * 1.5);
+            front_right_drive.setPower(front_right_power / max_power * 1.5);
+            back_right_drive.setPower(back_right_power / max_power * 1.5);
+        }
     }
 
     public void getDistance(){
