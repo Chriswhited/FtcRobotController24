@@ -33,10 +33,10 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -64,12 +64,14 @@ public class Red_Auto extends LinearOpMode {
     Servo transferServo;
     RevColorSensorV3 colorLauncher;
     RevColorSensorV3 colorRight;
-    RevColorSensorV3 colorLeft;
+    DistanceSensor leftDistance;
     IMU imu;
     SparkFunOTOS opticalSensor;
     int attempts = 0;
     int rotations = 0;
+    int transferVelocity = 2000;
     ElapsedTime sleeptime = new ElapsedTime();
+    ElapsedTime runtime = new ElapsedTime();
     public double xProp = 0.04; //0.04
     public double xInt = 0; //0.0
     public double xDer = 0; //0.0
@@ -99,7 +101,7 @@ public class Red_Auto extends LinearOpMode {
         transferMotor = hardwareMap.get(DcMotorEx.class,"motor_7");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
         colorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
-        colorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
+        leftDistance = hardwareMap.get(DistanceSensor.class,"left_distance");
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
         transferServo = hardwareMap.get(Servo.class,"transfer_servo");
@@ -154,24 +156,34 @@ public class Red_Auto extends LinearOpMode {
 
         // Wait for the game to start (driver presses START)
         waitForStart();
+        runtime.reset();
 
+        //Start motors
         intakeMotor.setPower(1);
-        transferMotor.setVelocity(2000);
-        //sweeper.setPower(-1);
+        transferMotor.setVelocity(transferVelocity);
 
         //move to launch location
         AutoOdometryDrive(72,18,35,.8);
 
+        //Make sure transfer motor is up to speed
         while (opModeIsActive() && (transferMotor.getVelocity()<1960)){
-
+            telemetry.addData("Velocity", transferMotor.getVelocity());
         }
+
         //Launch artifacts
         Launch(1);
         Launch(2);
         Launch(3);
+        Flush();
 
         //Move to first spike mark
         AutoOdometryDrive(77 - offset,33,90,.6);
+
+        //Reset Directions
+        transferMotor.setVelocity(transferVelocity);
+        sweeper.setPower(-1);
+        intakeMotor.setPower(1);
+
         //Intake first 2 artifacts
         AutoOdometryDrive(77 - offset,44,90,.2);
         sleep(250);
@@ -179,15 +191,8 @@ public class Red_Auto extends LinearOpMode {
 
         //Transfer 1st artifact to launcher
         Transfer();
-        /*
-        transferServo.setPosition(.42);
-        sleep(250);
-        transferServo.setPosition(.56);
-        sleep(750);
-        Verify();
-
-         */
         sweeper.setPower(-1);
+
         //Intake third artifact
         AutoOdometryDrive(77 - offset,52,90,.2);
 
@@ -198,8 +203,16 @@ public class Red_Auto extends LinearOpMode {
         Launch(1);
         Launch(2);
         Launch(3);
+        Flush();
 
+        //Move to second spike mark
         AutoOdometryDrive(52 - offset,33,90,.6);
+
+        //Reset Directions
+        transferMotor.setVelocity(transferVelocity);
+        sweeper.setPower(-1);
+        intakeMotor.setPower(1);
+
         //Intake first 2 artifacts
         AutoOdometryDrive(52 - offset,44,90,.2);
         sleep(250);
@@ -207,17 +220,12 @@ public class Red_Auto extends LinearOpMode {
 
         //Transfer 1st artifact to launcher
         Transfer();
-        /*
-        transferServo.setPosition(.42);
-        sleep(250);
-        transferServo.setPosition(.56);
-        sleep(750);
-        Verify();
-
-         */
         sweeper.setPower(-1);
+
         //Intake third artifact
-        AutoOdometryDrive(52 - offset,52,90,.2);
+        if (runtime.seconds()<25) {
+            AutoOdometryDrive(52 - offset, 52, 90, .2);
+        }
 
         //Move to Launch position
         AutoOdometryDrive(72,18,35,.8);
@@ -306,6 +314,7 @@ public class Red_Auto extends LinearOpMode {
     public void sleep(double time){
         sleeptime.reset();
         while(opModeIsActive() && (sleeptime.milliseconds() <= time)){
+            telemetry.addLine("Sleepy Time");
         }
     }
 
@@ -315,7 +324,6 @@ public class Red_Auto extends LinearOpMode {
         CurrentY = pos.x;
         CurrentH = -pos.h;
     }
-
 
     public void Launch(double number){
         if(number == 1){
@@ -327,23 +335,6 @@ public class Red_Auto extends LinearOpMode {
             springMotor.setTargetPosition(rotations * 2786);
             sleep(300);
             Transfer();
-
-            /*transferServo.setPosition(.42);
-            sleep(250);
-            transferServo.setPosition(.56);
-            sleep(1000);
-            if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
-                attempts = 1;
-                while(opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
-                    transferServo.setPosition(.42);
-                    sleep(250);
-                    transferServo.setPosition(.56);
-                    sleep(1000);
-                    attempts = attempts + 1;
-                }
-            }
-
-             */
             sweeper.setPower(-1);
         }
         if(number == 2){
@@ -351,23 +342,6 @@ public class Red_Auto extends LinearOpMode {
             springMotor.setTargetPosition(rotations * 2786);
             sleep(300);
             Transfer();
-            /*
-            transferServo.setPosition(.42);
-            sleep(250);
-            transferServo.setPosition(.56);
-            sleep(1000);
-            if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
-                attempts = 1;
-                while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
-                    transferServo.setPosition(.42);
-                    sleep(250);
-                    transferServo.setPosition(.56);
-                    sleep(1000);
-                    attempts = attempts + 1;
-                }
-            }
-
-             */
         }
         if(number == 3){
             rotations = rotations + 1;
@@ -392,13 +366,11 @@ public class Red_Auto extends LinearOpMode {
             }
         }
     }
-    public void Verify(){
-        while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)) {
-            transferServo.setPosition(.4);
-            sleep(250);
-            transferServo.setPosition(.56);
-            sleep(1000);
-            attempts = attempts + 1;
+    public void Flush(){
+        if (leftDistance.getDistance(DistanceUnit.INCH) < 10){
+            transferMotor.setVelocity(-2000);
+            sweeper.setPower(1);
+            intakeMotor.setPower(-1);
         }
 
     }

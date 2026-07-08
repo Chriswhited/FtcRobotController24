@@ -70,9 +70,9 @@ public class Blue_Teleop extends OpMode {
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
     RevColorSensorV3 colorRight;
-    RevColorSensorV3 colorLeft;
-    //ColorSensor colorRight;
-    //ColorSensor colorLeft;
+    DistanceSensor leftDistance;
+    //RevColorSensorV3 colorLeft;
+
     public float hsvValuesRight[] = {0F,0F,0F};
     public float hsvValuesLeft[] = {0F,0F,0F};
     public float hsvValuesLauncher[] = {0F,0F,0F};
@@ -127,12 +127,11 @@ public class Blue_Teleop extends OpMode {
         opticalSensor = hardwareMap.get(SparkFunOTOS.class, "optical_sensor");
         colorLauncher = hardwareMap.get(RevColorSensorV3.class,"color_launcher");
         colorRight = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_right");
-        colorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
+        leftDistance = hardwareMap.get(DistanceSensor.class,"left_distance");
+        //colorLeft = hardwareMap.get(RevColorSensorV3.class, "intake_sensor_left");
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
         transferServo = hardwareMap.get(Servo.class,"transfer_servo");
-        //colorRight = hardwareMap.get(ColorSensor.class, "intake_sensor_right");
-        //colorLeft = hardwareMap.get(ColorSensor.class, "intake_sensor_left");
 
 
         // We set the left motors in reverse which is needed for mecanum drive
@@ -173,7 +172,7 @@ public class Blue_Teleop extends OpMode {
         // Get sensor data
         GetCurrentPosition();
         Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
-        Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+        //Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
         Color.RGBToHSV(colorLauncher.red() * 8, colorLauncher.green() * 8, colorLauncher.blue() * 8, hsvValuesLauncher);
 
 
@@ -207,12 +206,13 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Right Distance", colorRight.getDistance(DistanceUnit.INCH));
         telemetry.addLine();
         telemetry.addData("Left Hue", hsvValuesLeft[0]);
-        telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
+        //telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
         telemetry.addLine();
-        telemetry.addData("Servo Position", servoPosition);
+        telemetry.addData("Left Distance:", String.format("%.01f in", leftDistance.getDistance(DistanceUnit.INCH)));
 
         telemetry.update();
     }
+
 
     @Override
     public void loop() {
@@ -227,20 +227,23 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
         telemetry.addData("Servo Position", servoPosition);
-        telemetry.addData("Right Hue", hsvValuesRight[0]);
-        telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Velocoty", transferMotor.getVelocity());
-        telemetry.addData("Transfering", transferring);
-        telemetry.addData("Auto Timer", autoTransitionTime);
-        telemetry.addData("Manual", manualTransitionTime);
+        telemetry.addData("Calculated",rotations * 2786);
+        telemetry.addData("Target", springMotor.getTargetPosition());
+        telemetry.addData("Actual", springMotor.getCurrentPosition());
+        //telemetry.addData("Right Hue", hsvValuesRight[0]);
+        //telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
+        //telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
+        //telemetry.addData("Velocoty", transferMotor.getVelocity());
+        //telemetry.addData("Transfering", transferring);
+        //telemetry.addData("Auto Timer", autoTransitionTime);
+        //telemetry.addData("Manual", manualTransitionTime);
         telemetry.update();
 
         //Set motor and survo powers/positions
         springMotor.setTargetPosition(rotations * 2786);
         transferMotor.setVelocity(2000);
 
-        if (colorLeft.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
+        if (leftDistance.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
             intakeMotor.setPower(0);
         } else {
             intakeMotor.setPower(1);
@@ -256,7 +259,7 @@ public class Blue_Teleop extends OpMode {
             sweeper.setPower(1);
             intakeMotor.setPower(-1);
             transferring = false;
-        } else if (colorLeft.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
+        } else if (leftDistance.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
             sweeper.setPower(0);
         } else if(!transferring){
             sweeper.setPower(-1);
@@ -297,14 +300,14 @@ public class Blue_Teleop extends OpMode {
         }
 
         //Auto transition time
-        if(colorLeft.getDistance(DistanceUnit.INCH) < 2 && !autoTransitionVariable){
+        if(leftDistance.getDistance(DistanceUnit.INCH) < 2 && !autoTransitionVariable){
             autoTransitionTime.reset();
             autoTransitionVariable = true;
             transferring = true;
             sweeper.setPower(0);
         }
 
-        //Actual Transiiton Actions
+        //Actual Transition Actions
         //Auto transfer after a launch
         if(launchTransitionTime.milliseconds() > 300 && launchTransitionTime.milliseconds() < 550){
             transferServo.setPosition(.42);
