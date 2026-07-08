@@ -91,8 +91,12 @@ public class AprilTagTest extends OpMode {
             conf.flagTimer.startTime();
         }
 
+        if(gamepad1.dpad_up){
+            conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 76.7, AngleUnit.DEGREES, 0));
+        }
+
         conf.getDistance();
-        if(conf.distance > 0 && conf.distance < 200 && wantDrive && gamepad2.left_bumper){
+        if(conf.distance > 0 && gamepad1.left_bumper){
             conf.setFlywheelPower(conf.flywheelSpeed(conf.distance));
         }
 
@@ -186,12 +190,12 @@ public class AprilTagTest extends OpMode {
         else if(gamepad1.dpad_left){
             kP -= 0.0001;
         }
-        else if(gamepad1.dpad_up){
-            kD += 0.00001;
-        }
-        else if(gamepad1.dpad_down){
-            kD -= 0.00001;
-        }
+        //else if(gamepad1.dpad_up){
+            //kD += 0.00001;
+        //}
+        //else if(gamepad1.dpad_down){
+            //kD -= 0.00001;
+        //}
 
         if(gamepad1.left_bumper){
             if(idgoal == 24){
@@ -208,6 +212,19 @@ public class AprilTagTest extends OpMode {
                     double dTerm = ((error - lastError) / dT) * kD;
 
                     rotate = -Range.clip(pTerm + dTerm, -0.5, 0.5);
+
+                    Pose2D pose2D = conf.pinpoint.getPosition();
+                    conf.xL = pose2D.getX(DistanceUnit.INCH);
+                    conf.yL = pose2D.getY(DistanceUnit.INCH);
+                    conf.hL = pose2D.getHeading(AngleUnit.DEGREES);
+
+                    //x = 2 y = 16
+                    //x = 1 y = -12
+                    //x = 19, max 20
+                    //
+                    if(conf.yL <= 16 && conf.yL >= 12 && conf.xL <= 20 && conf.xL >= 0){
+                        rotate = rotate + 14;
+                    }
 
                     lastError = error;
                     lastTime = curTime;
@@ -226,7 +243,7 @@ public class AprilTagTest extends OpMode {
         }
 
         if (wantDrive) {
-            conf.drive(forward, strafe, rotate);
+            drive(forward, strafe, rotate);
         }
 
         if(idgoal == 24){

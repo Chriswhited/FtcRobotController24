@@ -64,7 +64,7 @@ public class RedCloseAuto extends OpMode {
     }
     public void Start(){
         conf.limelight.start();
-        conf.setFlywheelPower(1200);
+        conf.setFlywheelPower(1160);
         conf.AutoOdometryDrive(77,3.6,5, conf.xMaxSpeed);
         conf.sleep(200);
         conf.ReadTag();
@@ -84,7 +84,7 @@ public class RedCloseAuto extends OpMode {
 
     public void StartNoLimelight(){
         conf.limelight.start();
-        conf.setFlywheelPower(1200);
+        conf.setFlywheelPower(1160);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);

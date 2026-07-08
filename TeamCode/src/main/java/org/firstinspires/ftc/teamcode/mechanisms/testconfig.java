@@ -117,6 +117,10 @@ public class testconfig {
     public double cameraAngle = 6; //90 minus tilt
     public double goalHeight = 74.95;
     public double distance = 0;
+    public double xL = 0;
+    public double yL = 0;
+    public double hL = 0;
+
 
 
     public void init(HardwareMap hwMap) {
