@@ -236,7 +236,7 @@ public class RedTeleop extends OpMode {
         telemetry.addData("Manual", manualTransitionTime);
         telemetry.update();
 
-        //Set motor and survo powers/positions
+        //Set motor and servo powers/positions
         springMotor.setTargetPosition(rotations * 2786);
         transferMotor.setVelocity(2000);
 
