@@ -120,6 +120,7 @@ public class configwLimeLight {
     public double xL = 0;
     public double yL = 0;
     public double hL = 0;
+    public int tagl = 0;
 
 
 
@@ -246,21 +247,34 @@ public class configwLimeLight {
     }
 
     public void getDistance(){
-        LLResult llResult = limelight.getLatestResult();
+        //LLResult llResult = limelight.getLatestResult();
 
-        double ty = llResult.getTy();
+        LLResult llresult = limelight.getLatestResult();
+        List<LLResultTypes.FiducialResult> fiducials = llresult.getFiducialResults();
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+            tagl = fiducial.getFiducialId(); // The ID number of the fiducial
+        }
+
+        double ty = llresult.getTy();
 
         double angleToTarget = cameraAngle + ty;
         double heightDifference = goalHeight - cameraHeight;
 
 
-        if (llResult != null && llResult.isValid()) {
+        if (tagl > 0) {
             distance = heightDifference / Math.tan(Math.toRadians(angleToTarget));
+        }
+        else{
+            distance = -1;
+        }
+
+        if(distance > 320){
+            distance = -1;
         }
     }
 
     public double flywheelSpeed(double goalDistance){
-        return Range.clip(0.017011 * Math.pow(goalDistance , 2) -3.96432 * goalDistance + 1408.42972,0, 1500);
+        return Range.clip((2.83362e-7 * Math.pow(goalDistance, 4)) - (0.000325101 * Math.pow(goalDistance, 3)) + (0.135019 * Math.pow(goalDistance, 2)) - (21.20859 * goalDistance) + 2287.47339, 1120, 1550);
     }
 
     public void setFlywheelPower(double velocity) {

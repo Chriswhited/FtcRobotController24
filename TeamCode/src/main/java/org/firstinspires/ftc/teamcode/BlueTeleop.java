@@ -22,7 +22,7 @@ public class BlueTeleop extends OpMode {
 
     configwLimeLight conf = new configwLimeLight();
 
-    double kP = 0.0150;
+    double kP = 0.0102;
     double error = 0;
     double lastError = 0;
     double goalX = 0;
@@ -205,7 +205,7 @@ public class BlueTeleop extends OpMode {
                     double dT = curTime - lastTime;
                     double dTerm = ((error - lastError) / dT) * kD;
 
-                    rotate = Range.clip(pTerm + dTerm, -0.5, 0.5);
+                    rotate = -Range.clip(pTerm + dTerm, -0.5, 0.5);
 
                     Pose2D pose2D = conf.pinpoint.getPosition();
                     conf.xL = pose2D.getX(DistanceUnit.INCH);
@@ -216,7 +216,7 @@ public class BlueTeleop extends OpMode {
                     //x = 1 y = -12
                     //x = 19, max 20
                     //
-                    if(conf.yL <= 16 && conf.yL >= 12 && conf.xL <= 20 && conf.xL >= 0){
+                    if(conf.yL <= 12 && conf.yL >= -16 && conf.xL <= 24 && conf.xL >= 0){
                         rotate = rotate - 14;
                     }
 
