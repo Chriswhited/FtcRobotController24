@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 //import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+
 import android.graphics.Color;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -111,6 +113,15 @@ public class configwLimeLight {
 
     public boolean aa = true;
 
+    public double cameraHeight = 26.67; //CM
+    public double cameraAngle = 6; //90 minus tilt
+    public double goalHeight = 74.95;
+    public double distance = 0;
+    public double xL = 0;
+    public double yL = 0;
+    public double hL = 0;
+
+
 
     public void init(HardwareMap hwMap) {
         back_left_drive = hwMap.get(DcMotor.class, "back_left_drive");
@@ -198,6 +209,60 @@ public class configwLimeLight {
         sleep(10);
     }
 
+    public void drive(double forward, double strafe, double rotate) {
+        double front_left_power = forward + strafe - rotate;
+        double front_right_power = forward - strafe + rotate;
+        double back_right_power = forward + strafe + rotate;
+        double back_left_power = forward - strafe - rotate;
+
+        max_power = 1;
+        max_power = Math.max(max_power, Math.abs(front_left_power));
+        max_power = Math.max(max_power, Math.abs(front_right_power));
+        max_power = Math.max(max_power, Math.abs(back_right_power));
+        max_power = Math.max(max_power, Math.abs(back_left_power));
+
+
+        front_left_drive.setPower(front_left_power / (max_power));
+        back_left_drive.setPower(back_left_power / (max_power));
+        front_right_drive.setPower(front_right_power / (max_power));
+        back_right_drive.setPower(back_right_power / (max_power));
+
+        if (gamepad1.left_trigger > 0.5) {
+            front_left_drive.setPower(front_left_power / (max_power * 4));
+            back_left_drive.setPower(back_left_power / (max_power * 4));
+            front_right_drive.setPower(front_right_power / (max_power * 4));
+            back_right_drive.setPower(back_right_power / (max_power * 4));
+        } else if (gamepad1.right_trigger > 0.5) {
+            front_left_drive.setPower(front_left_power / (max_power));
+            back_left_drive.setPower(back_left_power / (max_power));
+            front_right_drive.setPower(front_right_power / (max_power));
+            back_right_drive.setPower(back_right_power / (max_power));
+        } else {
+            front_left_drive.setPower(front_left_power / max_power * 1.5);
+            back_left_drive.setPower(back_left_power / max_power * 1.5);
+            front_right_drive.setPower(front_right_power / max_power * 1.5);
+            back_right_drive.setPower(back_right_power / max_power * 1.5);
+        }
+    }
+
+    public void getDistance(){
+        LLResult llResult = limelight.getLatestResult();
+
+        double ty = llResult.getTy();
+
+        double angleToTarget = cameraAngle + ty;
+        double heightDifference = goalHeight - cameraHeight;
+
+
+        if (llResult != null && llResult.isValid()) {
+            distance = heightDifference / Math.tan(Math.toRadians(angleToTarget));
+        }
+    }
+
+    public double flywheelSpeed(double goalDistance){
+        return Range.clip(0.017011 * Math.pow(goalDistance , 2) -3.96432 * goalDistance + 1408.42972,0, 1500);
+    }
+
     public void setFlywheelPower(double velocity) {
         launch_motor_1.setVelocity(velocity);
         launch_motor_2.setVelocity(velocity);
@@ -254,54 +319,51 @@ public class configwLimeLight {
     }
 
     public void limelightOdometryDrive(double targetX, double targetY, double targetH, double speed) {
-        double integralSumX = 0;
-        double lastErrorX = 0;
-        double integralSumY = 0;
-        double lastErrorY = 0;
-        xMaxSpeed = speed;
-        yMaxSpeed = speed;
-        ElapsedTime timer = new ElapsedTime();
+        if (!PIDreset) {
+            PIDreset = true;
+            integralSumX = 0;
+            lastErrorX = 0;
+            integralSumY = 0;
+            lastErrorY = 0;
+            xMaxSpeed = speed;
+            yMaxSpeed = speed;
 
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-
-        //pos = myPosition();
-        double xError = targetX - pose2D.getX(DistanceUnit.INCH);
-        double yError = targetY - pose2D.getY(DistanceUnit.INCH);
-        double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) {
+            PIDtimer.reset();
 
             pinpoint.update();
-            pose2D = pinpoint.getPosition();
+            Pose2D pose2D = pinpoint.getPosition();
+
             xError = targetX - pose2D.getX(DistanceUnit.INCH);
             yError = targetY - pose2D.getY(DistanceUnit.INCH);
             hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
-
-            double derivativeX = (xError - lastErrorX) / timer.seconds();
-            integralSumX = integralSumX + (xError * timer.seconds());
-            double derivativeY = (yError - lastErrorY) / timer.seconds();
-            integralSumY = integralSumY + (yError * timer.seconds());
-
-            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
-            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
-
-
-            moveRobot(x, y, h);
-
-            lastErrorX = xError;
-            lastErrorY = yError;
-            timer.reset();
-
-            dashboardTelemetry.addData("X position", pose2D.getX(DistanceUnit.INCH));
-            dashboardTelemetry.addData("Y position", pose2D.getY(DistanceUnit.INCH));
-            dashboardTelemetry.addData("X Error", xError);
-            dashboardTelemetry.addData("Y Error", yError);
-            dashboardTelemetry.addData("H Error", hError);
-            dashboardTelemetry.update();
         }
-        moveRobot(0, 0, 0);
+
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
+
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+
+
+        moveRobot(x, y, h);
+
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
+
+        if (Math.abs(xError) < .25 && Math.abs(yError) < .25 && Math.abs(hError) < .5) {
+            PIDreset = false;
+            moveRobot(0, 0, 0);
+        }
     }
 
     public void odometryDrive(double targetX, double targetY, double targetH, double speed) {
@@ -327,34 +389,34 @@ public class configwLimeLight {
 
 
 
-            pinpoint.update();
-            Pose2D pose2D = pinpoint.getPosition();
-            xError = targetX - pose2D.getX(DistanceUnit.INCH);
-            yError = targetY - pose2D.getY(DistanceUnit.INCH);
-            hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
+        pinpoint.update();
+        Pose2D pose2D = pinpoint.getPosition();
+        xError = targetX - pose2D.getX(DistanceUnit.INCH);
+        yError = targetY - pose2D.getY(DistanceUnit.INCH);
+        hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-            derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
-            integralSumX = integralSumX + (xError * PIDtimer.seconds());
-            derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
-            integralSumY = integralSumY + (yError * PIDtimer.seconds());
+        derivativeX = (xError - lastErrorX) / PIDtimer.seconds();
+        integralSumX = integralSumX + (xError * PIDtimer.seconds());
+        derivativeY = (yError - lastErrorY) / PIDtimer.seconds();
+        integralSumY = integralSumY + (yError * PIDtimer.seconds());
 
-            double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
-            double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
-            double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
+        double x = Range.clip((xProp * xError) + (xInt * integralSumX) + (xDer * derivativeX), -xMaxSpeed, xMaxSpeed);
+        double y = Range.clip((yProp * yError) + (yInt * integralSumY) + (yDer * derivativeY), -yMaxSpeed, yMaxSpeed);
+        double h = Range.clip((hError * hProp) + (hDer * derivativeH), -hMaxSpeed, hMaxSpeed);
 
 
-            moveRobot(x, y, h);
+        moveRobot(x, y, h);
 
-            lastErrorX = xError;
-            lastErrorY = yError;
-            PIDtimer.reset();
+        lastErrorX = xError;
+        lastErrorY = yError;
+        PIDtimer.reset();
 
-            if (Math.abs(xError) < .5 && Math.abs(yError) < .5 && Math.abs(hError) < 4 && aa) { //.25
+        if (Math.abs(xError) < .5 && Math.abs(yError) < .5 && Math.abs(hError) < 4 && aa) { //.25
             PIDreset = false;
             moveRobot(0, 0, 0);
             AutoAlign();
             aa = false;
-            }
+        }
 
     }
 
@@ -430,7 +492,7 @@ public class configwLimeLight {
         double yError = targetY - pose2D.getY(DistanceUnit.INCH);
         double hError = targetH - pose2D.getHeading(AngleUnit.DEGREES);
 
-        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .75) { //.5
+        while (Math.abs(xError) > 1 || Math.abs(yError) > 1 || Math.abs(hError) > .5) {
 
             pinpoint.update();
             pose2D = pinpoint.getPosition();

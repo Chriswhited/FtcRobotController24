@@ -190,12 +190,6 @@ public class AprilTagTest extends OpMode {
         else if(gamepad1.dpad_left){
             kP -= 0.0001;
         }
-        //else if(gamepad1.dpad_up){
-            //kD += 0.00001;
-        //}
-        //else if(gamepad1.dpad_down){
-            //kD -= 0.00001;
-        //}
 
         if(gamepad1.left_bumper){
             if(idgoal == 24){
