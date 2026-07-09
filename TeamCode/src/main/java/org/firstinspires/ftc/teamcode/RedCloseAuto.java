@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,19 +11,19 @@ import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @Autonomous(name = "RedCloseAuto", group = "Robot")
-public class RedCloseAuto extends OpMode {
+public class RedCloseAuto extends LinearOpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
-    public void init() {
+    public void runOpMode() {
 
         conf.init(hardwareMap);
         conf.configurePinpoint();
         conf.flag.setPosition(0);
         //conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, -30.68, AngleUnit.DEGREES, -51));
 
-    }
-    public void init_loop() {
+
+    while (opModeInInit()){
         conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, -30.68, AngleUnit.DEGREES, -51));
         telemetry.addLine("Push your robot around to see it track");
         conf.pinpoint.update();
@@ -44,10 +45,7 @@ public class RedCloseAuto extends OpMode {
         conf.greenLED.off();
     }
 
-
-    @Override
-    public void start(){
-
+        waitForStart();
         StartNoLimelight();
         Spike3();
         Launch();
@@ -74,7 +72,7 @@ public class RedCloseAuto extends OpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1160)
+        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -88,7 +86,7 @@ public class RedCloseAuto extends OpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1160)
+        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -265,8 +263,5 @@ public class RedCloseAuto extends OpMode {
         conf.intake_motor.setPower(1);
         conf.ColorLaunch(conf.id);
         conf.intake_motor.setPower(0);
-    }
-    public void loop(){
-
     }
 }

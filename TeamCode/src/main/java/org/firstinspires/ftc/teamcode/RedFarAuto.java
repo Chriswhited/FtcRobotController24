@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,47 +11,45 @@ import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @Autonomous(name = "RedFarAuto", group = "Robot")
-public class RedFarAuto extends OpMode {
+public class RedFarAuto extends LinearOpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
-    public void init() {
+    public void runOpMode() {
 
         conf.init(hardwareMap);
         conf.configurePinpoint();
         conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
         conf.flag.setPosition(0);
 
-    }
-    public void init_loop() {
-        telemetry.addLine("Push your robot around to see it track");
-        conf.pinpoint.update();
-        //conf.limelight.start();
-        //conf.ReadTag();
-        Pose2D pose2D = conf.pinpoint.getPosition();
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
-        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
-        telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
-        telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
-        telemetry.addData("Center Hue", conf.hsvValuesCenter[0]);
-        telemetry.addData("Intake Hue", conf.hsvValuesIntake[0]);
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
 
-        //telemetry.addData("id", conf.id);
-        telemetry.update();
-        conf.franklin_flipper_left.setPosition(.64);
-        conf.franklin_flipper_right.setPosition(.44);
-        conf.redLED.off();
-        conf.greenLED.off();
-    }
+        while (opModeInInit()) {
+            telemetry.addLine("Push your robot around to see it track");
+            conf.pinpoint.update();
+            //conf.limelight.start();
+            //conf.ReadTag();
+            Pose2D pose2D = conf.pinpoint.getPosition();
+            Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+            Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+            Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+            Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
+            telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
+            telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+            telemetry.addData("Center Hue", conf.hsvValuesCenter[0]);
+            telemetry.addData("Intake Hue", conf.hsvValuesIntake[0]);
+            telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+            telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+            telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
 
+            //telemetry.addData("id", conf.id);
+            telemetry.update();
+            conf.franklin_flipper_left.setPosition(.64);
+            conf.franklin_flipper_right.setPosition(.44);
+            conf.redLED.off();
+            conf.greenLED.off();
+        }
 
-    @Override
-    public void start(){
+        waitForStart();
         Start();
         Spike1();
         Launch();
@@ -58,8 +57,9 @@ public class RedFarAuto extends OpMode {
         Launch();
         Base();
 
-
     }
+
+
     public void Start(){
         conf.limelight.start();
         conf.launch_motor_1.setVelocity(1470);
@@ -70,7 +70,7 @@ public class RedFarAuto extends OpMode {
         telemetry.update();
         conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1500)
+        while(conf.launch_motor_1.getVelocity() < 1500 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -195,8 +195,5 @@ public class RedFarAuto extends OpMode {
         conf.intake_motor.setPower(1);
         conf.ColorLaunch(conf.id);
         conf.intake_motor.setPower(0);
-    }
-    public void loop(){
-
     }
 }

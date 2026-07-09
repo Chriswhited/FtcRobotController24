@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,54 +11,58 @@ import org.firstinspires.ftc.teamcode.mechanisms.config;
 import org.firstinspires.ftc.teamcode.mechanisms.configwLimeLight;
 
 @Autonomous(name = "BlueCloseAuto", group = "Robot")
-public class BlueCloseAuto extends OpMode {
+public class BlueCloseAuto extends LinearOpMode {
     configwLimeLight conf = new configwLimeLight();
 
     @Override
-    public void init() {
+    public void runOpMode() {
 
         conf.init(hardwareMap);
         conf.configurePinpoint();
         conf.flag.setPosition(0);
-
-    }
-    public void init_loop() {
-        conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, 30.68, AngleUnit.DEGREES, 51));
-        telemetry.addLine("Push your robot around to see it track");
-        conf.pinpoint.update();
-        //conf.limelight.start();
-        //conf.ReadTag();
-        Pose2D pose2D = conf.pinpoint.getPosition();
-        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
-        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
-        telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
-        telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
-        //telemetry.addData("id", conf.id);
-        telemetry.update();
-        conf.franklin_flipper_left.setPosition(.64);
-        conf.franklin_flipper_right.setPosition(.44);
-        conf.redLED.off();
-        conf.greenLED.off();
-    }
+        //conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, -30.68, AngleUnit.DEGREES, -51));
 
 
-    @Override
-    public void start(){
+        while (opModeInInit()){
+            conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.15, -30.68, AngleUnit.DEGREES, -51));
+            telemetry.addLine("Push your robot around to see it track");
+            conf.pinpoint.update();
+            //conf.limelight.start();
+            //conf.ReadTag();
+            Pose2D pose2D = conf.pinpoint.getPosition();
+            Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+            Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+            telemetry.addData("Right Hue", conf.hsvValuesRight[0]);
+            telemetry.addData("Left Hue", conf.hsvValuesLeft[0]);
+            telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
+            telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
+            telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
+            //telemetry.addData("id", conf.id);
+            telemetry.update();
+            conf.franklin_flipper_left.setPosition(.64);
+            conf.franklin_flipper_right.setPosition(.44);
+            conf.redLED.off();
+            conf.greenLED.off();
+        }
 
-        Start();
+        waitForStart();
+        StartNoLimelight();
         Spike3();
-        //SpikeGate();
         Launch();
         Spike2();
         Launch();
+        Gate();
+        Launch();
+        Gate();
+        Launch();
+        Gate();
+        Launch();
         Base();
+
     }
     public void Start(){
         conf.limelight.start();
-        conf.setFlywheelPower(1360);
+        conf.setFlywheelPower(1140);
         conf.AutoOdometryDrive(77,-3.6,-5, conf.xMaxSpeed);
         conf.sleep(200);
         conf.ReadTag();
@@ -67,7 +72,21 @@ public class BlueCloseAuto extends OpMode {
         conf.AutoOdometryDrive(77,-3.6,48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,-3.6,48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1300)
+        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
+        {
+            conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
+            conf.dashboardTelemetry.update();
+        }
+        conf.ColorLaunch(conf.id); //Launch PreLoad
+    }
+
+    public void StartNoLimelight(){
+        conf.limelight.start();
+        conf.setFlywheelPower(1140);
+        conf.AutoOdometryDrive(77,-3.6,48, conf.xMaxSpeed);
+        conf.sleep(10);
+        conf.AutoOdometryDrive(77,-3.6,48, conf.xMaxSpeed);
+        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -77,7 +96,16 @@ public class BlueCloseAuto extends OpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,6,-90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(25,41,-90, .2);
+        conf.AutoOdometryDrive(25,41,-90, 0.9); //0.3
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
+
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -103,7 +131,15 @@ public class BlueCloseAuto extends OpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(48,41,-90, .2);
+        conf.AutoOdometryDrive(48,41,-90, .9); //0.2
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -124,14 +160,22 @@ public class BlueCloseAuto extends OpMode {
         }
 
         conf.xMaxSpeed = 1;
-        conf.AutoOdometryDrive(48,9,-90, conf.xMaxSpeed);
-
+        conf.AutoOdometryDrive(48,30,-90, conf.xMaxSpeed);
     }
 
     public void Spike3(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(71.73,10.13,-90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(71.73,35.32,-90, .2);
+        conf.AutoOdometryDrive(71.73,35.32,-90, 0.7); //0.3
+
+        /*
+        //the gavin idea
+        conf.intake_motor.setPower(0);
+        conf.sleep(300);
+        conf.intake_motor.setPower(1);
+
+         */
+
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -154,14 +198,34 @@ public class BlueCloseAuto extends OpMode {
     }
 
     public void Gate(){
-        conf.AutoOdometryDrive(49.3, 43.15, -120, conf.xMaxSpeed); //Open Gate
+        conf.AutoOdometryDrive(46.8, 40.3, -121, conf.xMaxSpeed); //Open Gate
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(47.4, 43.1, -121, conf.xMaxSpeed); //Move back to collect artifacts
-        conf.sleep(1000);
+        conf.AutoOdometryDrive(48.33, 43.8, -119.5, conf.xMaxSpeed); //Move back to collect artifacts
+        conf.sleep(1200);
+
+        Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
+        Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
+        Color.RGBToHSV(conf.colorCenter.red() * 8, conf.colorCenter.green() * 8, conf.colorCenter.blue() * 8, conf.hsvValuesCenter);
+        Color.RGBToHSV(conf.colorIntake.red() * 8, conf.colorIntake.green() * 8, conf.colorIntake.blue() * 8, conf.hsvValuesIntake);
+        //Reverse kolby cage if full
+        if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 145 && conf.hsvValuesIntake[0] > 145){
+            conf.intake_motor.setPower(-1);
+            conf.sleep(250);
+            conf.intake_motor.setPower(0);
+        }
+        //Reverse kolby cage if full
+        else if(conf.hsvValuesRight[0] > 140 && conf.hsvValuesLeft[0] > 140 && conf.hsvValuesCenter[0] > 140){
+            conf.intake_motor.setPower(0);
+        }
+        else{
+            conf.intake_motor.setPower(1);
+        }
+        conf.xMaxSpeed = 1;
     }
+
     public void SpikeGate(){
-        conf.AutoOdometryDrive(62.5,31,-90,.5);
-        conf.AutoOdometryDrive(62.5,37,-90,.5);
+        conf.AutoOdometryDrive(62.5,31,-90,.7);
+        conf.AutoOdometryDrive(62.5,39,-90,.7);
         conf.sleep(500);
 
     }
@@ -199,8 +263,5 @@ public class BlueCloseAuto extends OpMode {
         conf.intake_motor.setPower(1);
         conf.ColorLaunch(conf.id);
         conf.intake_motor.setPower(0);
-    }
-    public void loop(){
-
     }
 }
