@@ -92,13 +92,18 @@ public class BlueTeleop extends OpMode {
         }
 
         if(gamepad1.dpad_up){
-            conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, -76.7, AngleUnit.DEGREES, 0));
+            conf.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 76.7, AngleUnit.DEGREES, 0));
         }
 
         conf.getDistance();
         if(conf.distance > 0 && gamepad1.left_bumper){
             conf.setFlywheelPower(conf.flywheelSpeed(conf.distance));
         }
+
+        else if(conf.distance == -1 && gamepad1.left_bumper){
+            conf.setFlywheelPower(1120);
+        }
+
 
         else if(gamepad1.right_bumper){ //Endgame Parking
             conf.odometryDrive(23,-48,90, 1);
@@ -184,15 +189,23 @@ public class BlueTeleop extends OpMode {
 
         double tx = llresult.getTx();
 
-        if(gamepad1.dpad_right){
-            kP += 0.0001;
-        }
-        else if(gamepad1.dpad_left){
-            kP -= 0.0001;
-        }
-
         if(gamepad1.left_bumper){
-            if(idgoal == 20){
+
+            conf.pinpoint.update();
+            Pose2D pose2D = conf.pinpoint.getPosition();
+            conf.xL = pose2D.getX(DistanceUnit.INCH);
+            conf.yL = pose2D.getY(DistanceUnit.INCH);
+            conf.hL = pose2D.getHeading(AngleUnit.DEGREES);
+
+            if(conf.yL <= 12 && conf.yL >= -22 && conf.xL <= 24 && conf.xL >= 0){
+                goalX = -3.5;
+            }
+            else{
+                goalX = 0;
+            }
+
+            if(idgoal == 24){
+
                 error = goalX - tx;
 
                 if (Math.abs(error) < angleTolerance){
@@ -207,18 +220,10 @@ public class BlueTeleop extends OpMode {
 
                     rotate = -Range.clip(pTerm + dTerm, -0.5, 0.5);
 
-                    Pose2D pose2D = conf.pinpoint.getPosition();
-                    conf.xL = pose2D.getX(DistanceUnit.INCH);
-                    conf.yL = pose2D.getY(DistanceUnit.INCH);
-                    conf.hL = pose2D.getHeading(AngleUnit.DEGREES);
-
                     //x = 2 y = 16
                     //x = 1 y = -12
                     //x = 19, max 20
                     //
-                    if(conf.yL <= 12 && conf.yL >= -16 && conf.xL <= 24 && conf.xL >= 0){
-                        rotate = rotate - 14;
-                    }
 
                     lastError = error;
                     lastTime = curTime;
@@ -240,7 +245,7 @@ public class BlueTeleop extends OpMode {
             drive(forward, strafe, rotate);
         }
 
-        if(idgoal == 20){
+        if(idgoal == 24){
             if(gamepad1.left_bumper){
                 telemetry.addLine("AutoAlign");
                 telemetry.addData("ID",idgoal);
