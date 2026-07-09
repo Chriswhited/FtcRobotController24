@@ -69,7 +69,7 @@ public class Blue_Auto extends LinearOpMode {
     SparkFunOTOS opticalSensor;
     int attempts = 0;
     int rotations = 0;
-    int transferVelocity = 2000;
+    int transferVelocity = 2100;
     ElapsedTime sleeptime = new ElapsedTime();
     ElapsedTime runtime = new ElapsedTime();
     public double xProp = 0.04; //0.04
@@ -124,11 +124,11 @@ public class Blue_Auto extends LinearOpMode {
         springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         springMotor.setPower(1);
 
-        while (opModeInInit()) {
-            //Set flywheel position
-            transferServo.setPosition(.56);
-            launchAngle.setPosition(.6);
+        //Set flywheel and launch angle location
+        transferServo.setPosition(.56);
+        launchAngle.setPosition(.48);
 
+        while (opModeInInit()) {
             // Reset the tracking if the user requests it
             if (gamepad1.y) {
                 opticalSensor.resetTracking();
@@ -163,7 +163,7 @@ public class Blue_Auto extends LinearOpMode {
         transferMotor.setVelocity(transferVelocity);
 
         //move to launch location
-        AutoOdometryDrive(72,18,35,.8);
+        AutoOdometryDrive(72,18,40,.8);
 
         //Make sure transfer motor is up to speed
         while (opModeIsActive() && (transferMotor.getVelocity()<1960)){
@@ -177,7 +177,7 @@ public class Blue_Auto extends LinearOpMode {
         Flush();
 
         //Move to first spike mark
-        AutoOdometryDrive(77 - offset,33,90,.6);
+        AutoOdometryDrive(77 - offset,33,90,.8);
 
         //Reset Directions
         transferMotor.setVelocity(transferVelocity);
@@ -197,7 +197,7 @@ public class Blue_Auto extends LinearOpMode {
         AutoOdometryDrive(77 - offset,52,90,.2);
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,35,.8);
+        AutoOdometryDrive(72,18,40,.8);
 
         //Launch artifacts
         Launch(1);
@@ -206,7 +206,7 @@ public class Blue_Auto extends LinearOpMode {
         Flush();
 
         //Move to second spike mark
-        AutoOdometryDrive(52 - offset,33,90,.6);
+        AutoOdometryDrive(52 - offset,33,90,.8);
 
         //Reset Directions
         transferMotor.setVelocity(transferVelocity);
@@ -228,7 +228,7 @@ public class Blue_Auto extends LinearOpMode {
         }
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,35,.8);
+        AutoOdometryDrive(72,18,40,.8);
 
         //Launch artifacts
         Launch(1);
@@ -236,7 +236,7 @@ public class Blue_Auto extends LinearOpMode {
         Launch(3);
 
         //Park
-        AutoOdometryDrive(67,29.5,35,.6);
+        AutoOdometryDrive(67,29.5,35,1);
 
     }
 
@@ -333,15 +333,23 @@ public class Blue_Auto extends LinearOpMode {
             }
             rotations = rotations + 1;
             springMotor.setTargetPosition(rotations * 2786);
-            sleep(300);
-            Transfer();
+            sleep(400);
+            if(leftDistance.getDistance(DistanceUnit.INCH) > 10){
+
+            }else {
+                Transfer();
+            }
             sweeper.setPower(-1);
         }
         if(number == 2){
             rotations = rotations + 1;
             springMotor.setTargetPosition(rotations * 2786);
-            sleep(300);
-            Transfer();
+            sleep(400);
+            if(leftDistance.getDistance(DistanceUnit.INCH) > 10){
+
+            }else {
+                Transfer();
+            }
         }
         if(number == 3){
             rotations = rotations + 1;
@@ -354,14 +362,14 @@ public class Blue_Auto extends LinearOpMode {
         transferServo.setPosition(.42);
         sleep(250);
         transferServo.setPosition(.56);
-        sleep(1000);
+        sleep(750);
         if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
             attempts = 1;
             while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
                 transferServo.setPosition(.42);
                 sleep(250);
                 transferServo.setPosition(.56);
-                sleep(1000);
+                sleep(750);
                 attempts = attempts + 1;
             }
         }

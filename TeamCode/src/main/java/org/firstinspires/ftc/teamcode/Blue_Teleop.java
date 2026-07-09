@@ -84,6 +84,8 @@ public class Blue_Teleop extends OpMode {
     boolean autoTransitionVariable = false;
     boolean transferring = false;
     double servoPosition = 1;
+    int transferVelocity = 2000;
+    double transferPosition = 0.42;
 
     //Odometry Dive Variables
     boolean PIDreset = false;
@@ -226,22 +228,21 @@ public class Blue_Teleop extends OpMode {
         telemetry.addData("X coordinate", CurrentX);
         telemetry.addData("Y coordinate", CurrentY * fieldColor);
         telemetry.addData("Heading angle", CurrentH * fieldColor);
-        telemetry.addData("Servo Position", servoPosition);
-        telemetry.addData("Calculated",rotations * 2786);
-        telemetry.addData("Target", springMotor.getTargetPosition());
-        telemetry.addData("Actual", springMotor.getCurrentPosition());
+        //telemetry.addData("Servo Position", servoPosition);
         //telemetry.addData("Right Hue", hsvValuesRight[0]);
         //telemetry.addData("Launch Distance", colorLauncher.getDistance(DistanceUnit.INCH));
         //telemetry.addData("Left Distance", colorLeft.getDistance(DistanceUnit.INCH));
-        //telemetry.addData("Velocoty", transferMotor.getVelocity());
-        //telemetry.addData("Transfering", transferring);
+        //telemetry.addData("Velocity", transferMotor.getVelocity());
+        //telemetry.addData("Transferring", transferring);
         //telemetry.addData("Auto Timer", autoTransitionTime);
         //telemetry.addData("Manual", manualTransitionTime);
+        telemetry.addData("Transfer Velocity", transferVelocity);
+        telemetry.addData("Transfer Position", transferPosition);
         telemetry.update();
 
-        //Set motor and survo powers/positions
+        //Set motor and servo powers/positions
         springMotor.setTargetPosition(rotations * 2786);
-        transferMotor.setVelocity(2000);
+        transferMotor.setVelocity(transferVelocity);
 
         if (leftDistance.getDistance(DistanceUnit.INCH) < 2.5 && colorRight.getDistance(DistanceUnit.INCH) < 1.5) {
             intakeMotor.setPower(0);
@@ -310,14 +311,14 @@ public class Blue_Teleop extends OpMode {
         //Actual Transition Actions
         //Auto transfer after a launch
         if(launchTransitionTime.milliseconds() > 300 && launchTransitionTime.milliseconds() < 550){
-            transferServo.setPosition(.42);
+            transferServo.setPosition(transferPosition);
             transferring = true;
-        //Manual transfer
-        //} else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime.milliseconds() < 550) {
+            //Manual transfer
+            //} else if (manualTransitionTime.milliseconds() > 300 && manualTransitionTime.milliseconds() < 550) {
         } else if (manualTransitionTime.milliseconds() < 550) {
-            transferServo.setPosition(.42);
+            transferServo.setPosition(transferPosition);
             transferring = true;
-        //Auto load if there is no artifact in launcher
+            //Auto load if there is no artifact in launcher
         /*} else if (colorLeft.getDistance(DistanceUnit.INCH) < 2 && colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && autoTransitionTime.milliseconds() > 300) {
             transferServo.setPosition(.4);
         } else if (autoTransitionTime.milliseconds() > 550) {
@@ -335,13 +336,20 @@ public class Blue_Teleop extends OpMode {
 
         //Set Launch Angle
         if(gamepad1.dpad_up){
-            servoPosition = servoPosition + .01;
+            transferVelocity = transferVelocity + 20;
         }
         if(gamepad1.dpad_down){
-            servoPosition = servoPosition - .01;
+            transferVelocity = transferVelocity - 20;
+        }
+        if(gamepad1.dpad_right){
+            transferPosition = transferPosition + .01;
+        }
+        if(gamepad1.dpad_left){
+            transferPosition =transferPosition -.01;
         }
         if(gamepad1.b){
-            launchAngle.setPosition(servoPosition);
+            transferMotor.setVelocity(transferVelocity);
+            transferServo.setPosition(transferPosition);
         }
 
 
