@@ -45,13 +45,17 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-
-@Autonomous(name="Red_Auto", group="Linear OpMode")
+// Field color update Checklist
+// File Name x 2
+// Field Color Variable
+// Offset Variable
+// Rotations in Launch method x 3
+@Autonomous(name="Red_Auto", group="Robot")
 
 public class Red_Auto extends LinearOpMode {
 
-    public double fieldColor = 1; //If Blue set to -1, if red set to 1
-    public double offset = 0; //If Blue set to 5, if red set to 0
+    public double fieldColor = 1; //If blue set to -1, if red set to 1
+    public double offset = 0; //If blue set to 4, if red set to 0
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
@@ -132,6 +136,7 @@ public class Red_Auto extends LinearOpMode {
             // Reset the tracking if the user requests it
             if (gamepad1.y) {
                 opticalSensor.resetTracking();
+                SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D((fieldColor * 55.7), 111.4, (fieldColor * -51));
             }
 
             // Re-calibrate the IMU if the user requests it
@@ -159,11 +164,11 @@ public class Red_Auto extends LinearOpMode {
         runtime.reset();
 
         //Start motors
-        intakeMotor.setPower(1);
+        intakeMotor.setPower(.43);
         transferMotor.setVelocity(transferVelocity);
 
         //move to launch location
-        AutoOdometryDrive(72,18,40,.8);
+        AutoOdometryDrive(72,18,40+offset,1);
 
         //Make sure transfer motor is up to speed
         while (opModeIsActive() && (transferMotor.getVelocity()<1960)){
@@ -177,15 +182,15 @@ public class Red_Auto extends LinearOpMode {
         Flush();
 
         //Move to first spike mark
-        AutoOdometryDrive(77 - offset,33,90,.8);
+        AutoOdometryDrive(78 - offset,38,90,1);
 
         //Reset Directions
         transferMotor.setVelocity(transferVelocity);
         sweeper.setPower(-1);
-        intakeMotor.setPower(1);
+        intakeMotor.setPower(.43);
 
         //Intake first 2 artifacts
-        AutoOdometryDrive(77 - offset,44,90,.2);
+        AutoOdometryDrive(77 - offset,44,90,.3);
         sleep(250);
         sweeper.setPower(0);
 
@@ -194,10 +199,10 @@ public class Red_Auto extends LinearOpMode {
         sweeper.setPower(-1);
 
         //Intake third artifact
-        AutoOdometryDrive(77 - offset,52,90,.2);
+        AutoOdometryDrive(77 - offset,55,90,.5);
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,40,.8);
+        AutoOdometryDrive(72,18,40+offset,1);
 
         //Launch artifacts
         Launch(1);
@@ -206,15 +211,15 @@ public class Red_Auto extends LinearOpMode {
         Flush();
 
         //Move to second spike mark
-        AutoOdometryDrive(52 - offset,33,90,.8);
+        AutoOdometryDrive(52 - offset,38,90,1);
 
         //Reset Directions
         transferMotor.setVelocity(transferVelocity);
         sweeper.setPower(-1);
-        intakeMotor.setPower(1);
+        intakeMotor.setPower(.43);
 
         //Intake first 2 artifacts
-        AutoOdometryDrive(52 - offset,44,90,.2);
+        AutoOdometryDrive(52 - offset,44,90,.3);
         sleep(250);
         sweeper.setPower(0);
 
@@ -224,11 +229,11 @@ public class Red_Auto extends LinearOpMode {
 
         //Intake third artifact
         if (runtime.seconds()<25) {
-            AutoOdometryDrive(52 - offset, 52, 90, .2);
+            AutoOdometryDrive(52 - offset, 52, 90, .5);
         }
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,40,.8);
+        AutoOdometryDrive(72,18,40+offset,1);
 
         //Launch artifacts
         Launch(1);
@@ -332,6 +337,7 @@ public class Red_Auto extends LinearOpMode {
                 Transfer();
             }
             rotations = rotations + 1;
+            Red_Teleop.rotations = rotations; //Update for field color
             springMotor.setTargetPosition(rotations * 2786);
             sleep(400);
             if(leftDistance.getDistance(DistanceUnit.INCH) > 10){
@@ -342,7 +348,10 @@ public class Red_Auto extends LinearOpMode {
             sweeper.setPower(-1);
         }
         if(number == 2){
+            while(opModeIsActive() && springMotor.isBusy()){
+            }
             rotations = rotations + 1;
+            Red_Teleop.rotations = rotations; //Update for field color
             springMotor.setTargetPosition(rotations * 2786);
             sleep(400);
             if(leftDistance.getDistance(DistanceUnit.INCH) > 10){
@@ -352,9 +361,15 @@ public class Red_Auto extends LinearOpMode {
             }
         }
         if(number == 3){
-            rotations = rotations + 1;
-            springMotor.setTargetPosition(rotations * 2786);
-            sleep(750);
+            while(opModeIsActive() && springMotor.isBusy()){
+            }
+            if(colorLauncher.getDistance(DistanceUnit.INCH) < 2.3){
+                rotations = rotations + 1;
+                Red_Teleop.rotations = rotations; //Update for field color
+                springMotor.setTargetPosition(rotations * 2786);
+                while(opModeIsActive() && colorLauncher.getDistance(DistanceUnit.INCH) < 2.3){
+                }
+            }
         }
     }
 
