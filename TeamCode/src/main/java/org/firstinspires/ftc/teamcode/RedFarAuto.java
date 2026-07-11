@@ -53,7 +53,11 @@ public class RedFarAuto extends LinearOpMode {
         Start();
         Spike1();
         Launch();
-        Spike2();
+        //Spike2();
+        //Launch();
+        HumanPlayer();
+        Launch();
+        HumanPlayer();
         Launch();
         Base();
 
@@ -70,7 +74,7 @@ public class RedFarAuto extends LinearOpMode {
         telemetry.update();
         conf.limelight.stop();
         conf.AutoOdometryDrive(2.5,2.2,-22, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1500 && opModeIsActive())
+        while(conf.launch_motor_1.getVelocity() < 1440 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -80,7 +84,7 @@ public class RedFarAuto extends LinearOpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,-6,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(25,-41,90, .4);
+        conf.AutoOdometryDrive(25,-41,90, .7);
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -106,7 +110,7 @@ public class RedFarAuto extends LinearOpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,-9,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(48,-41,90, .4);
+        conf.AutoOdometryDrive(48,-41,90, .7);
 
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -133,7 +137,7 @@ public class RedFarAuto extends LinearOpMode {
     public void Spike3(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(71.73,-10.13,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(71.73,-35.32,90, .4);
+        conf.AutoOdometryDrive(71.73,-35.32,90, .7);
         //Get Color Sensor Values
         Color.RGBToHSV(conf.colorRight.red() * 8, conf.colorRight.green() * 8, conf.colorRight.blue() * 8, conf.hsvValuesRight);
         Color.RGBToHSV(conf.colorLeft.red() * 8, conf.colorLeft.green() * 8, conf.colorLeft.blue() * 8, conf.hsvValuesLeft);
@@ -176,13 +180,19 @@ public class RedFarAuto extends LinearOpMode {
 
     public void HumanPlayer(){
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(14, -45, 22, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(2, -44, 22, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(0, -45, 85.2, conf.xMaxSpeed);
+        sleep(400);
+    }
+
+    public void HumanPlayerAlt(){
+        conf.intake_motor.setPower(1);
+        conf.AutoOdometryDrive(13.7, -43, 90, conf.xMaxSpeed);
+        sleep(400);
     }
 
     public void Tunnel(){
         conf.intake_motor.setPower(1);
-        conf.AutoOdometryDrive(33, -45, 144, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(26, -42, 120, conf.xMaxSpeed);
     }
 
     public void AltTunnel(){

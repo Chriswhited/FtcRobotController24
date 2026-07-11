@@ -46,16 +46,11 @@ public class RedCloseAuto extends LinearOpMode {
     }
 
         waitForStart();
-        StartNoLimelight();
+        Start();
         Spike3();
+        SpikeGate1st();
         Launch();
         Spike2();
-        Launch();
-        Gate();
-        Launch();
-        Gate();
-        Launch();
-        Gate();
         Launch();
         Base();
 
@@ -72,7 +67,7 @@ public class RedCloseAuto extends LinearOpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
+        while(conf.launch_motor_1.getVelocity() < 1120 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -86,7 +81,7 @@ public class RedCloseAuto extends LinearOpMode {
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
         conf.sleep(10);
         conf.AutoOdometryDrive(77,3.6,-48, conf.xMaxSpeed);
-        while(conf.launch_motor_1.getVelocity() < 1160 && opModeIsActive())
+        while(conf.launch_motor_1.getVelocity() < 1120 && opModeIsActive())
         {
             conf.dashboardTelemetry.addData("Flywheel on", conf.launch_motor_1.getVelocity());
             conf.dashboardTelemetry.update();
@@ -96,7 +91,7 @@ public class RedCloseAuto extends LinearOpMode {
     public void Spike1(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(25,-6,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(25,-41,90, 0.9); //0.3
+        conf.AutoOdometryDrive(25,-41,90, 0.7); //0.3
 
         /*
         //the gavin idea
@@ -131,7 +126,7 @@ public class RedCloseAuto extends LinearOpMode {
     public void Spike2(){
         conf.intake_motor.setPower(1);
         conf.AutoOdometryDrive(48,-9,90, conf.xMaxSpeed);
-        conf.AutoOdometryDrive(48,-41,90, .9); //0.2
+        conf.AutoOdometryDrive(48,-41,90, 0.7); //0.2
 
         /*
         //the gavin idea
@@ -223,10 +218,16 @@ public class RedCloseAuto extends LinearOpMode {
         conf.xMaxSpeed = 1;
     }
 
-    public void SpikeGate(){
-        conf.AutoOdometryDrive(62.5,-31,90,.7);
-        conf.AutoOdometryDrive(62.5,-39,90,.7);
-        conf.sleep(500);
+    public void SpikeGate2nd(){
+        conf.AutoOdometryDrive(59.6,-40,0,.7);
+        conf.sleep(400);
+
+    }
+
+    public void SpikeGate1st(){
+        conf.AutoOdometryDrive(71.73,-20,90, conf.xMaxSpeed);
+        conf.AutoOdometryDrive(59.6,-40,0,.7);
+        conf.sleep(400);
 
     }
 

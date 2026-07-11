@@ -967,9 +967,12 @@ public class configwLimeLight {
             sleep(updown);
             franklin_flipper_left.setPosition(.64);
             franklin_flipper_right.setPosition(.44);
-            sleep(600);
             Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
             Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+            if(hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                sleep(650);
+            }
         }
     }
 
@@ -997,9 +1000,12 @@ public class configwLimeLight {
             sleep(updown);
             franklin_flipper_left.setPosition(.64);
             franklin_flipper_right.setPosition(.44);
-            sleep(500);
             Color.RGBToHSV(colorRight.red() * 8, colorRight.green() * 8, colorRight.blue() * 8, hsvValuesRight);
             Color.RGBToHSV(colorLeft.red() * 8, colorLeft.green() * 8, colorLeft.blue() * 8, hsvValuesLeft);
+
+            if(hsvValuesRight[0] > 140 || hsvValuesLeft[0] > 140) {
+                sleep(650);
+            }
         }
     }
 }
