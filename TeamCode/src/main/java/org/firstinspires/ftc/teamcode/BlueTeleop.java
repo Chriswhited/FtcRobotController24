@@ -198,13 +198,13 @@ public class BlueTeleop extends OpMode {
             conf.hL = pose2D.getHeading(AngleUnit.DEGREES);
 
             if(conf.yL <= 12 && conf.yL >= -22 && conf.xL <= 24 && conf.xL >= 0){
-                goalX = -3.5;
+                goalX = 3.5;
             }
             else{
                 goalX = 0;
             }
 
-            if(idgoal == 24){
+            if(idgoal == 20){
 
                 error = goalX - tx;
 
@@ -245,7 +245,7 @@ public class BlueTeleop extends OpMode {
             drive(forward, strafe, rotate);
         }
 
-        if(idgoal == 24){
+        if(idgoal == 20){
             if(gamepad1.left_bumper){
                 telemetry.addLine("AutoAlign");
                 telemetry.addData("ID",idgoal);

@@ -48,7 +48,7 @@ public class BlueCloseAuto extends LinearOpMode {
         waitForStart();
         Start();
         Spike3();
-        SpikeGate1st();
+        //SpikeGate1st();
         Launch();
         Spike2();
         Launch();
