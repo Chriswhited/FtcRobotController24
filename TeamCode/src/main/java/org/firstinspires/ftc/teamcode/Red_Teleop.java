@@ -235,19 +235,19 @@ public class Red_Teleop extends OpMode {
 
         //Set Driving conditions and drive
         // If you press the left bumper, you get a drive from the point of view of the robot
-        if(gamepad1.y){ // Auto Center Field Position Button
+        if(gamepad2.y){ // Auto Center Field Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(73.5-offset,7,46+offset,1);
 
-        } else if (gamepad1.x) { // Auto inside large triangle Position Button
+        } else if (gamepad2.x) { // Auto inside large triangle Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(102.5-offset,4,65+offset,1);
 
-        } else if (gamepad1.b) { // Auto far outside large triangle Position Button
+        } else if (gamepad2.b) { // Auto far outside large triangle Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(94.5-offset,-27,67+offset,1);
 
-        } else if (gamepad1.a) { //Auto Human Player location
+        } else if (gamepad2.a) { //Auto Human Player location
             AutoOdometryDrive(14-offset,-49,46+offset,1);
 
         } else if (gamepad1.right_trigger > .5) { // Auto Gate Open Position
@@ -262,12 +262,12 @@ public class Red_Teleop extends OpMode {
 
 
         //Launch Controls
-        if(gamepad1.rightBumperWasPressed()){
+        if(gamepad2.rightBumperWasPressed()){
             rotations = rotations + 1;
             launchTransitionTime.reset();
         }
-        if (gamepad1.rightBumperWasReleased()){
-            gamepad1.reset();
+        if (gamepad2.rightBumperWasReleased()){
+            gamepad2.reset();
         }
 
         //Transition artifacts to the launcher

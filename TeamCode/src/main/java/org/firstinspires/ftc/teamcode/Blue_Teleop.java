@@ -235,25 +235,28 @@ public class Blue_Teleop extends OpMode {
 
         //Set Driving conditions and drive
         // If you press the left bumper, you get a drive from the point of view of the robot
-        if(gamepad1.y){ // Auto Center Field Position Button
+        if(gamepad2.y){ // Auto Center Field Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(73.5-offset,7,46+offset,1);
 
-        } else if (gamepad1.x) { // Auto inside large triangle Position Button
+        } else if (gamepad2.x) { // Auto inside large triangle Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(102.5-offset,-4,65+offset,1);
 
-        } else if (gamepad1.b) { // Auto far outside large triangle Position Button
+        } else if (gamepad2.b) { // Auto far outside large triangle Position Button
             launchAngle.setPosition(.48);
             AutoOdometryDrive(94.5-offset,-27,67+offset,1);
 
-        } else if (gamepad1.a) { //Auto Human Player location
+        } else if (gamepad2.a) { //Auto Human Player location
             AutoOdometryDrive(14-offset,-49,46+offset,1);
 
-        } else if (gamepad1.right_trigger > .5) { // Auto Gate Open Position
+        } else if (gamepad1.a) { // Auto Gate Open Position
             AutoOdometryDrive(64-offset,58.5,-90,1);
 
-        }else if (gamepad1.left_bumper) {
+        } else if (gamepad1.y) { // Auto Park Position
+            AutoOdometryDrive(32-offset,30.5,-0,1);
+
+        } else if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         } else {
@@ -262,12 +265,12 @@ public class Blue_Teleop extends OpMode {
 
 
         //Launch Controls
-        if(gamepad1.rightBumperWasPressed()){
+        if(gamepad2.rightBumperWasPressed()){
             rotations = rotations + 1;
             launchTransitionTime.reset();
         }
-        if (gamepad1.rightBumperWasReleased()){
-            gamepad1.reset();
+        if (gamepad2.rightBumperWasReleased()){
+            gamepad2.reset();
         }
 
         //Transition artifacts to the launcher
@@ -367,7 +370,7 @@ public class Blue_Teleop extends OpMode {
         double backRightPower = forward + right - rotate;
         double backLeftPower = forward - right + rotate;
 
-        if (gamepad1.right_trigger > 0.5){
+        if (gamepad1.left_bumper){
             maxSpeed = 0.3;
         } else {
             maxSpeed = 1.0;
