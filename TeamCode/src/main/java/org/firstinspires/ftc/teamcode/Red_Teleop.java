@@ -39,6 +39,7 @@ public class Red_Teleop extends OpMode {
     CRServo sweeper;
     Servo launchAngle;
     Servo transferServo;
+    Servo flag;
     IMU imu;
     SparkFunOTOS opticalSensor;
     RevColorSensorV3 colorLauncher;
@@ -60,7 +61,8 @@ public class Red_Teleop extends OpMode {
     boolean start = true;
     double servoPosition = 1;
     int transferVelocity = 2100;
-    double transferPosition = 0.42;
+    double transferPosition = 0.41;
+    double flagPosition = 0.9;
 
     //Odometry Dive Variables
     boolean PIDreset = false;
@@ -109,6 +111,7 @@ public class Red_Teleop extends OpMode {
         sweeper = hardwareMap.get(CRServo.class,"sweeper");
         launchAngle = hardwareMap.get(Servo.class,"launch_servo");
         transferServo = hardwareMap.get(Servo.class,"transfer_servo");
+        flag = hardwareMap.get(Servo.class,"flag");
 
 
         // We set the left motors in reverse which is needed for mecanum drive
@@ -141,6 +144,7 @@ public class Red_Teleop extends OpMode {
         //springMotor.setTargetPosition(0); // Only use when not using an Auto before
         //rotations = 0; // Only use when not using an Auto before
         springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        flag.setPosition(.95);
 
     }
 
@@ -189,6 +193,7 @@ public class Red_Teleop extends OpMode {
         telemetry.addData("Transfer Position", transferPosition);
         telemetry.addLine();
         telemetry.addData("Rotations", rotations);
+        telemetry.addData("Flag Position", flagPosition);
         telemetry.update();
 
 
@@ -241,7 +246,7 @@ public class Red_Teleop extends OpMode {
 
         } else if (gamepad2.x) { // Auto inside large triangle Position Button
             launchAngle.setPosition(.48);
-            AutoOdometryDrive(102.5-offset,4,65+offset,1);
+            AutoOdometryDrive(102.5-offset,-4,65+offset,1);
 
         } else if (gamepad2.b) { // Auto far outside large triangle Position Button
             launchAngle.setPosition(.48);
@@ -250,13 +255,19 @@ public class Red_Teleop extends OpMode {
         } else if (gamepad2.a) { //Auto Human Player location
             AutoOdometryDrive(14-offset,-49,46+offset,1);
 
-        } else if (gamepad1.right_trigger > .5) { // Auto Gate Open Position
+        } else if (gamepad1.y) { // Auto Gate Open Position
             AutoOdometryDrive(64-offset,58.5,-90,1);
 
-        }else if (gamepad1.left_bumper) {
+        } else if (gamepad1.a) { // Auto Park Position
+            AutoOdometryDrive(31-offset,-28.7,90,1);
+
+        } else if (gamepad1.left_bumper) {
             drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
-        } else {
+        } else if (gamepad1.right_bumper) {
+            drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+
+        }else {
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
 
@@ -317,27 +328,36 @@ public class Red_Teleop extends OpMode {
             transferServo.setPosition(.56);
         }
 
+        //Raise the Flag
+        if(gamepad2.right_trigger > 0.5 && gamepad2.left_trigger > 0.5){
+            flag.setPosition(.35);
+        }
 
         /*
         //Set Launch Angle
-        if(gamepad1.dpad_up){
+        if(gamepad2.dpad_up){
             transferVelocity = transferVelocity + 20;
+            flagPosition = flagPosition +.05;
         }
-        if(gamepad1.dpad_down){
+        if(gamepad2.dpad_down){
             transferVelocity = transferVelocity - 20;
+            flagPosition = flagPosition -.05;
         }
         if(gamepad1.dpad_right){
             transferPosition = transferPosition + .01;
         }
         if(gamepad1.dpad_left){
-            transferPosition =transferPosition -.01;
+            //transferPosition =transferPosition -.01;
         }
-        if(gamepad1.b){
-            transferMotor.setVelocity(transferVelocity);
-            transferServo.setPosition(transferPosition);
+        if(gamepad2.back){
+            //transferMotor.setVelocity(transferVelocity);
+            //transferServo.setPosition(transferPosition);
+            flag.setPosition(flagPosition);
         }
 
          */
+
+
 
 
     }
@@ -367,7 +387,7 @@ public class Red_Teleop extends OpMode {
         double backRightPower = forward + right - rotate;
         double backLeftPower = forward - right + rotate;
 
-        if (gamepad1.right_trigger > 0.5){
+        if (gamepad1.right_bumper){
             maxSpeed = 0.3;
         } else {
             maxSpeed = 1.0;

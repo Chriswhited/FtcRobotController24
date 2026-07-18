@@ -168,7 +168,7 @@ public class Red_Auto extends LinearOpMode {
         transferMotor.setVelocity(transferVelocity);
 
         //move to launch location
-        AutoOdometryDrive(72,18,40+offset,1);
+        AutoOdometryDrive(72,18,39+offset,1);
 
         //Make sure transfer motor is up to speed
         while (opModeIsActive() && (transferMotor.getVelocity()<1960)){
@@ -179,7 +179,7 @@ public class Red_Auto extends LinearOpMode {
         Launch(1);
         Launch(2);
         Launch(3);
-        Flush();
+        //Flush();
 
         //Move to first spike mark
         AutoOdometryDrive(78 - offset,38,90,1);
@@ -202,13 +202,13 @@ public class Red_Auto extends LinearOpMode {
         AutoOdometryDrive(77 - offset,55,90,.5);
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,40+offset,1);
+        AutoOdometryDrive(72,18,39+offset,1);
 
         //Launch artifacts
         Launch(1);
         Launch(2);
         Launch(3);
-        Flush();
+        //Flush();
 
         //Move to second spike mark
         AutoOdometryDrive(52 - offset,38,90,1);
@@ -233,7 +233,7 @@ public class Red_Auto extends LinearOpMode {
         }
 
         //Move to Launch position
-        AutoOdometryDrive(72,18,40+offset,1);
+        AutoOdometryDrive(72,18,39+offset,1);
 
         //Launch artifacts
         Launch(1);
@@ -374,14 +374,14 @@ public class Red_Auto extends LinearOpMode {
     }
 
     public void Transfer(){
-        transferServo.setPosition(.42);
+        transferServo.setPosition(.41);
         sleep(250);
         transferServo.setPosition(.56);
         sleep(750);
         if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
             attempts = 1;
             while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
-                transferServo.setPosition(.42);
+                transferServo.setPosition(.41);
                 sleep(250);
                 transferServo.setPosition(.56);
                 sleep(750);

@@ -179,7 +179,7 @@ public class Blue_Auto extends LinearOpMode {
         Launch(1);
         Launch(2);
         Launch(3);
-        Flush();
+        //Flush();
 
         //Move to first spike mark
         AutoOdometryDrive(78 - offset,38,90,1);
@@ -208,7 +208,7 @@ public class Blue_Auto extends LinearOpMode {
         Launch(1);
         Launch(2);
         Launch(3);
-        Flush();
+        //Flush();
 
         //Move to second spike mark
         AutoOdometryDrive(52 - offset,38,90,1);
@@ -374,14 +374,14 @@ public class Blue_Auto extends LinearOpMode {
     }
 
     public void Transfer(){
-        transferServo.setPosition(.42);
+        transferServo.setPosition(.41);
         sleep(250);
         transferServo.setPosition(.56);
         sleep(750);
         if(colorLauncher.getDistance(DistanceUnit.INCH) > 2.3){
             attempts = 1;
             while (opModeIsActive() && (colorLauncher.getDistance(DistanceUnit.INCH) > 2.3 && attempts < 3)){
-                transferServo.setPosition(.42);
+                transferServo.setPosition(.41);
                 sleep(250);
                 transferServo.setPosition(.56);
                 sleep(750);
