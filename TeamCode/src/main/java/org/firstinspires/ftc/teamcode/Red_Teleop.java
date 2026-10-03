@@ -140,9 +140,9 @@ public class Red_Teleop extends OpMode {
         //configureOptical(); // Configure Optical Odometry Sensor
 
         //Set up launch paddle motor
-        //springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// Only use when not using an Auto before
-        //springMotor.setTargetPosition(0); // Only use when not using an Auto before
-        //rotations = 0; // Only use when not using an Auto before
+        springMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// Only use when not using an Auto before
+        springMotor.setTargetPosition(0); // Only use when not using an Auto before
+        rotations = 0; // Only use when not using an Auto before
         springMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         flag.setPosition(.95);
 
@@ -273,12 +273,12 @@ public class Red_Teleop extends OpMode {
 
 
         //Launch Controls
-        if(gamepad2.rightBumperWasPressed()){
+        if(gamepad1.rightBumperWasPressed()){
             rotations = rotations + 1;
             launchTransitionTime.reset();
         }
-        if (gamepad2.rightBumperWasReleased()){
-            gamepad2.reset();
+        if (gamepad1.rightBumperWasReleased()){
+            gamepad1.reset();
         }
 
         //Transition artifacts to the launcher
