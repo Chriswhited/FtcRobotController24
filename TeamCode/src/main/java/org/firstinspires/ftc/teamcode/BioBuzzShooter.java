@@ -21,35 +21,37 @@ import org.firstinspires.ftc.teamcode.mechanisms.testconfig;
 public class BioBuzzShooter extends OpMode{
     public DcMotorEx launch_motor_1;
     public DcMotorEx launch_motor_2;
-
+    public double speedVar;
     @Override
     public void init() {
 
 
         launch_motor_1 = hardwareMap.get(DcMotorEx.class, "launch_motor_1");
         launch_motor_2 = hardwareMap.get(DcMotorEx.class, "launch_motor_2");
+        speedVar = 0;
     }
 
     @Override
     public void loop() {
+
+        if(speedVar < 0){
+            speedVar = 0.05;
+        }
         if(gamepad1.a){
-            launch_motor_1.setPower(-.6);
-            launch_motor_2.setPower(1);
+            speedVar = speedVar + .05;
         }
         if(gamepad1.b){
-            launch_motor_1.setPower(-.1);
-            launch_motor_2.setPower(1);
+            speedVar = speedVar - .05;
         }
         if(gamepad1.x){
-            launch_motor_1.setPower(-1);
-            launch_motor_2.setPower(1);
+            launch_motor_1.setPower(-speedVar);
+            launch_motor_2.setPower(speedVar);
         }
         if(gamepad1.y){
             launch_motor_1.setPower(0);
             launch_motor_2.setPower(0);
         }
-
-        //PIDFCoefficients default1 = conf.launch_motor_1.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        
         telemetry.addData("V1", launch_motor_1.getVelocity());
         telemetry.addData("V2", launch_motor_2.getVelocity());
         telemetry.addData("P1", launch_motor_1.getPower());
